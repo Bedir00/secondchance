@@ -3,7 +3,7 @@
   assign title_lines = section.settings.title | strip | newline_to_br | split: '<br />'
   assign primary_link = section.settings.primary_link | default: collections['neu'].url
   assign secondary_link = section.settings.secondary_link | default: collections['second-hand'].url
-  assign poster = section.settings.poster | default: images['scm-hero-blumenweste.webp']
+  assign poster = section.settings.poster | default: images['scm-hero-zwei-models.webp']
 
   # Bildausschnitt: Fokuspunkt aus Inhalte → Dateien (falls gesetzt), sonst Standard aus dem CSS
   assign focal_style = ''
@@ -23,7 +23,7 @@
   endif
 -%}
 
-<section class="scm scm-hero scm-hero--{{ layout }}" data-scm-hero>
+<section class="scm scm-hero scm-hero--{{ layout }} scm-hero--text-{{ section.settings.text_position }}" data-scm-hero>
   <div class="scm-hero__media">
     {%- if section.settings.video_url != blank -%}
       <video
@@ -83,6 +83,10 @@
     { "type": "select", "id": "image_layout", "label": "Aufteilung", "default": "full", "options": [
       { "value": "full", "label": "Text im Bild" },
       { "value": "split", "label": "Geteilt: Text links auf Schwarz, Bild rechts" }
+    ] },
+    { "type": "select", "id": "text_position", "label": "Textposition Desktop (Text im Bild)", "default": "top", "info": "Mobil steht der Text immer unten im Bild.", "options": [
+      { "value": "top", "label": "Oben – für Bilder mit freier Fläche über den Köpfen" },
+      { "value": "left", "label": "Links neben der Person – für Bilder mit einer Person in der Mitte" }
     ] },
     { "type": "text", "id": "video_url", "label": "Video-URL (MP4, optional)", "info": "Direkter Link auf eine MP4-Datei. Leer lassen, um nur das Bild zu zeigen." },
     { "type": "text", "id": "kicker", "label": "Kleine Zeile (optional)" },

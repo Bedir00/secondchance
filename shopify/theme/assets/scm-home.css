@@ -284,25 +284,51 @@
 }
 
 /* --- Text im Bild (Standard) ---
-   Ausschnitt: Person mittig, Kopf oben im Bild. Ein gesetzter Fokuspunkt (Inhalte → Dateien) überschreibt das. */
-.scm-hero--full .scm-hero__video { object-position: 47% 12%; }
+   Zwei Desktop-Varianten je nach Bild; mobil steht der Text immer unten im Bild.
+   Ein gesetzter Fokuspunkt (Inhalte → Dateien) überschreibt die Ausschnitte. */
+.scm-hero--text-top .scm-hero__video { object-position: 50% 7%; }   /* Köpfe bei ~26 % → Fassade darüber bleibt frei für Text */
+.scm-hero--text-left .scm-hero__video { object-position: 47% 12%; } /* Person mittig, Kopf oben */
+
+/* Kontur-Button auf Fotos: leicht abgedunkeltes Glas, damit er auch vor hellen Flächen lesbar bleibt */
+.scm-hero--full .scm-btn--ghost-light {
+  background: rgb(0 0 0 / 22%);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+.scm-hero--full .scm-btn--ghost-light:hover { background: #fff; }
 
 @media (min-width: 990px) {
-  /* Text links neben der Person: dunkler Verlauf nur dort, wo Text steht */
-  .scm-hero--full .scm-hero__veil {
+  /* Oben: Zweizeiler über den Köpfen, Buttons direkt darunter, Verlauf nur von oben */
+  .scm-hero--full.scm-hero--text-top { align-items: flex-start; }
+  .scm-hero--full.scm-hero--text-top .scm-hero__veil {
+    background: linear-gradient(180deg, rgb(0 0 0 / 58%) 0%, rgb(0 0 0 / 38%) 30%, rgb(0 0 0 / 0%) 56%);
+  }
+  .scm-hero--full.scm-hero--text-top .scm-hero__inner {
+    max-width: none;
+    margin: 0;
+    padding-top: calc(var(--header-height, 72px) + clamp(16px, 2vw, 32px));
+    padding-bottom: 0;
+  }
+  /* Breite: „ZWEITE CHANCE.“ = 8,51 × Schriftgröße. Höhe: Text endet bei ~38 % der Bildschirmhöhe, über den Köpfen */
+  .scm-hero--full.scm-hero--text-top .scm-hero__title {
+    font-size: min(calc((100vw - 2 * var(--scm-gutter)) / 8.95), calc((38svh - 150px) / 1.72));
+  }
+  .scm-hero--full.scm-hero--text-top .scm-hero__ctas { margin-top: clamp(20px, 2.4vw, 32px); }
+
+  /* Links: Wort pro Zeile links neben einer mittigen Person, Buttons untereinander */
+  .scm-hero--full.scm-hero--text-left .scm-hero__veil {
     background:
       linear-gradient(180deg, rgb(0 0 0 / 32%) 0%, rgb(0 0 0 / 0%) 18%),
       linear-gradient(90deg, rgb(0 0 0 / 58%) 0%, rgb(0 0 0 / 30%) 26%, rgb(0 0 0 / 0%) 44%);
   }
-  /* „CHANCE.“ = 4,44 × Schriftgröße: Spalte bis ca. 30 % der Breite, damit die Person frei bleibt */
-  .scm-hero--full .scm-hero__title {
+  .scm-hero--full.scm-hero--text-left .scm-hero__title {
     max-width: 4.6em;
     font-size: min(calc((30vw - var(--scm-gutter)) / 4.67), calc((100svh - 380px) / 3.44));
   }
-  /* Text immer an der linken Bildkante, auch über 1800 px – sonst wandert er auf die Person */
-  .scm-hero--full .scm-hero__inner { max-width: none; margin: 0; }
-  .scm-hero--full .scm-hero__ctas { display: grid; grid-template-columns: max-content; gap: 10px; }
-  .scm-hero--full .scm-btn { justify-content: space-between; }
+  .scm-hero--full.scm-hero--text-left .scm-hero__inner { max-width: none; margin: 0; }
+  .scm-hero--full.scm-hero--text-left .scm-hero__ctas { display: grid; grid-template-columns: max-content; gap: 10px; }
+  .scm-hero--full.scm-hero--text-left .scm-btn { justify-content: space-between; }
+
   .scm-hero--full .scm-hero__scroll { display: none; }
 }
 
