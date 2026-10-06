@@ -1,0 +1,76 @@
+{%- render 'scm-home-head' -%}
+{%- liquid
+  assign title_lines = section.settings.title | strip | newline_to_br | split: '<br />'
+  assign primary_link = section.settings.primary_link | default: collections['neu'].url
+  assign secondary_link = section.settings.secondary_link | default: collections['second-hand'].url
+  assign poster = section.settings.poster | default: images['second-chance-hero-two-models.png']
+-%}
+
+<section class="scm scm-hero" data-scm-hero>
+  <div class="scm-hero__media">
+    {%- if section.settings.video_url != blank -%}
+      <video
+        class="scm-hero__video"
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="metadata"
+        {% if poster %}poster="{{ poster | image_url: width: 2400 }}"{% endif %}
+        aria-hidden="true"
+        data-scm-hero-video
+      >
+        <source src="{{ section.settings.video_url }}" type="video/mp4">
+      </video>
+    {%- elsif poster -%}
+      {{ poster | image_url: width: 2400 | image_tag: loading: 'eager', fetchpriority: 'high', widths: '750, 1100, 1500, 2000, 2400', sizes: '100vw', class: 'scm-hero__video', alt: '' }}
+    {%- endif -%}
+  </div>
+  <div class="scm-hero__veil" aria-hidden="true"></div>
+
+  <div class="scm-hero__inner">
+    {%- if section.settings.kicker != blank -%}
+      <p class="scm-kicker scm-hero__kicker" data-scm-intro style="--d: 0">{{ section.settings.kicker }}</p>
+    {%- endif -%}
+    <h1 class="scm-hero__title">
+      {%- for line in title_lines -%}
+        <span class="scm-line"><span data-scm-intro style="--d: {{ forloop.index }}">{{ line | strip }}</span></span>
+      {%- endfor -%}
+    </h1>
+    <div class="scm-hero__ctas" data-scm-intro style="--d: {{ title_lines.size | plus: 1 }}">
+      {%- if section.settings.primary_label != blank -%}
+        <a class="scm-btn scm-btn--light" href="{{ primary_link }}">{{ section.settings.primary_label }}<span class="scm-arrow" aria-hidden="true"></span></a>
+      {%- endif -%}
+      {%- if section.settings.secondary_label != blank -%}
+        <a class="scm-btn scm-btn--ghost-light" href="{{ secondary_link }}">{{ section.settings.secondary_label }}<span class="scm-arrow" aria-hidden="true"></span></a>
+      {%- endif -%}
+    </div>
+    {%- if section.settings.video_url != blank -%}
+      <button class="scm-hero__toggle" type="button" aria-pressed="false" aria-label="Video pausieren" data-scm-hero-toggle data-label-pause="Video pausieren" data-label-play="Video abspielen">
+        <svg class="scm-hero__icon-pause" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="2" width="3.5" height="12"/><rect x="9.5" y="2" width="3.5" height="12"/></svg>
+        <svg class="scm-hero__icon-play" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 2l10 6-10 6z"/></svg>
+      </button>
+    {%- endif -%}
+  </div>
+
+  <span class="scm-hero__scroll" aria-hidden="true"><span></span></span>
+</section>
+
+{% schema %}
+{
+  "name": "SCM Hero",
+  "tag": "div",
+  "class": "scm-section",
+  "settings": [
+    { "type": "text", "id": "video_url", "label": "Video-URL (MP4)", "info": "Direkter Link auf eine MP4-Datei, z. B. aus Inhalte → Dateien.", "default": "https://cdn.shopify.com/s/files/1/1032/7402/1193/files/second-chance-hero-fashion-video.mp4?v=1790262108" },
+    { "type": "image_picker", "id": "poster", "label": "Standbild / Fallback", "info": "Wird gezeigt, bis das Video lädt, und wenn kein Video gesetzt ist." },
+    { "type": "text", "id": "kicker", "label": "Kleine Zeile", "default": "Herbst / Winter 26" },
+    { "type": "textarea", "id": "title", "label": "Überschrift", "info": "Jede Zeile wird eine eigene, große Zeile.", "default": "Zweite Chance.\nErste Wahl." },
+    { "type": "text", "id": "primary_label", "label": "Button 1", "default": "Neu shoppen" },
+    { "type": "url", "id": "primary_link", "label": "Link Button 1", "info": "Leer = Kollektion „Neu“" },
+    { "type": "text", "id": "secondary_label", "label": "Button 2", "default": "Second Hand shoppen" },
+    { "type": "url", "id": "secondary_link", "label": "Link Button 2", "info": "Leer = Kollektion „Second Hand“" }
+  ],
+  "presets": [{ "name": "SCM Hero" }]
+}
+{% endschema %}

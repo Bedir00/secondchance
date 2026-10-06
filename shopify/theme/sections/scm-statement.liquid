@@ -1,0 +1,50 @@
+{%- render 'scm-home-head' -%}
+{%- assign lines = section.settings.title | strip | newline_to_br | split: '<br />' -%}
+
+<section class="scm scm-statement">
+  <div class="scm-wrap">
+    <h2 class="scm-statement__title">
+      {%- for line in lines -%}
+        <span class="scm-line{% cycle '', ' scm-line--outline' %}"><span data-scm-reveal style="--d: {{ forloop.index0 }}">{{ line | strip }}</span></span>
+      {%- endfor -%}
+    </h2>
+
+    <div class="scm-statement__links">
+      {%- if section.settings.link_one_label != blank -%}
+        <a class="scm-row" href="{{ section.settings.link_one | default: '/pages/online-shoppen' }}" data-scm-reveal>
+          <span class="scm-row__index">01</span>
+          <span class="scm-row__label">{{ section.settings.link_one_label }}</span>
+          <span class="scm-arrow scm-arrow--lg" aria-hidden="true"></span>
+        </a>
+      {%- endif -%}
+      {%- if section.settings.link_two_label != blank -%}
+        <a class="scm-row" href="{{ section.settings.link_two | default: '/pages/click-and-collect' }}" data-scm-reveal style="--d: 1">
+          <span class="scm-row__index">02</span>
+          <span class="scm-row__label">{{ section.settings.link_two_label }}</span>
+          <span class="scm-arrow scm-arrow--lg" aria-hidden="true"></span>
+        </a>
+      {%- endif -%}
+    </div>
+
+    {%- if section.settings.note != blank -%}
+      <p class="scm-statement__note" data-scm-reveal>{{ section.settings.note }}</p>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "SCM Statement",
+  "tag": "div",
+  "class": "scm-section",
+  "settings": [
+    { "type": "textarea", "id": "title", "label": "Statement", "info": "Jede Zeile wird groß dargestellt, jede zweite in Grau.", "default": "Online bestellen.\nLiefern lassen.\nOder abholen." },
+    { "type": "text", "id": "link_one_label", "label": "Link 1", "default": "Versand nach Hause" },
+    { "type": "url", "id": "link_one", "label": "Ziel Link 1", "info": "Leer = /pages/online-shoppen" },
+    { "type": "text", "id": "link_two_label", "label": "Link 2", "default": "Click & Collect im Store" },
+    { "type": "url", "id": "link_two", "label": "Ziel Link 2", "info": "Leer = /pages/click-and-collect" },
+    { "type": "text", "id": "note", "label": "Kleiner Hinweis", "default": "Lieferart wählst du im Checkout. 14 Tage Anprobe bei beiden Optionen." }
+  ],
+  "presets": [{ "name": "SCM Statement" }]
+}
+{% endschema %}

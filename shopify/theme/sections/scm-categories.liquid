@@ -1,0 +1,123 @@
+{%- render 'scm-home-head' -%}
+{%- liquid
+  assign world_one = section.settings.collection_one | default: collections['neu']
+  assign world_two = section.settings.collection_two | default: collections['second-hand']
+-%}
+
+<section class="scm scm-cats" data-scm-tabs>
+  <div class="scm-head scm-wrap">
+    <h2 class="scm-title" data-scm-reveal>{{ section.settings.title }}</h2>
+    <div class="scm-tabs" role="tablist" aria-label="{{ section.settings.title | escape }}" data-scm-reveal>
+      {%- for i in (1..2) -%}
+        {%- if i == 1 -%}{%- assign tab_label = section.settings.label_one -%}{%- else -%}{%- assign tab_label = section.settings.label_two -%}{%- endif -%}
+        <button
+          class="scm-tabs__tab"
+          type="button"
+          role="tab"
+          id="{{ section.id }}-tab-{{ i }}"
+          aria-controls="{{ section.id }}-panel-{{ i }}"
+          aria-selected="{% if i == 1 %}true{% else %}false{% endif %}"
+          {% unless i == 1 %}tabindex="-1"{% endunless %}
+          data-scm-tab
+        >{{ tab_label }}</button>
+      {%- endfor -%}
+    </div>
+  </div>
+
+  {%- for i in (1..2) -%}
+    {%- liquid
+      if i == 1
+        assign world = world_one
+        assign world_label = section.settings.label_one
+      else
+        assign world = world_two
+        assign world_label = section.settings.label_two
+      endif
+      assign world_count = world.products_count | append: ''
+      assign all_text = section.settings.all_label | replace: '[anzahl]', world_count | replace: '[welt]', world_label
+    -%}
+    <div
+      class="scm-cats__panel scm-wrap"
+      role="tabpanel"
+      id="{{ section.id }}-panel-{{ i }}"
+      aria-labelledby="{{ section.id }}-tab-{{ i }}"
+      {% unless i == 1 %}hidden{% endunless %}
+      data-scm-panel
+    >
+      <ul class="scm-cats__grid" role="list">
+        {%- for block in section.blocks -%}
+          {%- liquid
+            if i == 1
+              assign category = block.settings.collection_one
+            else
+              assign category = block.settings.collection_two
+            endif
+            if category == blank or category.products_count == 0
+              continue
+            endif
+            assign tile_image = block.settings.image
+            if tile_image == blank
+              for product in category.products limit: 6
+                if product.available and product.featured_image
+                  assign tile_image = product.featured_image
+                  break
+                endif
+              endfor
+            endif
+            if tile_image == blank
+              assign tile_image = category.products.first.featured_image
+            endif
+          -%}
+          <li class="scm-cats__item" {{ block.shopify_attributes }}>
+            <a class="scm-tile" href="{{ category.url }}" data-scm-reveal style="--d: {{ forloop.index0 | modulo: 4 }}">
+              <span class="scm-tile__media">
+                {%- if tile_image -%}
+                  {{ tile_image | image_url: width: 900 | image_tag: loading: 'lazy', widths: '300, 450, 600, 900', sizes: '(min-width: 990px) 25vw, 50vw', class: 'scm-tile__image', alt: '' }}
+                {%- else -%}
+                  {{ 'product-apparel-1' | placeholder_svg_tag: 'scm-tile__image' }}
+                {%- endif -%}
+              </span>
+              <span class="scm-tile__label">
+                <span class="scm-tile__name">{{ block.settings.label }}</span>
+                <sup class="scm-tile__count">{{ category.products_count }}</sup>
+              </span>
+            </a>
+          </li>
+        {%- endfor -%}
+      </ul>
+      <a class="scm-bar" href="{{ world.url }}">
+        <span>{{ all_text }}</span>
+        <span class="scm-arrow scm-arrow--lg" aria-hidden="true"></span>
+      </a>
+    </div>
+  {%- endfor -%}
+</section>
+
+{% schema %}
+{
+  "name": "SCM Kategorien",
+  "tag": "div",
+  "class": "scm-section",
+  "settings": [
+    { "type": "text", "id": "title", "label": "Überschrift", "default": "Kategorien" },
+    { "type": "text", "id": "label_one", "label": "Reiter 1", "default": "Neu" },
+    { "type": "collection", "id": "collection_one", "label": "Reiter 1 – Gesamtkollektion", "info": "Leer = „Neu“" },
+    { "type": "text", "id": "label_two", "label": "Reiter 2", "default": "Second Hand" },
+    { "type": "collection", "id": "collection_two", "label": "Reiter 2 – Gesamtkollektion", "info": "Leer = „Second Hand“" },
+    { "type": "text", "id": "all_label", "label": "Text unter dem Raster", "info": "[anzahl] und [welt] werden ersetzt.", "default": "Alle [anzahl] Teile – [welt]" }
+  ],
+  "blocks": [
+    {
+      "type": "category",
+      "name": "Kategorie",
+      "settings": [
+        { "type": "text", "id": "label", "label": "Name", "default": "Kategorie" },
+        { "type": "collection", "id": "collection_one", "label": "Kollektion Reiter 1 (Neu)" },
+        { "type": "collection", "id": "collection_two", "label": "Kollektion Reiter 2 (Second Hand)" },
+        { "type": "image_picker", "id": "image", "label": "Eigenes Bild", "info": "Leer = Bild des neuesten verfügbaren Artikels." }
+      ]
+    }
+  ],
+  "presets": [{ "name": "SCM Kategorien" }]
+}
+{% endschema %}

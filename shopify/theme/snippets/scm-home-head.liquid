@@ -1,0 +1,24 @@
+{%- comment -%}
+  Gemeinsame Basis für alle SCM-Startseiten-Sections: fette Display-Schnitte,
+  Stylesheet und Script. Wird von jeder scm-* Section gerendert; doppelte
+  Einbindung ist unkritisch (Browser-Cache, JS ist gegen Mehrfachstart geschützt).
+{%- endcomment -%}
+{%- liquid
+  assign scm_display_800 = settings.type_heading_font | font_modify: 'weight', '800'
+  assign scm_display_700 = settings.type_heading_font | font_modify: 'weight', '700'
+-%}
+<style>
+  {%- if scm_display_800 -%}{{ scm_display_800 | font_face: font_display: 'swap' }}{%- endif -%}
+  {%- if scm_display_700 -%}{{ scm_display_700 | font_face: font_display: 'swap' }}{%- endif -%}
+  :root { --scm-display-family: {{ settings.type_heading_font.family | default: 'Montserrat' }}, {{ settings.type_heading_font.fallback_families | default: 'sans-serif' }}; }
+</style>
+<script>
+  (function (d) {
+    if (d.classList.contains('scm-js')) return;
+    d.classList.add('scm-js');
+    // Falls das Script nicht lädt, Inhalte nicht dauerhaft verstecken
+    setTimeout(function () { if (!window.ScmHome) d.classList.remove('scm-js'); }, 4000);
+  })(document.documentElement);
+</script>
+{{ 'scm-home.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'scm-home.js' | asset_url }}" defer></script>

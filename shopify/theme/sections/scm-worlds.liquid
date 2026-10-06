@@ -1,0 +1,67 @@
+{%- render 'scm-home-head' -%}
+{%- liquid
+  assign world_one = section.settings.collection_one | default: collections['neu']
+  assign world_two = section.settings.collection_two | default: collections['second-hand']
+  assign image_one = section.settings.image_one | default: images['aermellose-jacke-beige.png']
+  assign image_two = section.settings.image_two | default: images['aermellose-jacke-taupe-spitze.png']
+-%}
+
+<section class="scm scm-worlds" aria-label="{{ section.settings.aria_label }}">
+  {%- for i in (1..2) -%}
+    {%- liquid
+      if i == 1
+        assign world = world_one
+        assign image = image_one
+        assign title = section.settings.title_one
+      else
+        assign world = world_two
+        assign image = image_two
+        assign title = section.settings.title_two
+      endif
+      assign title_lines = title | strip | newline_to_br | split: '<br />'
+    -%}
+    <a class="scm-world" href="{{ world.url }}" data-scm-reveal>
+      <span class="scm-world__media">
+        {%- if image -%}
+          {{ image | image_url: width: 1800 | image_tag: loading: 'lazy', widths: '500, 800, 1100, 1400, 1800', sizes: '50vw', class: 'scm-world__image', alt: '' }}
+        {%- else -%}
+          {{ 'lifestyle-1' | placeholder_svg_tag: 'scm-world__image' }}
+        {%- endif -%}
+      </span>
+      <span class="scm-world__veil" aria-hidden="true"></span>
+      <span class="scm-world__label">
+        {%- if section.settings.show_count and world.products_count > 0 -%}
+          <span class="scm-world__count">{{ world.products_count }} {{ section.settings.count_label }}</span>
+        {%- endif -%}
+        <span class="scm-world__title">
+          {%- for line in title_lines -%}<span>{{ line | strip }}</span>{%- endfor -%}
+        </span>
+        <span class="scm-world__cta">{{ section.settings.cta }}<span class="scm-arrow" aria-hidden="true"></span></span>
+      </span>
+    </a>
+  {%- endfor -%}
+</section>
+
+{% schema %}
+{
+  "name": "SCM Zwei Welten",
+  "tag": "div",
+  "class": "scm-section",
+  "settings": [
+    { "type": "text", "id": "aria_label", "label": "Bereichsname (Screenreader)", "default": "Neu oder Second Hand" },
+    { "type": "header", "content": "Links" },
+    { "type": "collection", "id": "collection_one", "label": "Kollektion", "info": "Leer = „Neu“" },
+    { "type": "image_picker", "id": "image_one", "label": "Bild" },
+    { "type": "textarea", "id": "title_one", "label": "Titel", "default": "Neu" },
+    { "type": "header", "content": "Rechts" },
+    { "type": "collection", "id": "collection_two", "label": "Kollektion", "info": "Leer = „Second Hand“" },
+    { "type": "image_picker", "id": "image_two", "label": "Bild" },
+    { "type": "textarea", "id": "title_two", "label": "Titel", "default": "Second\nHand" },
+    { "type": "header", "content": "Allgemein" },
+    { "type": "checkbox", "id": "show_count", "label": "Anzahl Artikel zeigen", "default": true },
+    { "type": "text", "id": "count_label", "label": "Text nach der Anzahl", "default": "Teile" },
+    { "type": "text", "id": "cta", "label": "Linktext", "default": "Entdecken" }
+  ],
+  "presets": [{ "name": "SCM Zwei Welten" }]
+}
+{% endschema %}

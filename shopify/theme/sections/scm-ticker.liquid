@@ -1,0 +1,35 @@
+{%- render 'scm-home-head' -%}
+{%- assign items = section.settings.items | strip | newline_to_br | split: '<br />' -%}
+
+<section class="scm scm-ticker scm-ticker--{{ section.settings.style }}" style="--scm-ticker-duration: {{ section.settings.speed }}s">
+  <p class="scm-visually-hidden">{{ items | join: ' · ' | strip_newlines }}</p>
+  <div class="scm-ticker__track" aria-hidden="true">
+    {%- for round in (1..2) -%}
+      <ul class="scm-ticker__group">
+        {%- for item in items -%}
+          {%- assign label = item | strip -%}
+          {%- if label != blank -%}
+            <li>{{ label }}</li>
+          {%- endif -%}
+        {%- endfor -%}
+      </ul>
+    {%- endfor -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "SCM Laufband",
+  "tag": "div",
+  "class": "scm-section",
+  "settings": [
+    { "type": "textarea", "id": "items", "label": "Einträge", "info": "Ein Eintrag pro Zeile. Kurz halten.", "default": "Neu & Second Hand\nClick & Collect in Espelkamp\nVersand nach Hause\n14 Tage Anprobe\nEinzelstücke mit Charakter" },
+    { "type": "select", "id": "style", "label": "Farbe", "default": "dark", "options": [
+      { "value": "dark", "label": "Schwarz" },
+      { "value": "light", "label": "Weiß" }
+    ] },
+    { "type": "range", "id": "speed", "label": "Dauer pro Durchlauf", "min": 15, "max": 90, "step": 5, "unit": "s", "default": 40 }
+  ],
+  "presets": [{ "name": "SCM Laufband" }]
+}
+{% endschema %}
