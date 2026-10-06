@@ -6,7 +6,7 @@ Neue, plakative Startseite mit wenig Text und großen Bildern, angelehnt an den 
 
 | # | Section | Inhalt |
 |---|---|---|
-| 1 | `scm-hero` | Vollbild-Video, riesige Zeile „Zweite Chance. Erste Wahl.“, zwei Buttons (Neu / Second Hand), Pause-Knopf |
+| 1 | `scm-hero` | Hero-Bild geteilt: Desktop links schwarze Fläche mit „Zweite Chance. Erste Wahl.“ (ein Wort pro Zeile) + zwei Buttons, rechts das Hochformat-Bild ungeschnitten; mobil Bild oben (3:4), Überschrift als Zweizeiler darunter. Optional Video oder Vollbild |
 | 2 | `scm-ticker` | Schwarzes Laufband: Neu & Second Hand · Einzelstücke mit Charakter · Versandkostenfrei ab 75 € · 14 Tage Anprobe |
 | 3 | `scm-worlds` | 50/50-Kacheln „Neu“ und „Second Hand“ |
 | 4 | `scm-categories` | Kategorie-Raster mit Umschalter Neu / Second Hand; Kategorien unter 3 Artikeln werden ausgeblendet, die Kachel „Alle ansehen“ füllt die letzte Reihe immer exakt |

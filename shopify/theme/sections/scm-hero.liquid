@@ -4,9 +4,20 @@
   assign primary_link = section.settings.primary_link | default: collections['neu'].url
   assign secondary_link = section.settings.secondary_link | default: collections['second-hand'].url
   assign poster = section.settings.poster | default: images['second-chance-hero-two-models.png']
+
+  # Ohne Video: Bild. „Geteilt“ zeigt das Hochformat-Bild ungeschnitten neben einer schwarzen Textfläche.
+  assign layout = 'full'
+  if section.settings.video_url == blank and section.settings.image_layout == 'split'
+    assign layout = 'split'
+  endif
+  if layout == 'split'
+    assign image_sizes = '(min-width: 990px) 50vw, 100vw'
+  else
+    assign image_sizes = '100vw'
+  endif
 -%}
 
-<section class="scm scm-hero" data-scm-hero>
+<section class="scm scm-hero scm-hero--{{ layout }}" data-scm-hero>
   <div class="scm-hero__media">
     {%- if section.settings.video_url != blank -%}
       <video
@@ -23,7 +34,7 @@
         <source src="{{ section.settings.video_url }}" type="video/mp4">
       </video>
     {%- elsif poster -%}
-      {{ poster | image_url: width: 2400 | image_tag: loading: 'eager', fetchpriority: 'high', widths: '750, 1100, 1500, 2000, 2400', sizes: '100vw', class: 'scm-hero__video', alt: '' }}
+      {{ poster | image_url: width: 2400 | image_tag: loading: 'eager', fetchpriority: 'high', widths: '600, 900, 1200, 1500, 1800, 2400', sizes: image_sizes, class: 'scm-hero__video', alt: poster.alt }}
     {%- endif -%}
   </div>
   <div class="scm-hero__veil" aria-hidden="true"></div>
@@ -62,8 +73,12 @@
   "tag": "div",
   "class": "scm-section",
   "settings": [
-    { "type": "text", "id": "video_url", "label": "Video-URL (MP4)", "info": "Direkter Link auf eine MP4-Datei, z. B. aus Inhalte → Dateien.", "default": "https://cdn.shopify.com/s/files/1/1032/7402/1193/files/second-chance-hero-fashion-video.mp4?v=1790262108" },
-    { "type": "image_picker", "id": "poster", "label": "Standbild / Fallback", "info": "Wird gezeigt, bis das Video lädt, und wenn kein Video gesetzt ist." },
+    { "type": "image_picker", "id": "poster", "label": "Bild", "info": "Hauptbild. Mit Video dient es als Standbild, bis das Video lädt." },
+    { "type": "select", "id": "image_layout", "label": "Bild-Aufteilung", "default": "split", "info": "Nur ohne Video. Geteilt passt zu Hochformat-Bildern.", "options": [
+      { "value": "split", "label": "Geteilt: Text links, Bild rechts" },
+      { "value": "full", "label": "Vollbild" }
+    ] },
+    { "type": "text", "id": "video_url", "label": "Video-URL (MP4, optional)", "info": "Direkter Link auf eine MP4-Datei. Leer lassen, um nur das Bild zu zeigen." },
     { "type": "text", "id": "kicker", "label": "Kleine Zeile (optional)" },
     { "type": "textarea", "id": "title", "label": "Überschrift", "info": "Jede Zeile wird eine eigene, große Zeile.", "default": "Zweite Chance.\nErste Wahl." },
     { "type": "text", "id": "primary_label", "label": "Button 1", "default": "Neu shoppen" },

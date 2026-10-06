@@ -3,8 +3,9 @@
     "hero": {
       "type": "scm-hero",
       "settings": {
-        "video_url": "https://cdn.shopify.com/s/files/1/1032/7402/1193/files/second-chance-hero-fashion-video.mp4?v=1790262108",
         "poster": "shopify://shop_images/second-chance-hero-two-models.png",
+        "image_layout": "split",
+        "video_url": "",
         "kicker": "",
         "title": "Zweite Chance.\nErste Wahl.",
         "primary_label": "Neu shoppen",

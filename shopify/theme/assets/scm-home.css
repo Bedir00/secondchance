@@ -283,6 +283,36 @@
   60%, 100% { transform: translateY(100%); }
 }
 
+/* --- Geteilt: schwarze Textfläche links, Hochformat-Bild rechts (ab 990 px) --- */
+.scm-hero--split {
+  /* Bildspalte nie breiter als 3:4 zur Höhe → das Hochformat wird auf dem Desktop nie beschnitten */
+  --scm-hero-image: min(50vw, 75vh);
+  --scm-hero-image: min(50vw, 75svh);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--scm-hero-image);
+  align-items: stretch;
+  background: var(--scm-ink);
+}
+.scm-hero--split .scm-hero__media,
+.scm-hero--split .scm-hero__veil { position: relative; inset: auto; grid-column: 2; grid-row: 1; }
+.scm-hero--split .scm-hero__media { overflow: hidden; }
+.scm-hero--split .scm-hero__video { position: absolute; inset: 0; object-position: center top; }
+/* Nur oben abdunkeln, damit Suche/Konto/Warenkorb über dem Bild lesbar bleiben */
+.scm-hero--split .scm-hero__veil { z-index: 1; background: linear-gradient(180deg, rgb(0 0 0 / 38%) 0%, rgb(0 0 0 / 0%) 20%); }
+.scm-hero--split .scm-hero__inner {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: end;
+  max-width: none;
+  margin: 0;
+}
+/* Breitestes Wort „CHANCE.“ = 4,44 × Schriftgröße → füllt die Textfläche mit 5 % Luft; Höhe begrenzt, damit nichts unter den Header rutscht */
+.scm-hero--split .scm-hero__title {
+  font-size: min(calc((100vw - var(--scm-hero-image) - 2 * var(--scm-gutter)) / 4.67), calc((100svh - 320px) / 3.44));
+  max-width: 4.6em; /* ein Wort pro Zeile, auch auf sehr breiten Bildschirmen */
+}
+.scm-hero--split .scm-hero__scroll { display: none; }
+
 /* Intro-Animation (nur mit JS, sonst sofort sichtbar) */
 .scm-js [data-scm-intro] {
   opacity: 0;
@@ -1044,6 +1074,15 @@ a.scm-chip--solid:hover { color: var(--scm-ink, #0a0a0a); background: transparen
    ========================================================================== */
 
 @media (max-width: 989px) {
+  .scm-hero--split { grid-template-columns: 1fr; min-height: 0; }
+  .scm-hero--split .scm-hero__media,
+  .scm-hero--split .scm-hero__veil { grid-column: 1; grid-row: 1; }
+  /* Bild max. zwei Drittel der Höhe: Überschrift und Buttons bleiben auf dem ersten Screen */
+  .scm-hero--split .scm-hero__media { width: 100%; aspect-ratio: 3 / 4; max-height: 66vh; max-height: 66svh; }
+  .scm-hero--split .scm-hero__video { object-position: center top; }
+  .scm-hero--split .scm-hero__inner { grid-column: 1; grid-row: 2; padding-top: clamp(24px, 4vw, 40px); }
+  .scm-hero--split .scm-hero__title { max-width: none; font-size: calc((100vw - 2 * var(--scm-gutter)) / 8.95); line-height: .88; }
+
   .scm-cats__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .scm-cats__item--all { grid-column: span var(--span-3, 3); }
   .scm-rail__track { grid-auto-columns: calc((100% - 2 * var(--scm-gap)) / 2.6); }
