@@ -1,0 +1,44 @@
+{
+  "brand": "Second Chance",
+  "width": 1080,
+  "height": 1920,
+  "fps": 30,
+  "colors": {
+    "paper": "#ECE8E2",
+    "ink": "#2A2420",
+    "light": "#FFF6EA"
+  },
+  "intro": {
+    "kicker": "Herbst Edit",
+    "title": "Second Chance",
+    "subline": "Drei Looks"
+  },
+  "outro": {
+    "kicker": "Look 01 · 02 · 03",
+    "title": "Second Chance",
+    "subline": "Herbst Edit"
+  },
+  "looks": [
+    {
+      "id": "01",
+      "image": "assets/looks/look-01.webp",
+      "name": "Mokka",
+      "details": ["Tupfenbluse", "Weite Hose mit Gürtel"],
+      "accent": "#7A5236"
+    },
+    {
+      "id": "02",
+      "image": "assets/looks/look-02.webp",
+      "name": "Salbei",
+      "details": ["Oversize-Shirt & Seidentuch", "Weite Hose mit Gürtel"],
+      "accent": "#5E6B52"
+    },
+    {
+      "id": "03",
+      "image": "assets/looks/look-03.webp",
+      "name": "Karo & Kette",
+      "details": ["Print-Bluse", "Weite Hose mit Gürtel"],
+      "accent": "#7C2F2A"
+    }
+  ]
+}
