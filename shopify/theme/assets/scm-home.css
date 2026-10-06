@@ -1056,10 +1056,11 @@ a.scm-chip--solid:hover { color: var(--scm-ink, #0a0a0a); background: transparen
   .scm-tabs__tab { flex: 1 1 0; padding: 0 12px; }
   .scm-head__tools { width: 100%; }
 
-  .scm-hero__title { font-size: clamp(2.8rem, 15vw, 5rem); }
+  /* Zweizeiler: „ZWEITE CHANCE.“ ist 8,51 × so breit wie die Schriftgröße – mit 5 % Luft auf die Inhaltsbreite gerechnet */
+  .scm-hero__title { font-size: calc((100vw - 2 * var(--scm-gutter)) / 8.95); line-height: .88; }
   .scm-hero__ctas { display: grid; grid-template-columns: 1fr; gap: 8px; }
   .scm-btn { width: 100%; justify-content: space-between; }
-  .scm-hero__toggle { top: 0; bottom: auto; width: 40px; height: 40px; }
+  .scm-hero__toggle { top: auto; bottom: calc(100% + 16px); width: 40px; height: 40px; }
   .scm-hero__scroll { display: none; }
 
   .scm-world { height: auto; min-height: 0; aspect-ratio: 3 / 5; }
