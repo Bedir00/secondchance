@@ -1,0 +1,54 @@
+{%- comment -%}
+  Shared motion core for the SCM Neuware PDP sections.
+  Adds `scm-motion` to <html> (unless reduced motion is requested) so hidden start states
+  only apply when JavaScript runs, then reveals elements as they scroll into view.
+{%- endcomment -%}
+<script>
+  (function () {
+    if (window.__scmMotion) return;
+    window.__scmMotion = true;
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!reduce && 'IntersectionObserver' in window) document.documentElement.classList.add('scm-motion');
+
+    function splitWords(el) {
+      if (el.dataset.scmSplit) return;
+      el.dataset.scmSplit = '1';
+      var words = el.textContent.trim().split(/\s+/);
+      el.textContent = '';
+      words.forEach(function (word, i) {
+        var span = document.createElement('span');
+        span.className = 'w';
+        span.style.setProperty('--w', i);
+        span.textContent = word;
+        el.appendChild(span);
+        if (i < words.length - 1) el.appendChild(document.createTextNode(' '));
+      });
+    }
+
+    function init(root) {
+      if (!document.documentElement.classList.contains('scm-motion')) return;
+      root.querySelectorAll('[data-scm-words]').forEach(splitWords);
+      var targets = root.querySelectorAll('[data-scm-motion], [data-scm-words], .scm-reveal, .scm-story__reasons li');
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-in');
+            io.unobserve(entry.target);
+          }
+        });
+      }, { rootMargin: '0px 0px -10% 0px', threshold: 0.12 });
+      targets.forEach(function (t) { io.observe(t); });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function () { init(document); });
+    } else {
+      requestAnimationFrame(function () { init(document); });
+    }
+    document.addEventListener('shopify:section:load', function (e) { init(e.target); });
+  })();
+</script>
+<style>
+  .scm-motion .scm-reveal { opacity:0; transform:translateY(14px); transition:opacity .9s cubic-bezier(.22,.61,.36,1), transform .9s cubic-bezier(.22,.61,.36,1); transition-delay:calc(var(--i, 0) * .12s); }
+  .scm-motion .scm-reveal.is-in { opacity:1; transform:none; }
+</style>

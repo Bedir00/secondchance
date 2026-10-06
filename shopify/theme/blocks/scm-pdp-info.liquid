@@ -13,7 +13,8 @@
   endif
 -%}
 <div class="scm scm-pdp-info" {{ block.shopify_attributes }}>
-  {%- if details != blank -%}
+  {%- comment -%} Mit Neuware-Story (scm_pdp.story) stehen Beschreibung und Maße dort – hier nicht doppeln {%- endcomment -%}
+  {%- if details != blank and product.metafields.scm_pdp.story == blank -%}
     <details class="scm-pdp-info__item" {% if block.settings.open_details %}open{% endif %}>
       <summary>{{ block.settings.details_title }}<span class="scm-pdp-info__icon" aria-hidden="true"></span></summary>
       <div class="scm-pdp-info__body">{{ details }}</div>

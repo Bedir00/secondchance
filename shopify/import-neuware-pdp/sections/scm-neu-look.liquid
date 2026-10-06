@@ -1,0 +1,197 @@
+{%- liquid
+  assign p = closest.product | default: product
+  assign m = p.metafields.scm_pdp
+  assign look = m.look.value
+  assign current_variant = p.selected_or_first_available_variant
+
+  assign items_available = 0
+  assign total = 0
+  if current_variant.available
+    assign total = current_variant.price
+  endif
+-%}
+
+{%- if look != blank -%}
+{%- render 'scm-motion' -%}
+<section class="scm-look" data-scm-look>
+  <div class="scm-look__inner">
+    <h2 class="scm-look__title scm-reveal">{{ m.look_title | default: section.settings.title }}</h2>
+    {%- if m.look_text != blank -%}
+      <p class="scm-look__text scm-reveal">{{ m.look_text }}</p>
+    {%- endif -%}
+
+    <ul class="scm-look__grid" role="list">
+      {%- for item in look -%}
+        {%- liquid
+          assign v = item.selected_or_first_available_variant
+          assign quick = false
+          if item.variants.size == 1 and v.available
+            assign quick = true
+            assign items_available = items_available | plus: 1
+            assign total = total | plus: v.price
+          endif
+          assign img = nil
+          for media in item.media
+            if media.media_type == 'image' and media.preview_image.width >= 600
+              assign img = media.preview_image
+              break
+            endif
+          endfor
+          if img == nil
+            assign img = item.featured_image
+          endif
+          assign size = ''
+          if item.has_only_default_variant == false and item.variants.size == 1
+            assign size = v.title
+          endif
+        -%}
+        <li class="scm-look__card scm-reveal" style="--i: {{ forloop.index }};" {% if quick %}data-variant="{{ v.id }}"{% endif %}>
+          <a class="scm-look__media" href="{{ item.url }}">
+            {%- if img != blank -%}
+              {{ img | image_url: width: 600 | image_tag: widths: '300, 450, 600', sizes: '(min-width: 990px) 260px, 45vw', loading: 'lazy', alt: img.alt }}
+            {%- endif -%}
+          </a>
+          <a class="scm-look__name" href="{{ item.url }}">{{ item.metafields.scm_pdp.headline | default: item.title }}</a>
+          <span class="scm-look__meta">
+            {%- if size != blank and size != 'Default Title' -%}{{ size }} · {% endif -%}
+            {{- v.price | money -}}
+          </span>
+          {%- if quick -%}
+            <button type="button" class="scm-look__add" data-scm-add="{{ v.id }}">
+              <span class="scm-look__add-label">{{ section.settings.add_label }}</span>
+              <span class="scm-look__add-done" aria-hidden="true">{{ section.settings.added_label }}</span>
+            </button>
+          {%- elsif v.available -%}
+            <a class="scm-look__add scm-look__add--link" href="{{ item.url }}">{{ section.settings.choose_label }}</a>
+          {%- else -%}
+            <span class="scm-look__add scm-look__add--sold">{{ section.settings.sold_label }}</span>
+          {%- endif -%}
+        </li>
+      {%- endfor -%}
+    </ul>
+
+    {%- if items_available > 0 and current_variant.available and p.variants.size == 1 -%}
+      <div class="scm-look__bundle scm-reveal" style="--i: 3;">
+        <div class="scm-look__thumbs" aria-hidden="true">
+          {%- assign own = p.featured_image -%}
+          {%- if own -%}<span>{{ own | image_url: width: 120 | image_tag: loading: 'lazy', alt: '' }}</span>{%- endif -%}
+          {%- for item in look -%}
+            {%- if item.variants.size == 1 and item.selected_or_first_available_variant.available and item.featured_image -%}
+              <span>{{ item.featured_image | image_url: width: 120 | image_tag: loading: 'lazy', alt: '' }}</span>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+        <button
+          type="button"
+          class="scm-look__all"
+          data-scm-add-all="{{ current_variant.id }}{% for item in look %}{% assign lv = item.selected_or_first_available_variant %}{% if item.variants.size == 1 and lv.available %},{{ lv.id }}{% endif %}{% endfor %}"
+        >
+          <span>{{ section.settings.all_label }}</span>
+          <span class="scm-look__total">{{ total | money }}</span>
+        </button>
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+{%- endif -%}
+
+{% stylesheet %}
+.scm-look { --scm-ink:#111; --scm-mute:#5f5a55; --scm-line:#e7e2dc; --scm-paper:#f6f3ef; --scm-ease:cubic-bezier(.22,.61,.36,1); background:var(--scm-paper); color:var(--scm-ink); padding:44px 0 48px; }
+.scm-look__inner { max-width:1040px; margin:0 auto; padding:0 20px; }
+.scm-look__title { margin:0; font-family:var(--font-heading--family, inherit); font-weight:var(--font-heading--weight, 500); font-size:clamp(1.4rem, 5.6vw, 2rem); line-height:1.15; letter-spacing:-.015em; text-wrap:balance; }
+.scm-look__text { max-width:52ch; margin:12px 0 0; color:var(--scm-mute); font-size:.92rem; line-height:1.6; }
+.scm-look__grid { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:14px; margin:24px 0 0; padding:0; list-style:none; }
+.scm-look__card { display:flex; flex-direction:column; min-width:0; }
+.scm-look__media { display:block; aspect-ratio:3/4; overflow:hidden; background:#ece7e1; border-radius:4px; }
+.scm-look__media img { width:100%; height:100%; object-fit:cover; object-position:50% 25%; transition:transform 1.2s var(--scm-ease); }
+.scm-look__card:hover .scm-look__media img { transform:scale(1.035); }
+.scm-look__name { margin-top:10px; color:inherit; text-decoration:none; font-size:.86rem; font-weight:500; line-height:1.3; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.scm-look__meta { margin:3px 0 10px; color:var(--scm-mute); font-size:.8rem; }
+.scm-look__add { position:relative; display:grid; place-items:center; margin-top:auto; min-height:40px; padding:0 12px; border:1px solid var(--scm-ink); border-radius:14px; background:transparent; color:var(--scm-ink); font:inherit; font-size:.8rem; font-weight:500; text-decoration:none; cursor:pointer; overflow:hidden; transition:background .3s ease, color .3s ease; }
+.scm-look__add > span { grid-area:1/1; transition:opacity .35s ease, transform .35s var(--scm-ease); }
+.scm-look__add-done { opacity:0; transform:translateY(8px); }
+.scm-look__add.is-added { background:var(--scm-ink); color:#fff; }
+.scm-look__add.is-added .scm-look__add-label { opacity:0; transform:translateY(-8px); }
+.scm-look__add.is-added .scm-look__add-done { opacity:1; transform:none; }
+.scm-look__add.is-busy { opacity:.6; pointer-events:none; }
+.scm-look__add--sold { border-color:var(--scm-line); color:var(--scm-mute); cursor:default; }
+.scm-look__bundle { display:flex; align-items:center; gap:12px; margin-top:22px; padding:12px; border-radius:16px; background:#fff; box-shadow:0 1px 0 rgba(0,0,0,.03); }
+.scm-look__thumbs { display:flex; flex:none; }
+.scm-look__thumbs span { width:34px; height:44px; margin-left:-10px; border:2px solid #fff; border-radius:6px; overflow:hidden; background:#ece7e1; }
+.scm-look__thumbs span:first-child { margin-left:0; }
+.scm-look__thumbs img { width:100%; height:100%; object-fit:cover; }
+.scm-look__all { flex:1; display:flex; align-items:center; justify-content:space-between; gap:10px; min-height:48px; padding:0 16px; border:0; border-radius:14px; background:var(--scm-ink); color:#fff; font:inherit; font-size:.84rem; font-weight:500; text-align:left; line-height:1.25; cursor:pointer; transition:transform .2s ease, opacity .3s ease; }
+.scm-look__all:active { transform:scale(.985); }
+.scm-look__all.is-busy { opacity:.6; pointer-events:none; }
+.scm-look__total { flex:none; white-space:nowrap; font-variant-numeric:tabular-nums; }
+@media (min-width:750px) {
+  .scm-look { padding:64px 0 72px; }
+  .scm-look__inner { padding:0 32px; }
+  .scm-look__grid { grid-template-columns:repeat(4, minmax(0,1fr)); gap:20px; }
+  .scm-look__bundle { max-width:520px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .scm-look *, .scm-look *::before { transition:none !important; animation:none !important; }
+}
+{% endstylesheet %}
+
+{% javascript %}
+(function () {
+  if (window.__scmLook) return;
+  window.__scmLook = true;
+
+  async function addLines(ids) {
+    var lines = ids.map(function (id) { return { merchandiseId: 'gid://shopify/ProductVariant/' + id, quantity: 1 }; });
+    var actions = window.Shopify && window.Shopify.actions;
+    if (actions && actions.updateCart) {
+      var res = await actions.updateCart({ lines: lines }, { context: 'product' });
+      if (res && res.userErrors && res.userErrors.length) throw new Error(res.userErrors[0].message);
+      if (actions.openCart) actions.openCart();
+      return;
+    }
+    var r = await fetch((window.Shopify && Shopify.routes ? Shopify.routes.root : '/') + 'cart/add.js', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+      body: JSON.stringify({ items: ids.map(function (id) { return { id: Number(id), quantity: 1 }; }) })
+    });
+    if (!r.ok) throw new Error('cart');
+    window.location.href = (window.Shopify && Shopify.routes ? Shopify.routes.root : '/') + 'cart';
+  }
+
+  document.addEventListener('click', async function (e) {
+    var one = e.target.closest('[data-scm-add]');
+    var all = e.target.closest('[data-scm-add-all]');
+    var btn = one || all;
+    if (!btn) return;
+    e.preventDefault();
+    var ids = one ? [one.getAttribute('data-scm-add')] : all.getAttribute('data-scm-add-all').split(',').filter(Boolean);
+    btn.classList.add('is-busy');
+    try {
+      await addLines(ids);
+      if (one) one.classList.add('is-added');
+      if (all) {
+        document.querySelectorAll('[data-scm-add]').forEach(function (b) { b.classList.add('is-added'); });
+      }
+    } catch (err) {
+      console.warn('[scm-look]', err);
+    } finally {
+      btn.classList.remove('is-busy');
+    }
+  });
+})();
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "SCM Look komplettieren",
+  "settings": [
+    { "type": "text", "id": "title", "label": "Titel (Fallback)", "default": "So wird ein Look daraus" },
+    { "type": "text", "id": "add_label", "label": "Button hinzufügen", "default": "Hinzufügen" },
+    { "type": "text", "id": "added_label", "label": "Button hinzugefügt", "default": "Im Warenkorb ✓" },
+    { "type": "text", "id": "choose_label", "label": "Button Variante wählen", "default": "Ansehen" },
+    { "type": "text", "id": "sold_label", "label": "Ausverkauft", "default": "Schon vergeben" },
+    { "type": "text", "id": "all_label", "label": "Button ganzer Look", "default": "Ganzen Look sichern" }
+  ],
+  "presets": [{ "name": "SCM Look komplettieren" }]
+}
+{% endschema %}

@@ -39,6 +39,14 @@
 
   assign looks = product.metafields.custom.looks.value
 
+  # Gepflegte Neuware-Texte (Metafelder scm_pdp.*) haben Vorrang
+  assign scm = product.metafields.scm_pdp
+  if scm.headline != blank
+    assign display_title = scm.headline.value
+    assign brand = ''
+  endif
+  assign custom_chips = scm.chips.value
+
   # Größe nur im Kopf zeigen, wenn es keine Größen-Auswahl gibt (sonst doppelt)
   assign has_size_option = false
   if product.options_by_name['Größe'] != blank or product.options_by_name['Size'] != blank
@@ -48,7 +56,11 @@
 
 <div class="scm scm-pdp-head" {{ block.shopify_attributes }}>
   <div class="scm-pdp-chips">
-    {%- if is_new -%}
+    {%- if custom_chips != blank -%}
+      {%- for chip in custom_chips -%}
+        <span class="scm-chip{% if forloop.first %} scm-chip--solid{% endif %}">{{ chip }}</span>
+      {%- endfor -%}
+    {%- elsif is_new -%}
       <a class="scm-chip scm-chip--solid" href="{{ collections['neu'].url | default: '/collections/neu' }}">{{ block.settings.label_new }}</a>
     {%- elsif is_second_hand -%}
       <a class="scm-chip scm-chip--solid" href="{{ collections['second-hand'].url | default: '/collections/second-hand' }}">{{ block.settings.label_second_hand }}</a>
@@ -65,7 +77,7 @@
 
   <h1 class="scm-pdp-title">{{ display_title }}</h1>
 
-  {%- if claim != blank -%}
+  {%- if claim != blank and scm.headline == blank -%}
     <p class="scm-pdp-claim">{{ claim }}</p>
   {%- endif -%}
 
