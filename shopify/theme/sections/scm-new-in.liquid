@@ -57,7 +57,7 @@
               assign card_detail = title_parts | slice: 1, 3 | join: ' · '
             else
               assign card_name = product.title
-              assign card_detail = product.type
+              assign card_detail = ''
             endif
             assign second_image = product.images[1]
           -%}
@@ -112,7 +112,7 @@
   "tag": "div",
   "class": "scm-section",
   "settings": [
-    { "type": "text", "id": "title", "label": "Überschrift", "default": "Neu eingetroffen" },
+    { "type": "text", "id": "title", "label": "Überschrift", "default": "New In" },
     { "type": "text", "id": "label_one", "label": "Reiter 1", "default": "Neu" },
     { "type": "collection", "id": "collection_one", "label": "Reiter 1 – Kollektion", "info": "Leer = „Neu“. Reihenfolge wie in der Kollektion (am besten: neueste zuerst)." },
     { "type": "text", "id": "label_two", "label": "Reiter 2", "default": "Second Hand" },

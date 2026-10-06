@@ -7,12 +7,14 @@ Neue, plakative Startseite mit wenig Text und großen Bildern, angelehnt an den 
 | # | Section | Inhalt |
 |---|---|---|
 | 1 | `scm-hero` | Vollbild-Video, riesige Zeile „Zweite Chance. Erste Wahl.“, zwei Buttons (Neu / Second Hand), Pause-Knopf |
-| 2 | `scm-ticker` | Schwarzes Laufband mit kurzen Versprechen |
-| 3 | `scm-worlds` | 50/50-Kacheln „Neu“ und „Second Hand“ mit Live-Artikelanzahl |
-| 4 | `scm-categories` | Kategorie-Raster mit Umschalter Neu / Second Hand; leere Kategorien werden ausgeblendet |
-| 5 | `scm-looks` | Shop the Look: drei Looks, beim Darüberfahren (mobil: im Blickfeld) läuft das Reel mit den Pfeilen |
-| 6 | `scm-new-in` | Produkt-Rail „Neu eingetroffen“ mit Umschalter, Pfeilen, Fortschrittsbalken und Ziehen mit der Maus |
-| 7 | `scm-statement` | Schwarzer Abschluss: „Online bestellen. Liefern lassen. Oder abholen.“ + Versand / Click & Collect |
+| 2 | `scm-ticker` | Schwarzes Laufband: Neu & Second Hand · Einzelstücke mit Charakter · Versandkostenfrei ab 75 € · 14 Tage Anprobe |
+| 3 | `scm-worlds` | 50/50-Kacheln „Neu“ und „Second Hand“ |
+| 4 | `scm-categories` | Kategorie-Raster mit Umschalter Neu / Second Hand; Kategorien unter 3 Artikeln werden ausgeblendet, die Kachel „Alle ansehen“ füllt die letzte Reihe immer exakt |
+| 5 | `scm-looks` | Shop the Look: drei Looks (Name + Pfeil), beim Darüberfahren (mobil: im Blickfeld) läuft das Reel |
+| 6 | `scm-new-in` | „New In“-Rail mit Umschalter, Pfeilen, Fortschrittsbalken und Ziehen mit der Maus; Größe nur bei Second Hand |
+| 7 | `scm-statement` | Abschluss in Stein: „Online bestellen. Liefern lassen. Oder abholen.“ + Versand / Click & Collect |
+
+Gestaltungsregeln: ein einheitlicher Section-Abstand (nie doppelt), alle Texte und Raster auf derselben Gutter-Linie, 4 px Bildfugen, keine Zähler oder Nummern ohne Nutzen.
 
 Gemeinsame Styles und Scripts liegen in `theme/assets/scm-home.css` und `theme/assets/scm-home.js`, eingebunden über `theme/snippets/scm-home-head.liquid`.
 Alle Texte, Bilder, Links und Kollektionen lassen sich im Theme-Editor ändern.

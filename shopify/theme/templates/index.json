@@ -5,7 +5,7 @@
       "settings": {
         "video_url": "https://cdn.shopify.com/s/files/1/1032/7402/1193/files/second-chance-hero-fashion-video.mp4?v=1790262108",
         "poster": "shopify://shop_images/second-chance-hero-two-models.png",
-        "kicker": "Herbst / Winter 26",
+        "kicker": "",
         "title": "Zweite Chance.\nErste Wahl.",
         "primary_label": "Neu shoppen",
         "primary_link": "shopify://collections/neu",
@@ -16,7 +16,7 @@
     "ticker": {
       "type": "scm-ticker",
       "settings": {
-        "items": "Neu & Second Hand\nClick & Collect in Espelkamp\nVersand nach Hause\n14 Tage Anprobe\nEinzelstücke mit Charakter",
+        "items": "Neu & Second Hand\nEinzelstücke mit Charakter\nVersandkostenfrei ab 75 €\n14 Tage Anprobe",
         "style": "dark",
         "speed": 40
       }
@@ -31,7 +31,7 @@
         "collection_two": "second-hand",
         "image_two": "shopify://shop_images/aermellose-jacke-taupe-spitze.png",
         "title_two": "Second\nHand",
-        "show_count": true,
+        "show_count": false,
         "count_label": "Teile",
         "cta": "Entdecken"
       }
@@ -39,45 +39,144 @@
     "categories": {
       "type": "scm-categories",
       "blocks": {
-        "cat_jacken": { "type": "category", "settings": { "label": "Jacken", "collection_one": "neu-jacken-mantel", "collection_two": "second-hand-jacken-mantel" } },
-        "cat_strick": { "type": "category", "settings": { "label": "Strick", "collection_one": "neu-pullover-strick", "collection_two": "second-hand-pullover-strick" } },
-        "cat_blusen": { "type": "category", "settings": { "label": "Blusen & Shirts", "collection_one": "neu-blusen-shirts-tuniken", "collection_two": "second-hand-blusen-shirts-tuniken" } },
-        "cat_kleider": { "type": "category", "settings": { "label": "Kleider", "collection_one": "neu-kleider", "collection_two": "second-hand-kleider" } },
-        "cat_hosen": { "type": "category", "settings": { "label": "Hosen & Jeans", "collection_one": "neu-hosen-jeans", "collection_two": "second-hand-hosen-jeans" } },
-        "cat_westen": { "type": "category", "settings": { "label": "Westen", "collection_one": "neu-westen", "collection_two": "second-hand-westen" } },
-        "cat_roecke": { "type": "category", "settings": { "label": "Röcke", "collection_one": "neu-rocke", "collection_two": "second-hand-rocke" } },
-        "cat_schuhe": { "type": "category", "settings": { "label": "Schuhe", "collection_one": "neu-schuhe", "collection_two": "second-hand-schuhe" } },
-        "cat_accessoires": { "type": "category", "settings": { "label": "Accessoires", "collection_one": "neu-accessoires", "collection_two": "second-hand-accessoires" } }
+        "cat_jacken": {
+          "type": "category",
+          "settings": {
+            "label": "Jacken",
+            "collection_one": "neu-jacken-mantel",
+            "collection_two": "second-hand-jacken-mantel"
+          }
+        },
+        "cat_strick": {
+          "type": "category",
+          "settings": {
+            "label": "Strick",
+            "collection_one": "neu-pullover-strick",
+            "collection_two": "second-hand-pullover-strick"
+          }
+        },
+        "cat_blusen": {
+          "type": "category",
+          "settings": {
+            "label": "Blusen & Shirts",
+            "collection_one": "neu-blusen-shirts-tuniken",
+            "collection_two": "second-hand-blusen-shirts-tuniken"
+          }
+        },
+        "cat_kleider": {
+          "type": "category",
+          "settings": {
+            "label": "Kleider",
+            "collection_one": "neu-kleider",
+            "collection_two": "second-hand-kleider"
+          }
+        },
+        "cat_hosen": {
+          "type": "category",
+          "settings": {
+            "label": "Hosen & Jeans",
+            "collection_one": "neu-hosen-jeans",
+            "collection_two": "second-hand-hosen-jeans"
+          }
+        },
+        "cat_westen": {
+          "type": "category",
+          "settings": {
+            "label": "Westen",
+            "collection_one": "neu-westen",
+            "collection_two": "second-hand-westen"
+          }
+        },
+        "cat_roecke": {
+          "type": "category",
+          "settings": {
+            "label": "Röcke",
+            "collection_one": "neu-rocke",
+            "collection_two": "second-hand-rocke"
+          }
+        },
+        "cat_schuhe": {
+          "type": "category",
+          "settings": {
+            "label": "Schuhe",
+            "collection_one": "neu-schuhe",
+            "collection_two": "second-hand-schuhe"
+          }
+        },
+        "cat_accessoires": {
+          "type": "category",
+          "settings": {
+            "label": "Accessoires",
+            "collection_one": "neu-accessoires",
+            "collection_two": "second-hand-accessoires"
+          }
+        }
       },
-      "block_order": ["cat_jacken", "cat_strick", "cat_blusen", "cat_kleider", "cat_hosen", "cat_westen", "cat_roecke", "cat_schuhe", "cat_accessoires"],
+      "block_order": [
+        "cat_jacken",
+        "cat_strick",
+        "cat_blusen",
+        "cat_kleider",
+        "cat_hosen",
+        "cat_westen",
+        "cat_roecke",
+        "cat_schuhe",
+        "cat_accessoires"
+      ],
       "settings": {
         "title": "Kategorien",
         "label_one": "Neu",
         "collection_one": "neu",
         "label_two": "Second Hand",
         "collection_two": "second-hand",
-        "all_label": "Alle [anzahl] Teile – [welt]"
+        "min_count": 3,
+        "all_label": "Alle ansehen"
       }
     },
     "looks": {
       "type": "scm-looks",
       "blocks": {
-        "look_01": { "type": "look", "settings": { "look_handle": "look-01-mokka", "number": "01", "name": "Mokka", "image": "shopify://shop_images/scm-look-01.webp", "video": "https://cdn.shopify.com/s/files/1/1032/7402/1193/files/scm-look-01.mp4?v=1791292344", "pieces": "Tupfenbluse, Gürtel, Weite Hose" } },
-        "look_02": { "type": "look", "settings": { "look_handle": "look-02-salbei", "number": "02", "name": "Salbei", "image": "shopify://shop_images/scm-look-02.webp", "video": "https://cdn.shopify.com/s/files/1/1032/7402/1193/files/scm-look-02.mp4?v=1791292344", "pieces": "Paisley-Tuch, Oversize-Shirt, Gürtel, Weite Hose" } },
-        "look_03": { "type": "look", "settings": { "look_handle": "look-03-karo-kette", "number": "03", "name": "Karo & Kette", "image": "shopify://shop_images/scm-look-03.webp", "video": "https://cdn.shopify.com/s/files/1/1032/7402/1193/files/scm-look-03.mp4?v=1791292344", "pieces": "Print-Bluse, Gürtel, Weite Hose" } }
+        "look_01": {
+          "type": "look",
+          "settings": {
+            "look_handle": "look-01-mokka",
+            "name": "Mokka",
+            "image": "shopify://shop_images/scm-look-01.webp",
+            "video": "https://cdn.shopify.com/s/files/1/1032/7402/1193/files/scm-look-01.mp4?v=1791292344"
+          }
+        },
+        "look_02": {
+          "type": "look",
+          "settings": {
+            "look_handle": "look-02-salbei",
+            "name": "Salbei",
+            "image": "shopify://shop_images/scm-look-02.webp",
+            "video": "https://cdn.shopify.com/s/files/1/1032/7402/1193/files/scm-look-02.mp4?v=1791292344"
+          }
+        },
+        "look_03": {
+          "type": "look",
+          "settings": {
+            "look_handle": "look-03-karo-kette",
+            "name": "Karo & Kette",
+            "image": "shopify://shop_images/scm-look-03.webp",
+            "video": "https://cdn.shopify.com/s/files/1/1032/7402/1193/files/scm-look-03.mp4?v=1791292344"
+          }
+        }
       },
-      "block_order": ["look_01", "look_02", "look_03"],
+      "block_order": [
+        "look_01",
+        "look_02",
+        "look_03"
+      ],
       "settings": {
-        "kicker": "Herbst Edit",
-        "title": "Shop the Look",
-        "hint": "",
-        "cta": "Shoppen"
+        "title": "Shop the Look"
       }
     },
     "new_in": {
       "type": "scm-new-in",
       "settings": {
-        "title": "Neu eingetroffen",
+        "title": "New In",
         "label_one": "Neu",
         "collection_one": "neu",
         "label_two": "Second Hand",
@@ -94,11 +193,19 @@
         "title": "Online bestellen.\nLiefern lassen.\nOder abholen.",
         "link_one_label": "Versand nach Hause",
         "link_one": "/pages/online-shoppen",
-        "link_two_label": "Click & Collect im Store",
+        "link_two_label": "Click & Collect",
         "link_two": "/pages/click-and-collect",
-        "note": "Lieferart wählst du im Checkout. 14 Tage Anprobe bei beiden Optionen."
+        "note": ""
       }
     }
   },
-  "order": ["hero", "ticker", "worlds", "categories", "looks", "new_in", "statement"]
+  "order": [
+    "hero",
+    "ticker",
+    "worlds",
+    "categories",
+    "looks",
+    "new_in",
+    "statement"
+  ]
 }

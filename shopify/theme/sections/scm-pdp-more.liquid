@@ -37,7 +37,7 @@
             assign card_detail = title_parts | slice: 1, 3 | join: ' · '
           else
             assign card_name = item.title
-            assign card_detail = item.type
+            assign card_detail = ''
           endif
           assign second_image = item.images[1]
         -%}

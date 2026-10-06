@@ -2,6 +2,7 @@
 {%- liquid
   assign world_one = section.settings.collection_one | default: collections['neu']
   assign world_two = section.settings.collection_two | default: collections['second-hand']
+  assign min_count = section.settings.min_count
 -%}
 
 <section class="scm scm-cats" data-scm-tabs>
@@ -28,13 +29,25 @@
     {%- liquid
       if i == 1
         assign world = world_one
-        assign world_label = section.settings.label_one
       else
         assign world = world_two
-        assign world_label = section.settings.label_two
       endif
-      assign world_count = world.products_count | append: ''
-      assign all_text = section.settings.all_label | replace: '[anzahl]', world_count | replace: '[welt]', world_label
+
+      # Erst zählen, damit die „Alle ansehen“-Kachel die letzte Reihe exakt auffüllt
+      assign tile_count = 0
+      for block in section.blocks
+        if i == 1
+          assign category = block.settings.collection_one
+        else
+          assign category = block.settings.collection_two
+        endif
+        if category != blank and category.products_count >= min_count
+          assign tile_count = tile_count | plus: 1
+        endif
+      endfor
+      assign span_4 = tile_count | modulo: 4 | times: -1 | plus: 4
+      assign span_3 = tile_count | modulo: 3 | times: -1 | plus: 3
+      assign span_2 = tile_count | modulo: 2 | times: -1 | plus: 2
     -%}
     <div
       class="scm-cats__panel scm-wrap"
@@ -52,7 +65,7 @@
             else
               assign category = block.settings.collection_two
             endif
-            if category == blank or category.products_count == 0
+            if category == blank or category.products_count < min_count
               continue
             endif
             assign tile_image = block.settings.image
@@ -72,23 +85,22 @@
             <a class="scm-tile" href="{{ category.url }}" data-scm-reveal style="--d: {{ forloop.index0 | modulo: 4 }}">
               <span class="scm-tile__media">
                 {%- if tile_image -%}
-                  {{ tile_image | image_url: width: 900 | image_tag: loading: 'lazy', widths: '300, 450, 600, 900', sizes: '(min-width: 990px) 25vw, 50vw', class: 'scm-tile__image', alt: '' }}
+                  {{ tile_image | image_url: width: 900 | image_tag: loading: 'lazy', widths: '300, 450, 600, 900', sizes: '(min-width: 990px) 25vw, (min-width: 750px) 33vw, 50vw', class: 'scm-tile__image', alt: '' }}
                 {%- else -%}
                   {{ 'product-apparel-1' | placeholder_svg_tag: 'scm-tile__image' }}
                 {%- endif -%}
               </span>
-              <span class="scm-tile__label">
-                <span class="scm-tile__name">{{ block.settings.label }}</span>
-                <sup class="scm-tile__count">{{ category.products_count }}</sup>
-              </span>
+              <span class="scm-tile__name">{{ block.settings.label }}</span>
             </a>
           </li>
         {%- endfor -%}
+        <li class="scm-cats__item scm-cats__item--all" style="--span-4: {{ span_4 }}; --span-3: {{ span_3 }}; --span-2: {{ span_2 }};">
+          <a class="scm-cats__all" href="{{ world.url }}">
+            <span>{{ section.settings.all_label }}</span>
+            <span class="scm-arrow scm-arrow--lg" aria-hidden="true"></span>
+          </a>
+        </li>
       </ul>
-      <a class="scm-bar" href="{{ world.url }}">
-        <span>{{ all_text }}</span>
-        <span class="scm-arrow scm-arrow--lg" aria-hidden="true"></span>
-      </a>
     </div>
   {%- endfor -%}
 </section>
@@ -104,7 +116,8 @@
     { "type": "collection", "id": "collection_one", "label": "Reiter 1 – Gesamtkollektion", "info": "Leer = „Neu“" },
     { "type": "text", "id": "label_two", "label": "Reiter 2", "default": "Second Hand" },
     { "type": "collection", "id": "collection_two", "label": "Reiter 2 – Gesamtkollektion", "info": "Leer = „Second Hand“" },
-    { "type": "text", "id": "all_label", "label": "Text unter dem Raster", "info": "[anzahl] und [welt] werden ersetzt.", "default": "Alle [anzahl] Teile – [welt]" }
+    { "type": "range", "id": "min_count", "label": "Kategorie erst zeigen ab", "min": 1, "max": 10, "step": 1, "unit": "Stk", "default": 3, "info": "Kategorien mit weniger Artikeln werden ausgeblendet." },
+    { "type": "text", "id": "all_label", "label": "Letzte Kachel", "default": "Alle ansehen" }
   ],
   "blocks": [
     {
