@@ -1,0 +1,96 @@
+{%- liquid
+  # Passende Kategorie finden: zuerst „neu-…“ / „second-hand-…“, sonst die Welt, sonst „Alle“
+  assign more = blank
+  assign world = blank
+  for c in product.collections
+    if c.handle contains 'neu-' or c.handle contains 'second-hand-'
+      assign more = c
+      break
+    elsif c.handle == 'neu' or c.handle == 'second-hand'
+      assign world = c
+    endif
+  endfor
+  if more == blank
+    assign more = world | default: collections.all
+  endif
+  assign more_label = more.title | split: ' – ' | last
+  assign limit = section.settings.limit
+  assign shown = 0
+-%}
+{%- render 'scm-home-head' -%}
+<section class="scm scm-rail scm-pdp-more">
+  <div class="scm-head scm-wrap">
+    <h2 class="scm-title" data-scm-reveal>{{ section.settings.title }}</h2>
+    <a class="scm-pdp-more__link" href="{{ more.url }}" data-scm-reveal>{{ more_label }}<span class="scm-arrow" aria-hidden="true"></span></a>
+  </div>
+
+  <div class="scm-rail__panel" data-scm-rail>
+    <ul class="scm-rail__track" role="list" data-scm-rail-track tabindex="0" aria-label="{{ section.settings.title | escape }}">
+      {%- for item in more.products limit: 40 -%}
+        {%- if shown >= limit -%}{%- break -%}{%- endif -%}
+        {%- if item.id == product.id or item.available == false -%}{%- continue -%}{%- endif -%}
+        {%- liquid
+          assign shown = shown | plus: 1
+          assign title_parts = item.title | split: ' | '
+          if title_parts.size > 1
+            assign card_name = title_parts.first
+            assign card_detail = title_parts | slice: 1, 3 | join: ' · '
+          else
+            assign card_name = item.title
+            assign card_detail = item.type
+          endif
+          assign second_image = item.images[1]
+        -%}
+        <li class="scm-card">
+          <a class="scm-card__link" href="{{ item.url }}">
+            <span class="scm-card__media{% if second_image %} scm-card__media--swap{% endif %}">
+              {%- if item.featured_image -%}
+                {{ item.featured_image | image_url: width: 900 | image_tag: loading: 'lazy', widths: '300, 450, 600, 900', sizes: '(min-width: 990px) 24vw, 62vw', class: 'scm-card__image', alt: item.featured_image.alt | default: item.title }}
+              {%- endif -%}
+              {%- if second_image -%}
+                {{ second_image | image_url: width: 900 | image_tag: loading: 'lazy', widths: '300, 450, 600, 900', sizes: '(min-width: 990px) 24vw, 62vw', class: 'scm-card__image scm-card__image--alt', alt: '' }}
+              {%- endif -%}
+            </span>
+            <span class="scm-card__meta">
+              <span class="scm-card__name">{{ card_name }}</span>
+              {%- if card_detail != blank -%}<span class="scm-card__detail">{{ card_detail }}</span>{%- endif -%}
+              <span class="scm-card__price">
+                {%- if item.compare_at_price > item.price -%}<s>{{ item.compare_at_price | money_without_currency | append: ' €' }}</s> {% endif -%}
+                {{ item.price | money_without_currency | append: ' €' }}
+              </span>
+            </span>
+          </a>
+        </li>
+      {%- endfor -%}
+      <li class="scm-card scm-card--more">
+        <a class="scm-card__more" href="{{ more.url }}">
+          <span>{{ section.settings.more_label }}</span>
+          <span class="scm-arrow scm-arrow--lg" aria-hidden="true"></span>
+        </a>
+      </li>
+    </ul>
+    <div class="scm-rail__footer scm-wrap">
+      <div class="scm-rail__progress" aria-hidden="true"><span data-scm-rail-progress></span></div>
+      <p class="scm-rail__tax">{{ 'custom.price.tax_shipping' | t }}</p>
+      <div class="scm-rail__arrows">
+        <button type="button" class="scm-round" aria-label="Vorherige Artikel" data-scm-rail-prev><span class="scm-arrow scm-arrow--back" aria-hidden="true"></span></button>
+        <button type="button" class="scm-round" aria-label="Nächste Artikel" data-scm-rail-next><span class="scm-arrow" aria-hidden="true"></span></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "SCM Mehr davon",
+  "tag": "div",
+  "class": "scm-section",
+  "enabled_on": { "templates": ["product"] },
+  "settings": [
+    { "type": "text", "id": "title", "label": "Überschrift", "default": "Mehr davon" },
+    { "type": "range", "id": "limit", "label": "Anzahl Artikel", "min": 4, "max": 24, "step": 1, "default": 12 },
+    { "type": "text", "id": "more_label", "label": "Letzte Karte", "default": "Alles ansehen" }
+  ],
+  "presets": [{ "name": "SCM Mehr davon" }]
+}
+{% endschema %}

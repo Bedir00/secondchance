@@ -1,0 +1,102 @@
+{%- liquid
+  assign looks = product.metafields.custom.looks.value
+-%}
+{%- if looks != blank and looks.size > 0 -%}
+  {%- render 'scm-home-head' -%}
+  <section class="scm scm-pdp-looks" id="scm-looks">
+    <div class="scm-head scm-wrap">
+      <div>
+        {%- if section.settings.kicker != blank -%}<p class="scm-kicker" data-scm-reveal>{{ section.settings.kicker }}</p>{%- endif -%}
+        <h2 class="scm-title" data-scm-reveal>{{ section.settings.title }}</h2>
+      </div>
+    </div>
+
+    <div class="scm-pdp-looks__grid scm-wrap" data-count="{{ looks.size }}">
+      {%- for look in looks -%}
+        {%- liquid
+          assign look_image = look.bild.value
+          assign look_video = look.video.value
+          assign pieces = look.teile.value
+          assign look_total = 0
+          assign look_count = 0
+          for piece in pieces
+            if piece.available
+              assign look_total = look_total | plus: piece.price
+              assign look_count = look_count | plus: 1
+            endif
+          endfor
+        -%}
+        <article class="scm-pdp-look" data-scm-reveal style="--d: {{ forloop.index0 }}">
+          <div class="scm-look scm-pdp-look__media" data-scm-look>
+            <span class="scm-look__media">
+              {%- if look_image -%}
+                {{ look_image | image_url: width: 1200 | image_tag: loading: 'lazy', widths: '400, 600, 800, 1000, 1200', sizes: '(min-width: 990px) 33vw, 80vw', class: 'scm-look__image', alt: look_image.alt }}
+              {%- endif -%}
+              {%- if look_video != blank -%}
+                <video class="scm-look__video" muted loop playsinline preload="none" aria-hidden="true" data-src="{{ look_video }}" data-scm-look-video></video>
+              {%- endif -%}
+              <span class="scm-look__number" aria-hidden="true">{{ look.nummer.value }}</span>
+            </span>
+          </div>
+
+          <div class="scm-pdp-look__body">
+            <p class="scm-kicker">Look {{ look.nummer.value }}</p>
+            <h3 class="scm-pdp-look__name">{{ look.name.value }}</h3>
+            <ul class="scm-pdp-look__pieces" role="list">
+              {%- for piece in pieces -%}
+                {%- liquid
+                  assign piece_parts = piece.title | split: ' | '
+                  assign piece_name = piece_parts.first
+                  assign is_current = false
+                  if piece.id == product.id
+                    assign is_current = true
+                  endif
+                -%}
+                <li>
+                  <a class="scm-piece{% if is_current %} is-current{% endif %}{% unless piece.available %} is-soldout{% endunless %}" href="{{ piece.url }}" {% if is_current %}aria-current="page"{% endif %}>
+                    <span class="scm-piece__media">
+                      {%- if piece.featured_image -%}
+                        {{ piece.featured_image | image_url: width: 240 | image_tag: loading: 'lazy', widths: '120, 240', sizes: '80px', alt: '' }}
+                      {%- endif -%}
+                    </span>
+                    <span class="scm-piece__text">
+                      <span class="scm-piece__name">{{ piece_name }}</span>
+                      <span class="scm-piece__price">
+                        {%- if is_current -%}{{ section.settings.current_label }}{%- elsif piece.available -%}{{ piece.price | money_without_currency | append: ' €' }}{%- else -%}{{ section.settings.soldout_label }}{%- endif -%}
+                      </span>
+                    </span>
+                    {%- unless is_current -%}<span class="scm-arrow" aria-hidden="true"></span>{%- endunless -%}
+                  </a>
+                </li>
+              {%- endfor -%}
+            </ul>
+            {%- if look_count > 1 -%}
+              <p class="scm-pdp-look__total">
+                <span>{{ section.settings.total_label }}</span>
+                <strong>{{ look_total | money_without_currency | append: ' €' }}</strong>
+              </p>
+            {%- endif -%}
+          </div>
+        </article>
+      {%- endfor -%}
+    </div>
+  </section>
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "SCM Look zum Produkt",
+  "tag": "div",
+  "class": "scm-section",
+  "enabled_on": { "templates": ["product"] },
+  "settings": [
+    { "type": "paragraph", "content": "Zeigt die Looks aus dem Produkt-Metafeld „Looks“ (custom.looks). Ohne Look bleibt die Section unsichtbar." },
+    { "type": "text", "id": "kicker", "label": "Kleine Zeile", "default": "Shop the Look" },
+    { "type": "text", "id": "title", "label": "Überschrift", "default": "So trägst du es" },
+    { "type": "text", "id": "current_label", "label": "Markierung aktueller Artikel", "default": "Du bist hier" },
+    { "type": "text", "id": "soldout_label", "label": "Ausverkauft", "default": "Ausverkauft" },
+    { "type": "text", "id": "total_label", "label": "Summe", "default": "Ganzer Look" }
+  ],
+  "presets": [{ "name": "SCM Look zum Produkt" }]
+}
+{% endschema %}

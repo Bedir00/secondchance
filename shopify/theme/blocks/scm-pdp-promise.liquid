@@ -1,0 +1,34 @@
+{%- comment -%} Drei kurze Versprechen unter dem Warenkorb-Button. {%- endcomment -%}
+<ul class="scm scm-pdp-promise" role="list" {{ block.shopify_attributes }}>
+  {%- if block.settings.line_one != blank -%}
+    <li>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 6h12v10H2zM14 9h4l4 4v3h-8zM6.5 19a1.8 1.8 0 1 0 0-3.6 1.8 1.8 0 0 0 0 3.6zM17.5 19a1.8 1.8 0 1 0 0-3.6 1.8 1.8 0 0 0 0 3.6z"/></svg>
+      <span>{{ block.settings.line_one }}</span>
+    </li>
+  {%- endif -%}
+  {%- if block.settings.line_two != blank -%}
+    <li>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10l1.5-5h15L21 10M3 10v10h18V10M3 10h18M9 20v-6h6v6"/></svg>
+      <span>{{ block.settings.line_two }}</span>
+    </li>
+  {%- endif -%}
+  {%- if block.settings.line_three != blank -%}
+    <li>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4h4"/></svg>
+      <span>{{ block.settings.line_three }}</span>
+    </li>
+  {%- endif -%}
+</ul>
+
+{% schema %}
+{
+  "name": "SCM Versprechen",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "line_one", "label": "Zeile 1 (Versand)", "default": "Versandkostenfrei ab 75 €" },
+    { "type": "text", "id": "line_two", "label": "Zeile 2 (Abholung)", "default": "Click & Collect in Espelkamp" },
+    { "type": "text", "id": "line_three", "label": "Zeile 3 (Rückgabe)", "default": "14 Tage Anprobe" }
+  ],
+  "presets": [{ "name": "SCM Versprechen" }]
+}
+{% endschema %}

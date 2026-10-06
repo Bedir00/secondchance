@@ -1,0 +1,28 @@
+{%- comment -%} Pflichtangaben direkt unter dem Preis: MwSt. + Versand, plus Versandschwelle. {%- endcomment -%}
+{%- liquid
+  assign product = closest.product
+  assign threshold_cents = block.settings.free_shipping_from | times: 100
+  assign shipping_url = shop.shipping_policy.url | default: '/policies/shipping-policy'
+-%}
+<div class="scm scm-pdp-meta" {{ block.shopify_attributes }}>
+  <p class="scm-pdp-meta__tax">
+    {{ block.settings.tax_label }} · <a href="{{ shipping_url }}">{{ block.settings.shipping_label }}</a>
+  </p>
+  {%- if block.settings.free_shipping_from > 0 and product.price >= threshold_cents -%}
+    <p class="scm-pdp-meta__free">{{ block.settings.free_label }}</p>
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "SCM Preis-Hinweis",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "tax_label", "label": "Steuerhinweis", "default": "inkl. MwSt." },
+    { "type": "text", "id": "shipping_label", "label": "Versandhinweis (Link)", "default": "zzgl. Versand" },
+    { "type": "range", "id": "free_shipping_from", "label": "Versandkostenfrei ab", "min": 0, "max": 200, "step": 5, "unit": "€", "default": 75 },
+    { "type": "text", "id": "free_label", "label": "Text, wenn der Artikel allein die Schwelle erreicht", "default": "Versandkostenfrei" }
+  ],
+  "presets": [{ "name": "SCM Preis-Hinweis" }]
+}
+{% endschema %}

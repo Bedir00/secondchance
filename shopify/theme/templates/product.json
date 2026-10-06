@@ -1,0 +1,269 @@
+{
+  "sections": {
+    "main": {
+      "type": "product-information",
+      "blocks": {
+        "media-gallery": {
+          "type": "_product-media-gallery",
+          "static": true,
+          "settings": {
+            "media_presentation": "grid",
+            "media_columns": "two",
+            "image_gap": 4,
+            "large_first_image": true,
+            "icons_style": "arrow",
+            "slideshow_controls_style": "counter",
+            "slideshow_mobile_controls_style": "counter",
+            "thumbnail_position": "bottom",
+            "thumbnail_width": 44,
+            "thumbnail_radius": 0,
+            "aspect_ratio": "1/1.25",
+            "constrain_to_viewport": false,
+            "media_fit": "cover",
+            "media_radius": 0,
+            "extend_media": true,
+            "zoom": true,
+            "video_loop": true,
+            "hide_variants": true,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {}
+        },
+        "product-details": {
+          "type": "_product-details",
+          "static": true,
+          "settings": {
+            "width": "fill",
+            "custom_width": 100,
+            "width_mobile": "fill",
+            "custom_width_mobile": 100,
+            "height": "fit",
+            "details_position": "flex-start",
+            "gap": 18,
+            "sticky_details_desktop": true,
+            "background_media": "none",
+            "background_color": "",
+            "video_position": "cover",
+            "background_image_position": "cover",
+            "border": "none",
+            "border_width": 1,
+            "border_opacity": 100,
+            "border_color": "",
+            "border_radius": 0,
+            "padding-block-start": 0,
+            "padding-block-end": 0,
+            "padding-inline-start": 0,
+            "padding-inline-end": 0
+          },
+          "blocks": {
+            "scm_head": {
+              "type": "scm-pdp-head",
+              "settings": {
+                "label_new": "Neu",
+                "label_second_hand": "Second Hand",
+                "label_unique": "Einzelstück",
+                "label_size": "Größe"
+              },
+              "blocks": {}
+            },
+            "price": {
+              "type": "price",
+              "settings": {
+                "show_sale_price_first": true,
+                "show_installments": false,
+                "show_tax_info": false,
+                "type_preset": "h6",
+                "width": "100%",
+                "alignment": "left",
+                "font": "var(--font-body--family)",
+                "font_size": "1rem",
+                "line_height": "normal",
+                "letter_spacing": "normal",
+                "case": "none",
+                "text_color": "",
+                "padding-block-start": 6,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "scm_meta": {
+              "type": "scm-pdp-meta",
+              "settings": {
+                "tax_label": "inkl. MwSt.",
+                "shipping_label": "zzgl. Versand",
+                "free_shipping_from": 75,
+                "free_label": "Versandkostenfrei"
+              },
+              "blocks": {}
+            },
+            "variant_picker": {
+              "type": "variant-picker",
+              "settings": {
+                "variant_style": "buttons",
+                "show_swatches": true,
+                "option_label_text_color": "",
+                "variant_style_class": "default",
+                "custom_variant_background": "{{ settings.color_palette.background }}",
+                "custom_variant_text": "{{ settings.color_palette.foreground }}",
+                "custom_variant_border": "{{ settings.color_palette.foreground }}",
+                "selected_variant_style_class": "default",
+                "custom_selected_variant_background": "{{ settings.color_palette.foreground }}",
+                "custom_selected_variant_text": "{{ settings.color_palette.background }}",
+                "custom_selected_variant_border": "{{ settings.color_palette.foreground }}",
+                "alignment": "left",
+                "padding-block-start": 8,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "buy_buttons": {
+              "type": "buy-buttons",
+              "settings": {
+                "stacking": true,
+                "text_color": "",
+                "show_pickup_availability": false,
+                "gift_card_form": true,
+                "recipient_button_style": "default",
+                "recipient_button_background": "{{ settings.color_palette.background }}",
+                "recipient_button_text": "{{ settings.color_palette.foreground }}",
+                "recipient_button_border": "{{ settings.color_palette.foreground }}",
+                "selected_recipient_button_style": "default",
+                "selected_recipient_button_background": "{{ settings.color_palette.foreground }}",
+                "selected_recipient_button_text": "{{ settings.color_palette.background }}",
+                "selected_recipient_button_border": "{{ settings.color_palette.foreground }}",
+                "input_style": "default",
+                "input_background_color": "{{ settings.color_palette.background }}",
+                "input_text_color": "{{ settings.color_palette.foreground }}",
+                "input_border_color": "{{ settings.color_palette.foreground }}",
+                "border_width": 1,
+                "border_radius": 0,
+                "padding-block-start": 4,
+                "padding-block-end": 8,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {
+                "quantity": {
+                  "type": "quantity",
+                  "static": true,
+                  "settings": {
+                    "input_style": "default",
+                    "input_background_color": "{{ settings.color_palette.background }}",
+                    "input_text_color": "{{ settings.color_palette.foreground }}",
+                    "input_border_color": "{{ settings.color_palette.foreground }}",
+                    "border_width": 1,
+                    "border_radius": 0
+                  },
+                  "blocks": {}
+                },
+                "add-to-cart": {
+                  "type": "add-to-cart",
+                  "static": true,
+                  "settings": {
+                    "style_class": "button",
+                    "custom_button_background": "{{ settings.color_palette.foreground }}",
+                    "custom_button_text": "{{ settings.color_palette.background }}",
+                    "custom_button_border": "{{ settings.color_palette.background }}"
+                  },
+                  "blocks": {}
+                },
+                "accelerated-checkout": {
+                  "type": "accelerated-checkout",
+                  "static": true,
+                  "settings": {},
+                  "blocks": {}
+                }
+              },
+              "block_order": []
+            },
+            "scm_promise": {
+              "type": "scm-pdp-promise",
+              "settings": {
+                "line_one": "Versandkostenfrei ab 75 €",
+                "line_two": "Click & Collect in Espelkamp",
+                "line_three": "14 Tage Anprobe"
+              },
+              "blocks": {}
+            },
+            "scm_info": {
+              "type": "scm-pdp-info",
+              "settings": {
+                "details_title": "Details",
+                "open_details": true,
+                "shipping_title": "Versand & Rückgabe",
+                "shipping_text": "<p>Versandkostenfrei ab 75 €. Darunter siehst du die Kosten im Checkout.</p><p>14 Tage in Ruhe anprobieren. Rücksendung per Post: 5,90 €.</p>",
+                "pickup_title": "Abholen in Espelkamp",
+                "pickup_text": "<p>Im Checkout Click & Collect wählen, online bezahlen, ab dem nächsten Werktag abholen. Ohne Versandkosten.</p><p><strong>Wilhelm-Kern-Platz 1B · 32339 Espelkamp</strong></p><p>Di, Mi, Fr, Sa 10–13 Uhr · Do 10–13 und 14–17 Uhr</p>"
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "scm_head",
+            "price",
+            "scm_meta",
+            "variant_picker",
+            "buy_buttons",
+            "scm_promise",
+            "scm_info"
+          ]
+        }
+      },
+      "settings": {
+        "content_width": "content-full-width",
+        "desktop_media_position": "left",
+        "equal_columns": false,
+        "limit_details_width": false,
+        "gap": 0,
+        "enable_sticky_add_to_cart": true,
+        "background_color": "{{ settings.color_palette.background }}",
+        "padding-block-start": 0,
+        "padding-block-end": 0
+      }
+    },
+    "ticker": {
+      "type": "scm-ticker",
+      "settings": {
+        "items": "Neu & Second Hand\nOnline bestellen\nIm Store abholen\nEinzelstücke mit Charakter",
+        "style": "dark",
+        "speed": 40
+      }
+    },
+    "looks": {
+      "type": "scm-pdp-looks",
+      "settings": {
+        "kicker": "Shop the Look",
+        "title": "So trägst du es",
+        "current_label": "Du bist hier",
+        "soldout_label": "Ausverkauft",
+        "total_label": "Ganzer Look"
+      }
+    },
+    "more": {
+      "type": "scm-pdp-more",
+      "settings": {
+        "title": "Mehr davon",
+        "limit": 12,
+        "more_label": "Alles ansehen"
+      }
+    },
+    "recently_viewed": {
+      "type": "recently-viewed",
+      "settings": {}
+    }
+  },
+  "order": [
+    "main",
+    "ticker",
+    "looks",
+    "more",
+    "recently_viewed"
+  ]
+}

@@ -1,0 +1,433 @@
+{
+ "p0": {
+  "title": "Tupfenbluse Mokka",
+  "handle": "tupfenbluse-mokka",
+  "productType": "Blusen",
+  "category": "gid://shopify/TaxonomyCategory/aa-1-13-1",
+  "descriptionHtml": "<p><strong>Leicht. Getupft. Geknotet.</strong></p><ul><li>Zustand: Neu</li><li>Größe: One Size</li><li>Farbe: Mokka mit goldenen Tupfen</li><li>Transparent, Knoten am Saum</li><li>Look 01: mit weiter Hose und Gürtel</li></ul>",
+  "tags": [
+   "Damen",
+   "Neu",
+   "Zustand: Neu",
+   "Second Chance & More",
+   "One Size",
+   "Kategorie: Blusen, Shirts & Tuniken",
+   "Bluse",
+   "Braun",
+   "Look 01"
+  ],
+  "seo": {
+   "title": "Tupfenbluse Mokka – Neu | Second Chance & More",
+   "description": "Transparente Tupfenbluse in Mokka mit Knoten am Saum. One Size. Online bestellen oder in Espelkamp abholen."
+  },
+  "productOptions": [
+   {
+    "name": "Größe",
+    "values": [
+     {
+      "name": "One Size"
+     }
+    ]
+   }
+  ],
+  "files": [
+   {
+    "originalSource": "https://raw.githubusercontent.com/Bedir00/secondchance/40b37f97e4c28aa8f425557038959664a1d034b3/shopify/product-images/tupfenbluse-mokka.jpg",
+    "contentType": "IMAGE",
+    "alt": "Tupfenbluse in Mokka mit goldenen Tupfen",
+    "filename": "tupfenbluse-mokka.jpg"
+   },
+   {
+    "id": "gid://shopify/MediaImage/59875303784777"
+   }
+  ],
+  "variants": [
+   {
+    "optionValues": [
+     {
+      "optionName": "Größe",
+      "name": "One Size"
+     }
+    ],
+    "price": "29.90",
+    "sku": "SCM-L01-BLUSE",
+    "inventoryItem": {
+     "tracked": true
+    },
+    "inventoryPolicy": "DENY",
+    "inventoryQuantities": [
+     {
+      "locationId": "gid://shopify/Location/117537046857",
+      "name": "available",
+      "quantity": 0
+     }
+    ]
+   }
+  ],
+  "vendor": "Second Chance & More",
+  "status": "DRAFT"
+ },
+ "p1": {
+  "title": "Oversize-Shirt Salbei",
+  "handle": "oversize-shirt-salbei",
+  "productType": "Shirts",
+  "category": "gid://shopify/TaxonomyCategory/aa-1-13-7",
+  "descriptionHtml": "<p><strong>Weit. Lässig. Salbei.</strong></p><ul><li>Zustand: Neu</li><li>Größe: One Size</li><li>Farbe: Salbeigrün</li><li>Oversize-Schnitt</li><li>Look 02: mit Tuch, weiter Hose und Gürtel</li></ul>",
+  "tags": [
+   "Damen",
+   "Neu",
+   "Zustand: Neu",
+   "Second Chance & More",
+   "One Size",
+   "Kategorie: Blusen, Shirts & Tuniken",
+   "Shirt",
+   "Grün",
+   "Look 02"
+  ],
+  "seo": {
+   "title": "Oversize-Shirt Salbei – Neu | Second Chance & More",
+   "description": "Oversize-Shirt in Salbeigrün. One Size. Online bestellen oder in Espelkamp abholen."
+  },
+  "productOptions": [
+   {
+    "name": "Größe",
+    "values": [
+     {
+      "name": "One Size"
+     }
+    ]
+   }
+  ],
+  "files": [
+   {
+    "originalSource": "https://raw.githubusercontent.com/Bedir00/secondchance/40b37f97e4c28aa8f425557038959664a1d034b3/shopify/product-images/oversize-shirt-salbei.jpg",
+    "contentType": "IMAGE",
+    "alt": "Oversize-Shirt in Salbeigrün",
+    "filename": "oversize-shirt-salbei.jpg"
+   },
+   {
+    "id": "gid://shopify/MediaImage/59875303817545"
+   }
+  ],
+  "variants": [
+   {
+    "optionValues": [
+     {
+      "optionName": "Größe",
+      "name": "One Size"
+     }
+    ],
+    "price": "24.90",
+    "sku": "SCM-L02-SHIRT",
+    "inventoryItem": {
+     "tracked": true
+    },
+    "inventoryPolicy": "DENY",
+    "inventoryQuantities": [
+     {
+      "locationId": "gid://shopify/Location/117537046857",
+      "name": "available",
+      "quantity": 0
+     }
+    ]
+   }
+  ],
+  "vendor": "Second Chance & More",
+  "status": "DRAFT"
+ },
+ "p2": {
+  "title": "Paisley-Tuch",
+  "handle": "paisley-tuch",
+  "productType": "Tücher",
+  "category": "gid://shopify/TaxonomyCategory/aa-2-26",
+  "descriptionHtml": "<p><strong>Ein Tuch. Ganzer Look.</strong></p><ul><li>Zustand: Neu</li><li>Größe: One Size</li><li>Farbe: Grün, Bordeaux, Creme</li><li>Paisley-Muster, Rand in Bordeaux</li><li>Look 02: zum Oversize-Shirt</li></ul>",
+  "tags": [
+   "Damen",
+   "Neu",
+   "Zustand: Neu",
+   "Second Chance & More",
+   "One Size",
+   "Kategorie: Accessoires",
+   "Tuch",
+   "Accessoires",
+   "Grün",
+   "Bordeaux",
+   "Look 02"
+  ],
+  "seo": {
+   "title": "Paisley-Tuch – Neu | Second Chance & More",
+   "description": "Tuch mit Paisley-Muster in Grün, Bordeaux und Creme. Online bestellen oder in Espelkamp abholen."
+  },
+  "productOptions": [
+   {
+    "name": "Größe",
+    "values": [
+     {
+      "name": "One Size"
+     }
+    ]
+   }
+  ],
+  "files": [
+   {
+    "originalSource": "https://raw.githubusercontent.com/Bedir00/secondchance/40b37f97e4c28aa8f425557038959664a1d034b3/shopify/product-images/tuch-paisley.jpg",
+    "contentType": "IMAGE",
+    "alt": "Tuch mit Paisley-Muster und Rand in Bordeaux",
+    "filename": "tuch-paisley.jpg"
+   },
+   {
+    "id": "gid://shopify/MediaImage/59875303817545"
+   }
+  ],
+  "variants": [
+   {
+    "optionValues": [
+     {
+      "optionName": "Größe",
+      "name": "One Size"
+     }
+    ],
+    "price": "12.90",
+    "sku": "SCM-L02-TUCH",
+    "inventoryItem": {
+     "tracked": true
+    },
+    "inventoryPolicy": "DENY",
+    "inventoryQuantities": [
+     {
+      "locationId": "gid://shopify/Location/117537046857",
+      "name": "available",
+      "quantity": 0
+     }
+    ]
+   }
+  ],
+  "vendor": "Second Chance & More",
+  "status": "DRAFT"
+ },
+ "p3": {
+  "title": "Print-Bluse Karo & Kette",
+  "handle": "print-bluse-karo-kette",
+  "productType": "Blusen",
+  "category": "gid://shopify/TaxonomyCategory/aa-1-13-1",
+  "descriptionHtml": "<p><strong>Karo trifft Kette.</strong></p><ul><li>Zustand: Neu</li><li>Größe: One Size</li><li>Farbe: Bordeaux, Gold, Navy</li><li>Transparent, Knoten am Saum</li><li>Look 03: mit schwarzer weiter Hose und Gürtel</li></ul>",
+  "tags": [
+   "Damen",
+   "Neu",
+   "Zustand: Neu",
+   "Second Chance & More",
+   "One Size",
+   "Kategorie: Blusen, Shirts & Tuniken",
+   "Bluse",
+   "Bordeaux",
+   "Karo",
+   "Look 03"
+  ],
+  "seo": {
+   "title": "Print-Bluse Karo & Kette – Neu | Second Chance & More",
+   "description": "Transparente Bluse mit Karo- und Kettenprint in Bordeaux, Gold und Navy. One Size. Online bestellen oder in Espelkamp abholen."
+  },
+  "productOptions": [
+   {
+    "name": "Größe",
+    "values": [
+     {
+      "name": "One Size"
+     }
+    ]
+   }
+  ],
+  "files": [
+   {
+    "originalSource": "https://raw.githubusercontent.com/Bedir00/secondchance/40b37f97e4c28aa8f425557038959664a1d034b3/shopify/product-images/print-bluse-karo-kette.jpg",
+    "contentType": "IMAGE",
+    "alt": "Bluse mit Karo- und Kettenprint",
+    "filename": "print-bluse-karo-kette.jpg"
+   },
+   {
+    "id": "gid://shopify/MediaImage/59875303850313"
+   }
+  ],
+  "variants": [
+   {
+    "optionValues": [
+     {
+      "optionName": "Größe",
+      "name": "One Size"
+     }
+    ],
+    "price": "29.90",
+    "sku": "SCM-L03-BLUSE",
+    "inventoryItem": {
+     "tracked": true
+    },
+    "inventoryPolicy": "DENY",
+    "inventoryQuantities": [
+     {
+      "locationId": "gid://shopify/Location/117537046857",
+      "name": "available",
+      "quantity": 0
+     }
+    ]
+   }
+  ],
+  "vendor": "Second Chance & More",
+  "status": "DRAFT"
+ },
+ "p4": {
+  "title": "Weite Hose",
+  "handle": "weite-hose",
+  "productType": "Hosen",
+  "category": "gid://shopify/TaxonomyCategory/aa-1-12-11",
+  "descriptionHtml": "<p><strong>Weit. Hoch. Drei Farben.</strong></p><ul><li>Zustand: Neu</li><li>Größe: One Size</li><li>Farben: Mokka, Salbei, Schwarz</li><li>Hoher Bund mit Gummizug, weites Bein</li><li>Gürtel separat erhältlich</li></ul>",
+  "tags": [
+   "Damen",
+   "Neu",
+   "Zustand: Neu",
+   "Second Chance & More",
+   "One Size",
+   "Kategorie: Hosen & Jeans",
+   "Hose",
+   "Braun",
+   "Grün",
+   "Schwarz",
+   "Look 01",
+   "Look 02",
+   "Look 03"
+  ],
+  "seo": {
+   "title": "Weite Hose – Neu | Second Chance & More",
+   "description": "Weite Hose mit hohem Bund in Mokka, Salbei oder Schwarz. One Size. Online bestellen oder in Espelkamp abholen."
+  },
+  "productOptions": [
+   {
+    "name": "Farbe",
+    "values": [
+     {
+      "name": "Mokka"
+     },
+     {
+      "name": "Salbei"
+     },
+     {
+      "name": "Schwarz"
+     }
+    ]
+   }
+  ],
+  "files": [
+   {
+    "originalSource": "https://raw.githubusercontent.com/Bedir00/secondchance/40b37f97e4c28aa8f425557038959664a1d034b3/shopify/product-images/weite-hose-mokka.jpg",
+    "contentType": "IMAGE",
+    "alt": "Weite Hose in Mokka",
+    "filename": "weite-hose-mokka.jpg"
+   },
+   {
+    "originalSource": "https://raw.githubusercontent.com/Bedir00/secondchance/40b37f97e4c28aa8f425557038959664a1d034b3/shopify/product-images/weite-hose-salbei.jpg",
+    "contentType": "IMAGE",
+    "alt": "Weite Hose in Salbei",
+    "filename": "weite-hose-salbei.jpg"
+   },
+   {
+    "originalSource": "https://raw.githubusercontent.com/Bedir00/secondchance/40b37f97e4c28aa8f425557038959664a1d034b3/shopify/product-images/weite-hose-schwarz.jpg",
+    "contentType": "IMAGE",
+    "alt": "Weite Hose in Schwarz",
+    "filename": "weite-hose-schwarz.jpg"
+   },
+   {
+    "id": "gid://shopify/MediaImage/59875303784777"
+   },
+   {
+    "id": "gid://shopify/MediaImage/59875303817545"
+   },
+   {
+    "id": "gid://shopify/MediaImage/59875303850313"
+   }
+  ],
+  "variants": [
+   {
+    "optionValues": [
+     {
+      "optionName": "Farbe",
+      "name": "Mokka"
+     }
+    ],
+    "price": "34.90",
+    "sku": "SCM-HOSE-MOKKA",
+    "inventoryItem": {
+     "tracked": true
+    },
+    "inventoryPolicy": "DENY",
+    "inventoryQuantities": [
+     {
+      "locationId": "gid://shopify/Location/117537046857",
+      "name": "available",
+      "quantity": 0
+     }
+    ],
+    "file": {
+     "originalSource": "https://raw.githubusercontent.com/Bedir00/secondchance/40b37f97e4c28aa8f425557038959664a1d034b3/shopify/product-images/weite-hose-mokka.jpg",
+     "contentType": "IMAGE",
+     "alt": "Weite Hose in Mokka",
+     "filename": "weite-hose-mokka.jpg"
+    }
+   },
+   {
+    "optionValues": [
+     {
+      "optionName": "Farbe",
+      "name": "Salbei"
+     }
+    ],
+    "price": "34.90",
+    "sku": "SCM-HOSE-SALBEI",
+    "inventoryItem": {
+     "tracked": true
+    },
+    "inventoryPolicy": "DENY",
+    "inventoryQuantities": [
+     {
+      "locationId": "gid://shopify/Location/117537046857",
+      "name": "available",
+      "quantity": 0
+     }
+    ],
+    "file": {
+     "originalSource": "https://raw.githubusercontent.com/Bedir00/secondchance/40b37f97e4c28aa8f425557038959664a1d034b3/shopify/product-images/weite-hose-salbei.jpg",
+     "contentType": "IMAGE",
+     "alt": "Weite Hose in Salbei",
+     "filename": "weite-hose-salbei.jpg"
+    }
+   },
+   {
+    "optionValues": [
+     {
+      "optionName": "Farbe",
+      "name": "Schwarz"
+     }
+    ],
+    "price": "34.90",
+    "sku": "SCM-HOSE-SCHWARZ",
+    "inventoryItem": {
+     "tracked": true
+    },
+    "inventoryPolicy": "DENY",
+    "inventoryQuantities": [
+     {
+      "locationId": "gid://shopify/Location/117537046857",
+      "name": "available",
+      "quantity": 0
+     }
+    ],
+    "file": {
+     "originalSource": "https://raw.githubusercontent.com/Bedir00/secondchance/40b37f97e4c28aa8f425557038959664a1d034b3/shopify/product-images/weite-hose-schwarz.jpg",
+     "contentType": "IMAGE",
+     "alt": "Weite Hose in Schwarz",
+     "filename": "weite-hose-schwarz.jpg"
+    }
+   }
+  ],
+  "vendor": "Second Chance & More",
+  "status": "DRAFT"
+ }
+}

@@ -1,0 +1,50 @@
+{%- comment -%} Aufklappbare Infos: Details (Produktbeschreibung), Versand & Rückgabe, Abholung. {%- endcomment -%}
+{%- liquid
+  assign product = closest.product
+  assign details = product.description
+  assign description_start = details | strip | slice: 0, 11
+  if description_start == '<p><strong>'
+    assign claim_html = details | split: '</p>' | first | append: '</p>'
+    assign claim_text = claim_html | strip_html | strip
+    assign claim_length = claim_text | size
+    if claim_length <= 42
+      assign details = details | remove_first: claim_html
+    endif
+  endif
+-%}
+<div class="scm scm-pdp-info" {{ block.shopify_attributes }}>
+  {%- if details != blank -%}
+    <details class="scm-pdp-info__item" {% if block.settings.open_details %}open{% endif %}>
+      <summary>{{ block.settings.details_title }}<span class="scm-pdp-info__icon" aria-hidden="true"></span></summary>
+      <div class="scm-pdp-info__body">{{ details }}</div>
+    </details>
+  {%- endif -%}
+  {%- if block.settings.shipping_text != blank -%}
+    <details class="scm-pdp-info__item">
+      <summary>{{ block.settings.shipping_title }}<span class="scm-pdp-info__icon" aria-hidden="true"></span></summary>
+      <div class="scm-pdp-info__body">{{ block.settings.shipping_text }}</div>
+    </details>
+  {%- endif -%}
+  {%- if block.settings.pickup_text != blank -%}
+    <details class="scm-pdp-info__item">
+      <summary>{{ block.settings.pickup_title }}<span class="scm-pdp-info__icon" aria-hidden="true"></span></summary>
+      <div class="scm-pdp-info__body">{{ block.settings.pickup_text }}</div>
+    </details>
+  {%- endif -%}
+</div>
+
+{% schema %}
+{
+  "name": "SCM Infos",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "details_title", "label": "Titel Details", "default": "Details" },
+    { "type": "checkbox", "id": "open_details", "label": "Details offen anzeigen", "default": true },
+    { "type": "text", "id": "shipping_title", "label": "Titel Versand", "default": "Versand & Rückgabe" },
+    { "type": "richtext", "id": "shipping_text", "label": "Text Versand", "default": "<p>Versandkostenfrei ab 75 €. Darunter siehst du die Kosten im Checkout.</p><p>14 Tage in Ruhe anprobieren. Rücksendung per Post: 5,90 €.</p>" },
+    { "type": "text", "id": "pickup_title", "label": "Titel Abholung", "default": "Abholen in Espelkamp" },
+    { "type": "richtext", "id": "pickup_text", "label": "Text Abholung", "default": "<p>Im Checkout Click & Collect wählen, online bezahlen, ab dem nächsten Werktag abholen. Ohne Versandkosten.</p><p><strong>Wilhelm-Kern-Platz 1B · 32339 Espelkamp</strong></p><p>Di, Mi, Fr, Sa 10–13 Uhr · Do 10–13 und 14–17 Uhr</p>" }
+  ],
+  "presets": [{ "name": "SCM Infos" }]
+}
+{% endschema %}

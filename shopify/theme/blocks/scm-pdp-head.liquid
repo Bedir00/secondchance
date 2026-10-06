@@ -1,0 +1,93 @@
+{%- comment -%}
+  PDP-Kopf: Chips (Neu / Second Hand / Looks), Marke, riesiger Titel, Kurz-Claim.
+  Second-Hand-Titel im Format „Marke | Art | Größe“ werden zerlegt.
+{%- endcomment -%}
+{%- render 'scm-home-head' -%}
+{%- liquid
+  assign product = closest.product
+  assign title_parts = product.title | split: ' | '
+  assign brand = ''
+  assign size_label = ''
+  assign display_title = product.title
+  if title_parts.size > 1
+    assign brand = title_parts.first
+    assign display_title = title_parts[1]
+    if title_parts.size > 2
+      assign size_label = title_parts | slice: 2, 3 | join: ' · '
+    endif
+  elsif product.vendor != blank and product.vendor != shop.name and product.vendor != 'Second Chance & More' and product.vendor != 'Mein Shop'
+    assign brand = product.vendor
+  endif
+
+  assign is_second_hand = false
+  assign is_new = false
+  if product.tags contains 'Zustand: Second Hand' or product.tags contains 'Secondhand'
+    assign is_second_hand = true
+  elsif product.tags contains 'Zustand: Neu' or product.tags contains 'Neu'
+    assign is_new = true
+  endif
+
+  assign claim = ''
+  assign description_start = product.description | strip | slice: 0, 11
+  if description_start == '<p><strong>'
+    assign claim = product.description | split: '</strong>' | first | remove_first: '<p><strong>' | strip_html | strip
+    assign claim_length = claim | size
+    if claim_length > 42
+      assign claim = ''
+    endif
+  endif
+
+  assign looks = product.metafields.custom.looks.value
+
+  # Größe nur im Kopf zeigen, wenn es keine Größen-Auswahl gibt (sonst doppelt)
+  assign has_size_option = false
+  if product.options_by_name['Größe'] != blank or product.options_by_name['Size'] != blank
+    assign has_size_option = true
+  endif
+-%}
+
+<div class="scm scm-pdp-head" {{ block.shopify_attributes }}>
+  <div class="scm-pdp-chips">
+    {%- if is_new -%}
+      <a class="scm-chip scm-chip--solid" href="{{ collections['neu'].url | default: '/collections/neu' }}">{{ block.settings.label_new }}</a>
+    {%- elsif is_second_hand -%}
+      <a class="scm-chip scm-chip--solid" href="{{ collections['second-hand'].url | default: '/collections/second-hand' }}">{{ block.settings.label_second_hand }}</a>
+      {%- if block.settings.label_unique != blank -%}<span class="scm-chip">{{ block.settings.label_unique }}</span>{%- endif -%}
+    {%- endif -%}
+    {%- for look in looks -%}
+      <a class="scm-chip" href="#scm-looks">Look {{ look.nummer.value }}</a>
+    {%- endfor -%}
+  </div>
+
+  {%- if brand != blank -%}
+    <p class="scm-pdp-brand">{{ brand }}</p>
+  {%- endif -%}
+
+  <h1 class="scm-pdp-title">{{ display_title }}</h1>
+
+  {%- if claim != blank -%}
+    <p class="scm-pdp-claim">{{ claim }}</p>
+  {%- endif -%}
+
+  {%- unless has_size_option -%}
+    {%- if size_label != blank -%}
+      <p class="scm-pdp-size"><span>{{ block.settings.label_size }}</span> {{ size_label }}</p>
+    {%- elsif product.tags contains 'One Size' -%}
+      <p class="scm-pdp-size"><span>{{ block.settings.label_size }}</span> One Size</p>
+    {%- endif -%}
+  {%- endunless -%}
+</div>
+
+{% schema %}
+{
+  "name": "SCM Produktkopf",
+  "tag": null,
+  "settings": [
+    { "type": "text", "id": "label_new", "label": "Chip Neuware", "default": "Neu" },
+    { "type": "text", "id": "label_second_hand", "label": "Chip Second Hand", "default": "Second Hand" },
+    { "type": "text", "id": "label_unique", "label": "Chip Einzelstück", "default": "Einzelstück" },
+    { "type": "text", "id": "label_size", "label": "Bezeichnung Größe", "default": "Größe" }
+  ],
+  "presets": [{ "name": "SCM Produktkopf" }]
+}
+{% endschema %}

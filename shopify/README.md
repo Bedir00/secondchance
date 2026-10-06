@@ -29,3 +29,38 @@ Alle Texte, Bilder, Links und Kollektionen lassen sich im Theme-Editor ändern.
 
 - Look-Bilder: `assets/looks/look-0X.webp`, liegen in Shopify unter *Inhalte → Dateien* als `scm-look-0X.webp`
 - Look-Reels: `export/look-0X.mp4`, liegen ebenfalls unter *Inhalte → Dateien* als `scm-look-0X.mp4`
+
+## Produktseite (PDP) – `theme/templates/product.json`
+
+Horizon liefert weiterhin Galerie (Zoom), Varianten, Warenkorb, Express-Checkout und die Sticky-Leiste. Darum herum:
+
+| Teil | Datei | Inhalt |
+|---|---|---|
+| Kopf | `blocks/scm-pdp-head.liquid` | Chips (Neu / Second Hand + Einzelstück / Look 0X), Marke, riesiger Titel, Kurz-Claim. „Marke \| Art \| Größe“-Titel werden zerlegt |
+| Preis-Hinweis | `blocks/scm-pdp-meta.liquid` | inkl. MwSt. · zzgl. Versand (Link zur Versandrichtlinie) |
+| Versprechen | `blocks/scm-pdp-promise.liquid` | Versandkostenfrei ab 75 € · Click & Collect · 14 Tage Anprobe |
+| Infos | `blocks/scm-pdp-info.liquid` | Aufklapper: Details, Versand & Rückgabe, Abholen in Espelkamp |
+| So trägst du es | `sections/scm-pdp-looks.liquid` | Look-Bild mit Reel, alle Teile mit Preis, „Du bist hier“, Summe „Ganzer Look“ |
+| Mehr davon | `sections/scm-pdp-more.liquid` | Rail mit Artikeln aus derselben Kategorie |
+
+Galerie: zwei Spalten, erstes Bild groß, 4:5, randlos. Ein einzelnes letztes Bild läuft über die volle Breite.
+
+## Looks (Metaobjekte)
+
+- Definition `look` (Inhalte → Metaobjekte → Look): Nummer, Name, Bild, Reel-Link, Teile
+- `look-01-mokka`, `look-02-salbei`, `look-03-karo-kette`
+- Produkt-Metafeld `custom.looks` verknüpft Produkte mit ihren Looks
+- „Shop the Look“ auf der Startseite liest die Looks per Handle, die Teile werden dort zu Links
+
+## Artikel aus Shop the Look (als Entwurf angelegt)
+
+| Artikel | Handle | Preis (Vorschlag) |
+|---|---|---|
+| Tupfenbluse Mokka | `tupfenbluse-mokka` | 29,90 € |
+| Oversize-Shirt Salbei | `oversize-shirt-salbei` | 24,90 € |
+| Paisley-Tuch | `paisley-tuch` | 12,90 € |
+| Print-Bluse Karo & Kette | `print-bluse-karo-kette` | 29,90 € |
+| Weite Hose (Mokka, Salbei, Schwarz) | `weite-hose` | 34,90 € |
+| Gürtel (bestand schon) | `brauner-gurtel-mit-goldfarbener-schnalle` | 9,90 € |
+
+Produktbilder: Ausschnitte aus den Look-Fotos in `product-images/`.
