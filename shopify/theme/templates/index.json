@@ -3,8 +3,8 @@
     "hero": {
       "type": "scm-hero",
       "settings": {
-        "poster": "shopify://shop_images/second-chance-hero-two-models.png",
-        "image_layout": "split",
+        "poster": "shopify://shop_images/scm-hero-blumenweste.webp",
+        "image_layout": "full",
         "video_url": "",
         "kicker": "",
         "title": "Zweite Chance.\nErste Wahl.",

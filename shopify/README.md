@@ -6,7 +6,7 @@ Neue, plakative Startseite mit wenig Text und großen Bildern, angelehnt an den 
 
 | # | Section | Inhalt |
 |---|---|---|
-| 1 | `scm-hero` | Hero-Bild geteilt: Desktop links schwarze Fläche mit „Zweite Chance. Erste Wahl.“ (ein Wort pro Zeile) + zwei Buttons, rechts das Hochformat-Bild ungeschnitten; mobil Bild oben (3:4), Überschrift als Zweizeiler darunter. Optional Video oder Vollbild |
+| 1 | `scm-hero` | Hero-Bild (Blumenweste) mit Text direkt im Bild: Desktop links neben der Person „Zweite / Chance. / Erste / Wahl.“ + zwei Buttons untereinander, mobil unten als Zweizeiler. Dunkle Verläufe nur dort, wo Text steht. Alternativ „Geteilt“ oder Video |
 | 2 | `scm-ticker` | Schwarzes Laufband: Neu & Second Hand · Einzelstücke mit Charakter · Versandkostenfrei ab 75 € · 14 Tage Anprobe |
 | 3 | `scm-worlds` | 50/50-Kacheln „Neu“ und „Second Hand“ |
 | 4 | `scm-categories` | Kategorie-Raster mit Umschalter Neu / Second Hand; Kategorien unter 3 Artikeln werden ausgeblendet, die Kachel „Alle ansehen“ füllt die letzte Reihe immer exakt |
@@ -31,6 +31,7 @@ Alle Texte, Bilder, Links und Kollektionen lassen sich im Theme-Editor ändern.
 
 - Look-Bilder: `assets/looks/look-0X.webp`, liegen in Shopify unter *Inhalte → Dateien* als `scm-look-0X.webp`
 - Look-Reels: `export/look-0X.mp4`, liegen ebenfalls unter *Inhalte → Dateien* als `scm-look-0X.mp4`
+- Hero: `assets/hero/scm-hero-blumenweste.webp` (2× hochgerechnet aus dem 1089 × 1445 px Original), in Shopify als `scm-hero-blumenweste.webp`. Ausschnitt per Fokuspunkt in *Inhalte → Dateien* steuerbar
 
 ## Produktseite (PDP) – `theme/templates/product.json`
 

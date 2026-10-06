@@ -3,9 +3,15 @@
   assign title_lines = section.settings.title | strip | newline_to_br | split: '<br />'
   assign primary_link = section.settings.primary_link | default: collections['neu'].url
   assign secondary_link = section.settings.secondary_link | default: collections['second-hand'].url
-  assign poster = section.settings.poster | default: images['second-chance-hero-two-models.png']
+  assign poster = section.settings.poster | default: images['scm-hero-blumenweste.webp']
 
-  # Ohne Video: Bild. „Geteilt“ zeigt das Hochformat-Bild ungeschnitten neben einer schwarzen Textfläche.
+  # Bildausschnitt: Fokuspunkt aus Inhalte → Dateien (falls gesetzt), sonst Standard aus dem CSS
+  assign focal_style = ''
+  if poster.presentation.focal_point != blank
+    assign focal_style = 'object-position: ' | append: poster.presentation.focal_point | append: ';'
+  endif
+
+  # „Text im Bild“: Überschrift transparent auf dem Bild. „Geteilt“: Bild neben einer schwarzen Textfläche.
   assign layout = 'full'
   if section.settings.video_url == blank and section.settings.image_layout == 'split'
     assign layout = 'split'
@@ -34,7 +40,7 @@
         <source src="{{ section.settings.video_url }}" type="video/mp4">
       </video>
     {%- elsif poster -%}
-      {{ poster | image_url: width: 2400 | image_tag: loading: 'eager', fetchpriority: 'high', widths: '600, 900, 1200, 1500, 1800, 2400', sizes: image_sizes, class: 'scm-hero__video', alt: poster.alt }}
+      {{ poster | image_url: width: 2400 | image_tag: loading: 'eager', fetchpriority: 'high', widths: '600, 900, 1200, 1500, 1800, 2400', sizes: image_sizes, class: 'scm-hero__video', alt: poster.alt, style: focal_style }}
     {%- endif -%}
   </div>
   <div class="scm-hero__veil" aria-hidden="true"></div>
@@ -73,10 +79,10 @@
   "tag": "div",
   "class": "scm-section",
   "settings": [
-    { "type": "image_picker", "id": "poster", "label": "Bild", "info": "Hauptbild. Mit Video dient es als Standbild, bis das Video lädt." },
-    { "type": "select", "id": "image_layout", "label": "Bild-Aufteilung", "default": "split", "info": "Nur ohne Video. Geteilt passt zu Hochformat-Bildern.", "options": [
-      { "value": "split", "label": "Geteilt: Text links, Bild rechts" },
-      { "value": "full", "label": "Vollbild" }
+    { "type": "image_picker", "id": "poster", "label": "Bild", "info": "Hauptbild. Den Ausschnitt steuert der Fokuspunkt des Bildes (Inhalte → Dateien). Mit Video dient es als Standbild." },
+    { "type": "select", "id": "image_layout", "label": "Aufteilung", "default": "full", "options": [
+      { "value": "full", "label": "Text im Bild" },
+      { "value": "split", "label": "Geteilt: Text links auf Schwarz, Bild rechts" }
     ] },
     { "type": "text", "id": "video_url", "label": "Video-URL (MP4, optional)", "info": "Direkter Link auf eine MP4-Datei. Leer lassen, um nur das Bild zu zeigen." },
     { "type": "text", "id": "kicker", "label": "Kleine Zeile (optional)" },

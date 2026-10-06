@@ -283,6 +283,38 @@
   60%, 100% { transform: translateY(100%); }
 }
 
+/* --- Text im Bild (Standard) ---
+   Ausschnitt: Person mittig, Kopf oben im Bild. Ein gesetzter Fokuspunkt (Inhalte → Dateien) überschreibt das. */
+.scm-hero--full .scm-hero__video { object-position: 47% 12%; }
+
+@media (min-width: 990px) {
+  /* Text links neben der Person: dunkler Verlauf nur dort, wo Text steht */
+  .scm-hero--full .scm-hero__veil {
+    background:
+      linear-gradient(180deg, rgb(0 0 0 / 32%) 0%, rgb(0 0 0 / 0%) 18%),
+      linear-gradient(90deg, rgb(0 0 0 / 58%) 0%, rgb(0 0 0 / 30%) 26%, rgb(0 0 0 / 0%) 44%);
+  }
+  /* „CHANCE.“ = 4,44 × Schriftgröße: Spalte bis ca. 30 % der Breite, damit die Person frei bleibt */
+  .scm-hero--full .scm-hero__title {
+    max-width: 4.6em;
+    font-size: min(calc((30vw - var(--scm-gutter)) / 4.67), calc((100svh - 380px) / 3.44));
+  }
+  /* Text immer an der linken Bildkante, auch über 1800 px – sonst wandert er auf die Person */
+  .scm-hero--full .scm-hero__inner { max-width: none; margin: 0; }
+  .scm-hero--full .scm-hero__ctas { display: grid; grid-template-columns: max-content; gap: 10px; }
+  .scm-hero--full .scm-btn { justify-content: space-between; }
+  .scm-hero--full .scm-hero__scroll { display: none; }
+}
+
+@media (max-width: 989px) {
+  .scm-hero--full .scm-hero__veil {
+    background:
+      linear-gradient(180deg, rgb(0 0 0 / 30%) 0%, rgb(0 0 0 / 0%) 16%),
+      linear-gradient(0deg, rgb(0 0 0 / 72%) 0%, rgb(0 0 0 / 42%) 26%, rgb(0 0 0 / 0%) 50%);
+  }
+  .scm-hero--full .scm-hero__title { font-size: calc((100vw - 2 * var(--scm-gutter)) / 8.95); line-height: .88; }
+}
+
 /* --- Geteilt: schwarze Textfläche links, Hochformat-Bild rechts (ab 990 px) --- */
 .scm-hero--split {
   /* Bildspalte nie breiter als 3:4 zur Höhe → das Hochformat wird auf dem Desktop nie beschnitten */
