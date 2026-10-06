@@ -28,4 +28,4 @@ Alle Texte, Bilder, Links und Kollektionen lassen sich im Theme-Editor ändern.
 ## Bilder und Videos
 
 - Look-Bilder: `assets/looks/look-0X.webp`, liegen in Shopify unter *Inhalte → Dateien* als `scm-look-0X.webp`
-- Look-Reels: `export/look-0X.mp4`, liegen als Theme-Assets `scm-look-0X.mp4`
+- Look-Reels: `export/look-0X.mp4`, liegen ebenfalls unter *Inhalte → Dateien* als `scm-look-0X.mp4`

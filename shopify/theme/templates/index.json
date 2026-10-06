@@ -62,9 +62,9 @@
     "looks": {
       "type": "scm-looks",
       "blocks": {
-        "look_01": { "type": "look", "settings": { "number": "01", "name": "Mokka", "image": "shopify://shop_images/scm-look-01.webp", "video": "scm-look-01.mp4", "pieces": "Tupfenbluse, Gürtel, Weite Hose", "link": "shopify://collections/neu" } },
-        "look_02": { "type": "look", "settings": { "number": "02", "name": "Salbei", "image": "shopify://shop_images/scm-look-02.webp", "video": "scm-look-02.mp4", "pieces": "Seidentuch, Oversize-Shirt, Gürtel, Weite Hose", "link": "shopify://collections/neu" } },
-        "look_03": { "type": "look", "settings": { "number": "03", "name": "Karo & Kette", "image": "shopify://shop_images/scm-look-03.webp", "video": "scm-look-03.mp4", "pieces": "Print-Bluse, Gürtel, Weite Hose", "link": "shopify://collections/neu" } }
+        "look_01": { "type": "look", "settings": { "number": "01", "name": "Mokka", "image": "shopify://shop_images/scm-look-01.webp", "video": "https://cdn.shopify.com/s/files/1/1032/7402/1193/files/scm-look-01.mp4?v=1791292344", "pieces": "Tupfenbluse, Gürtel, Weite Hose", "link": "shopify://collections/neu" } },
+        "look_02": { "type": "look", "settings": { "number": "02", "name": "Salbei", "image": "shopify://shop_images/scm-look-02.webp", "video": "https://cdn.shopify.com/s/files/1/1032/7402/1193/files/scm-look-02.mp4?v=1791292344", "pieces": "Seidentuch, Oversize-Shirt, Gürtel, Weite Hose", "link": "shopify://collections/neu" } },
+        "look_03": { "type": "look", "settings": { "number": "03", "name": "Karo & Kette", "image": "shopify://shop_images/scm-look-03.webp", "video": "https://cdn.shopify.com/s/files/1/1032/7402/1193/files/scm-look-03.mp4?v=1791292344", "pieces": "Print-Bluse, Gürtel, Weite Hose", "link": "shopify://collections/neu" } }
       },
       "block_order": ["look_01", "look_02", "look_03"],
       "settings": {
