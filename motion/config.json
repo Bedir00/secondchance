@@ -6,7 +6,8 @@
   "colors": {
     "paper": "#ECE8E2",
     "ink": "#2A2420",
-    "light": "#FFF6EA"
+    "light": "#FFF6EA",
+    "arrow": "#FFFFFF"
   },
   "intro": {
     "kicker": "Herbst Edit",
@@ -23,22 +24,35 @@
       "id": "01",
       "image": "assets/looks/look-01.webp",
       "name": "Mokka",
-      "details": ["Tupfenbluse", "Weite Hose mit Gürtel"],
-      "accent": "#7A5236"
+      "accent": "#7A5236",
+      "callouts": [
+        { "text": "Tupfenbluse", "at": [1004, 318], "align": "right", "to": [588, 462], "bend": -0.28 },
+        { "text": "Gürtel", "at": [1004, 836], "align": "right", "to": [840, 712], "bend": 0.2 },
+        { "text": "Weite Hose", "at": [76, 1394], "align": "left", "to": [516, 1352], "bend": 0.14 }
+      ]
     },
     {
       "id": "02",
       "image": "assets/looks/look-02.webp",
       "name": "Salbei",
-      "details": ["Oversize-Shirt & Seidentuch", "Weite Hose mit Gürtel"],
-      "accent": "#5E6B52"
+      "accent": "#5E6B52",
+      "callouts": [
+        { "text": "Seidentuch", "at": [1004, 318], "align": "right", "to": [516, 474], "bend": -0.28 },
+        { "text": "Oversize-Shirt", "at": [76, 1108], "align": "left", "to": [300, 1016], "bend": -0.3 },
+        { "text": "Gürtel", "at": [1004, 836], "align": "right", "to": [852, 700], "bend": 0.2 },
+        { "text": "Weite Hose", "at": [76, 1394], "align": "left", "to": [552, 1352], "bend": 0.14 }
+      ]
     },
     {
       "id": "03",
       "image": "assets/looks/look-03.webp",
       "name": "Karo & Kette",
-      "details": ["Print-Bluse", "Weite Hose mit Gürtel"],
-      "accent": "#7C2F2A"
+      "accent": "#7C2F2A",
+      "callouts": [
+        { "text": "Print-Bluse", "at": [1004, 318], "align": "right", "to": [590, 464], "bend": -0.28 },
+        { "text": "Gürtel", "at": [1004, 836], "align": "right", "to": [842, 708], "bend": 0.2 },
+        { "text": "Weite Hose", "at": [76, 1394], "align": "left", "to": [514, 1352], "bend": 0.14 }
+      ]
     }
   ]
 }

@@ -5,7 +5,8 @@ Every frame is composed in numpy and piped straight into ffmpeg:
   - slow push-in on the photo (sub-pixel, no jitter)
   - drifting window light across the wall
   - a few dust motes floating in that light
-  - quiet typography: brand mark, look number, name, details
+  - quiet typography: brand mark, look number, name
+  - thin white arrows that draw themselves from each label to its piece
 
 Usage:
   python3 motion/render.py                 # render everything into export/
@@ -22,7 +23,7 @@ import sys
 from multiprocessing import Pool
 
 import numpy as np
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FONTS = os.path.join(ROOT, "assets", "fonts")
@@ -168,6 +169,71 @@ def hairline(frame, x, y, length, thickness, color, alpha):
         end += a * frac * color
 
 
+ARROW_SS = 4  # supersampling for smooth thin strokes
+
+
+def arrow(frame, p0, p1, bend, progress, alpha, color, width=2.4, head=15):
+    """Thin curved arrow that draws itself from p0 to p1 (progress 0..1).
+
+    The shaft follows a quadratic curve; `bend` pushes the control point
+    sideways as a fraction of the chord length (sign picks the side).
+    """
+    if alpha <= 0.002 or progress <= 0:
+        return
+    p0, p1 = np.asarray(p0, np.float32), np.asarray(p1, np.float32)
+    chord = p1 - p0
+    normal = np.array([-chord[1], chord[0]], np.float32) / max(np.linalg.norm(chord), 1e-3)
+    ctrl = (p0 + p1) / 2 + normal * bend * np.linalg.norm(chord)
+    s = np.linspace(0, 1, 240, dtype=np.float32)[:, None]
+    pts = (1 - s) ** 2 * p0 + 2 * (1 - s) * s * ctrl + s ** 2 * p1
+    seg = np.r_[0, np.cumsum(np.linalg.norm(np.diff(pts, axis=0), axis=1))]
+    pts = pts[seg <= seg[-1] * progress + 1e-3]
+    if len(pts) < 2:
+        return
+    tip = pts[-1]
+    d = pts[-1] - pts[max(0, len(pts) - 8)]
+    d /= max(np.linalg.norm(d), 1e-3)
+    # the head unfolds over the last stretch of the stroke
+    hp = ease_out_cubic((progress - 0.78) / 0.22)
+    wings = []
+    if hp > 0:
+        for ang in (0.5, -0.5):
+            c, sn = math.cos(ang), math.sin(ang)
+            back = np.array([-(d[0] * c - d[1] * sn), -(d[0] * sn + d[1] * c)], np.float32)
+            wings.append((tip, tip + back * head * hp))
+
+    pad = head + 8
+    allp = np.vstack([pts] + [np.vstack(w) for w in wings]) if wings else pts
+    x0 = int(max(0, math.floor(allp[:, 0].min()) - pad))
+    y0 = int(max(0, math.floor(allp[:, 1].min()) - pad))
+    x1 = int(min(W, math.ceil(allp[:, 0].max()) + pad))
+    y1 = int(min(H, math.ceil(allp[:, 1].max()) + pad))
+    if x0 >= x1 or y0 >= y1:
+        return
+    k = ARROW_SS
+    img = Image.new("L", ((x1 - x0) * k, (y1 - y0) * k), 0)
+    draw = ImageDraw.Draw(img)
+    lw = max(1, round(width * k))
+    to_ss = lambda p: ((p[0] - x0) * k, (p[1] - y0) * k)
+    draw.line([to_ss(p) for p in pts], fill=255, width=lw, joint="curve")
+    caps = [pts[0], tip] + [b for _, b in wings]
+    for a_, b_ in wings:
+        draw.line([to_ss(a_), to_ss(b_)], fill=255, width=lw)
+    r = lw / 2
+    for p in caps:
+        cx, cy = to_ss(p)
+        draw.ellipse([cx - r, cy - r, cx + r, cy + r], fill=255)
+    small = img.resize((x1 - x0, y1 - y0), Image.BOX)
+    mask = np.asarray(small, np.float32)[..., None] / 255.0
+    # very soft shadow so the white line still reads on the light wall
+    shadow = np.asarray(small.filter(ImageFilter.GaussianBlur(2.2)), np.float32)[..., None] / 255.0
+    shadow = np.roll(shadow, 1, axis=0)
+    region = frame[y0:y1, x0:x1]
+    region *= 1 - 0.32 * alpha * np.clip(shadow * 1.6, 0, 1)
+    region *= 1 - alpha * mask
+    region += alpha * mask * color
+
+
 # ------------------------------------------------------------------ atmosphere
 
 LOW = 4  # light field is computed at 1/4 resolution, it is very smooth anyway
@@ -269,8 +335,18 @@ class LookSegment:
         self.label = text_sprite(f"LOOK {look['id']}", font("Inter-Medium.otf", 18), 5.0, ink)
         name_font = fit_font("CormorantGaramond-LightItalic.ttf", 84, look["name"], TEXT_MAX_W)
         self.letters, _ = letter_sprites(look["name"], name_font, 0.5, ink)
-        det_font = font("Inter-Regular.otf", 19)
-        self.details = [text_sprite(d, det_font, 1.2, ink) for d in look["details"]]
+        self.arrow_color = rgb(CFG["colors"]["arrow"])
+        cfont = font("Inter-Regular.otf", 19)
+        self.callouts = []
+        for c in look["callouts"]:
+            sp = text_sprite(c["text"], cfont, 1.2, ink)
+            x, y = c["at"]
+            if c["align"] == "right":
+                x -= sp.advance
+                start = (x - 14, y - 6)
+            else:
+                start = (x + sp.advance + 14, y - 6)
+            self.callouts.append((sp, (x, y), start, c["to"], c["bend"]))
 
     def zoom(self, t):
         if self.loop:  # in and back out: identical first/last frame
@@ -278,9 +354,17 @@ class LookSegment:
         e = ease_in_out_sine(t / self.d)
         return 1.0 + 0.045 * e, -14 * e
 
+    PIVOT = (W / 2, H * 0.44)
+
+    def track(self, p, t):
+        """Where a point of the still photo sits in the zoomed frame at time t."""
+        z, pan_y = self.zoom(t)
+        px, py = self.PIVOT
+        return (px + (p[0] - px) * z, py + (p[1] + pan_y - py) * z)
+
     def base(self, t):
         z, pan_y = self.zoom(t)
-        px, py = W / 2, H * 0.44
+        px, py = self.PIVOT
         a = 1 / (z * self.s0)
         c = ((-px) / z + px + self.cx) / self.s0
         f = ((-py) / z + py - pan_y + self.cy) / self.s0
@@ -314,10 +398,13 @@ class LookSegment:
             p = ease_out_cubic((t - 1.6 - i * 0.065) / 1.2)
             blit(frame, s, MARGIN_X, y + 16 * (1 - p), p * block)
 
-        y += 52
-        for i, s in enumerate(self.details):
-            p = ease_out_cubic((t - 2.5 - i * 0.22) / 1.1)
-            blit(frame, s, MARGIN_X, y + i * 32 + 8 * (1 - p), p * block * 0.78)
+        # labels fade in one after another, each arrow then draws to its piece
+        for i, (sp, (x, y), start, target, bend) in enumerate(self.callouts):
+            t0 = 2.3 + i * 0.55
+            p = ease_out_cubic((t - t0) / 1.0)
+            blit(frame, sp, x, y + 8 * (1 - p), p * block * 0.82)
+            draw = ease_in_out_sine((t - t0 - 0.35) / 1.4)
+            arrow(frame, start, self.track(target, t), bend, draw, 0.95 * block, self.arrow_color)
 
 
 class CardSegment:
@@ -440,9 +527,9 @@ def build():
     looks = CFG["looks"]
     jobs = {}
     for k, look in enumerate(looks):
-        jobs[f"look-{look['id']}"] = Timeline([LookSegment(look, 8.0, 100 + k, loop=True)])
+        jobs[f"look-{look['id']}"] = Timeline([LookSegment(look, 9.0, 100 + k, loop=True)])
     segs = [CardSegment(CFG["intro"], 3.2, 7, looks[0]["accent"])]
-    segs += [LookSegment(look, 7.0, 10 + k) for k, look in enumerate(looks)]
+    segs += [LookSegment(look, 8.0, 10 + k) for k, look in enumerate(looks)]
     segs.append(CardSegment(CFG["outro"], 3.6, 9, looks[-1]["accent"]))
     jobs["secondchance-reel"] = Timeline(segs)
     return jobs
@@ -463,7 +550,7 @@ def main():
     stills = os.path.join(EXPORT, "stills")
     os.makedirs(stills, exist_ok=True)
     for name, tl in jobs.items():
-        still(tl, 4.2 if name.startswith("look") else 2.0, os.path.join(stills, f"{name}-cover.jpg"))
+        still(tl, 6.0 if name.startswith("look") else 2.0, os.path.join(stills, f"{name}-cover.jpg"))
         if not args.stills:
             encode(tl, os.path.join(EXPORT, f"{name}.mp4"))
 
