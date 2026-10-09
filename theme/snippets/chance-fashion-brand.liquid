@@ -1,0 +1,87 @@
+{%- comment -%}
+  Chance Fashion – ruhiger, eleganter Markenauftritt.
+  Überschreibt die plakativen SCM-Stile (scm-home.css, scm-pdp-fein.css und die Section-Styles),
+  ohne die Originaldateien zu ändern. Jeder Selektor beginnt mit `body` und ist damit spezifischer
+  als die Originalregel – er gewinnt unabhängig von der Ladereihenfolge.
+{%- endcomment -%}
+<style>
+  /* 1 · Markenfarbe zartbitter Schokobraun statt Schwarz */
+  body .scm,
+  body .scm-story,
+  body .scm-complete,
+  body .product-information[data-testid='product-information']:has(.scm-pdp-head) {
+    --scm-ink: #3b261d;
+    --scm-line: rgb(59 38 29 / 14%);
+  }
+  body .scm-chip { --scm-ink: #3b261d; }
+  body .scm-pdp-info__body { color: #4a342a; }
+
+  /* 2 · Große Schrift: feine Serife, normale Schreibweise statt fett und VERSALIEN */
+  body :is(
+    .scm-title, .scm-hero__title, .scm-world__title, .scm-tile__name, .scm-cats__all,
+    .scm-ticker__group li, .scm-look__name, .scm-card__more, .scm-statement__title, .scm-row__label,
+    .scm-pdp-look__name, .scm-pdp-look__total strong, .scm-pdp-claim,
+    .scm-story__title, .scm-complete__title, .scm-complete__total
+  ) {
+    font-weight: 500;
+    letter-spacing: -.01em;
+    text-transform: none;
+  }
+  body :is(.scm-title, .scm-world__title, .scm-statement__title, .scm-story__title, .scm-complete__title, .scm-pdp-look__name) { line-height: 1; }
+  body .scm-hero .scm-hero__title { line-height: .98; }
+  body .scm-line { padding-bottom: .12em; margin-bottom: -.12em; }
+
+  /* 3 · Kleine Zeilen und Buttons: Versalien bleiben, aber zart statt fett */
+  body :is(
+    .scm-kicker, .scm-btn, .scm-world__count, .scm-world__cta, .scm-tabs__tab, .scm-card__badge, .scm-chip,
+    .scm-pdp-brand, .scm-pdp-size span, .scm-pdp-meta__free, .scm-pdp-promise li, .scm-pdp-info__item > summary,
+    .scm-pdp-more__link, .scm-piece__name, .scm-pdp-look__total span, .scm-story__facts summary,
+    .scm-complete__add, .scm-complete__all
+  ) {
+    font-weight: 500;
+  }
+  body .scm-piece.is-current .scm-piece__price { font-weight: 500; }
+
+  /* Produktnamen und Preise in normaler Schreibweise */
+  body :is(.scm-card__name, .scm-complete__name) {
+    font-size: .86rem;
+    font-weight: 400;
+    letter-spacing: .01em;
+    text-transform: none;
+  }
+  body .scm-card__price { font-weight: 400; }
+  body .scm-story__reasons strong { font-weight: 500; }
+  body .scm-neu-usps li { font-weight: 400; }
+  body .sticky-add-to-cart__title { font-weight: 500; letter-spacing: .01em; text-transform: none; }
+
+  /* 4 · Produktseite */
+  body .product-information:has(.scm-pdp-head) .scm-pdp-head .scm-pdp-title,
+  body .product-information:has(.scm-neu-head) .scm-neu-head.scm-pdp-head .scm-pdp-title {
+    font-family: var(--scm-display-family, var(--font-heading--family, serif));
+    font-size: clamp(1.6rem, 2.4vw, 2.1rem);
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  body .product-information[data-testid='product-information']:has(.scm-pdp-head) .product-details :is(product-price, product-price .price),
+  body .product-information[data-testid='product-information']:has(.scm-neu-head) :is(product-price, .product-details .price) {
+    font-weight: 400;
+  }
+  body .product-information[data-testid='product-information']:has(.scm-pdp-head) :is(
+    .add-to-cart-button, .product-details .button, .shopify-payment-button__button,
+    .variant-option__button-label, .variant-option legend, .variant-option__select-wrapper label
+  ) {
+    font-weight: 500;
+  }
+
+  /* 5 · Linien, Rahmen und Pfeile feiner */
+  body :is(.scm-btn, .scm-round, .scm-tabs, .scm-world__count, .scm-complete__add) { border-width: 1px; }
+  body .scm-ticker { border-block-width: 1px; }
+  body :is(.scm-world__cta, .scm-pdp-more__link, .scm-row) { border-bottom-width: 1px; }
+  body :is(.scm-statement__links, .scm-pdp-promise, .scm-pdp-look__pieces) { border-top-width: 1px; }
+  body .scm-arrow::before { height: 1px; }
+  body .scm-arrow::after { border-top-width: 1px; border-right-width: 1px; }
+  body .scm-story__rule { height: 1px; }
+  body .scm-hero__scroll { width: 1px; }
+</style>
