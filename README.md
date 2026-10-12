@@ -10,7 +10,7 @@ Ruhige, dezente Motion Graphics für die drei Looks, im Format 9:16 (1080 × 192
 | `look-01.mp4` | 9 s | Look 01 „Mokka“, nahtlos loopbar |
 | `look-02.mp4` | 9 s | Look 02 „Salbei“, nahtlos loopbar |
 | `look-03.mp4` | 9 s | Look 03 „Karo & Kette“, nahtlos loopbar |
-| `look-04-reel.mp4` | 9,7 s | **Finales Look-04-Video**: gefilmter Clip mit Preisen, mitlaufenden Pfeilen und Rabatt-CTA (24 fps) |
+| `look-04-reel.mp4` | 14 s | **Finales Look-04-Video**: gefilmter Clip mit Preisen, mitlaufenden Pfeilen und Rabatt-CTA (24 fps) |
 | `look-04-cta.mp4` | 15 s | Look 04 als Foto-Version (Standbild mit Push-in), gleicher CTA |
 
 Cover-Standbilder liegen in `export/stills/`.
@@ -35,8 +35,10 @@ Grundlage ist der gefilmte Clip `assets/video/look-04-source.mp4` (Selfie-Walk, 
 
 1. **0–4,2 s, Selfie-Walk**: Oben steht die Markenzeile. Rechts erscheinen „Oberteil 44,90 €“ und „Rock 49,90 €“. Von jedem Preis zeichnet sich ein dünner weißer Pfeil zum Teil. Die Pfeilspitzen folgen Pullover und Rock, während die Person auf den Spiegel zugeht (Optical-Flow-Tracking).
 2. **Übergang**: Der harte Schnitt im Original wird zu einer kurzen, weichen Überblendung (8 Frames). Davor blenden die Preise sanft aus.
-3. **4,2–9,7 s, Stativ-Einstellung**: Von unten legt sich ein leichter Verlauf ins Bild. Eine kurze Linie baut sich auf, dann erscheint der CTA Zeile für Zeile:
-   „Outfit zusammenbestellen / und 20 % Rabatt erhalten“, darunter „Rock 49,90 € · Oberteil 44,90 €“.
+3. **4,1–14 s, Stativ-Einstellung + CTA**: Von unten legt sich ein Verlauf ins Bild. Dann erscheint der CTA Zeile für Zeile:
+   „Outfit zusammenbestellen“ / groß **„20 % Rabatt“** / „kostenlosen Versand erhalten.“
+   Darunter steht eine kleine Preistabelle: „Rock 39,92 € statt 49,90 €“ und „Oberteil 35,92 € statt 44,90 €“. Die alten Preise werden dabei dezent durchgestrichen.
+   Der Clip endet fast ruhig. Sein letztes Bild bleibt deshalb noch 4,3 s stehen, mit einem sehr langsamen Push-in (3,5 %). So ist der CTA rund 9 s zu sehen.
 4. Das Video blendet aus Schwarz ein und am Ende kurz nach Schwarz aus. So hat der Loop in Instagram keinen harten Sprung.
 
 Texte, Preise, Positionen der Beschriftungen, Pfeilziele und Timing stehen in `motion/look-04-video.json`:

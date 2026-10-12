@@ -13,11 +13,16 @@
   "timing": {
     "labels_in": 0.7,
     "labels_out": 3.55,
-    "scrim": 4.2,
-    "cta": 4.9
+    "scrim": 4.1,
+    "cta": 4.7
   },
   "cta": {
-    "lines": ["Outfit zusammenbestellen", "und 20 % Rabatt erhalten"],
-    "prices": "Rock 49,90 €  ·  Oberteil 44,90 €"
-  }
+    "lines": ["Outfit zusammenbestellen", "20 % Rabatt", "kostenlosen Versand erhalten."],
+    "prices": [
+      { "name": "Rock", "price": "39,92 €", "was": "49,90 €" },
+      { "name": "Oberteil", "price": "35,92 €", "was": "44,90 €" }
+    ]
+  },
+  "hold_seconds": 4.3,
+  "hold_pivot": [580, 700]
 }

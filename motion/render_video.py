@@ -5,7 +5,8 @@
   - part 1 (selfie walk): two labels with prices, each with a thin white
     arrow that draws itself to the piece and follows it (optical-flow tracking)
   - part 2 (tripod): labels fade out, a soft scrim rises from the bottom and
-    the bundle CTA appears line by line
+    the bundle CTA appears line by line; the clip's calm last frame is held
+    with a slow push-in so the CTA stays on screen longer
   - opens from and closes to black, so the Instagram loop has no jump
 All type is Montserrat in the CI colour (see motion/look-04-video.json).
 
@@ -28,7 +29,7 @@ from PIL import Image
 
 import render
 from render import H, W, arrow, ease_in_out_sine, ease_out_cubic, hairline, rgb
-from render_cta import SCRIM, fit, mont, put, text_pair
+from render_cta import fit, mont, put, text_pair
 
 ROOT = render.ROOT
 
@@ -37,6 +38,10 @@ with open(os.path.join(ROOT, "motion", "look-04-video.json"), encoding="utf-8") 
 
 FPS = CFG["fps"]
 BRAND_Y = 236
+
+_ys = np.arange(H, dtype=np.float32)
+_s = np.clip((_ys - 640) / (H - 640), 0, 1)
+SCRIM = (_s * _s * (3 - 2 * _s) * 0.74)[:, None, None]  # carries the larger CTA block
 
 
 # ----------------------------------------------------------------------- source
@@ -102,7 +107,8 @@ class Reel:
         self.frames = frames
         cut, d = CFG["cut_frame"], CFG["dissolve_frames"]
         self.cut, self.dis = cut, d
-        self.n = len(frames) - d
+        self.hold = int(round(CFG["hold_seconds"] * FPS))
+        self.n = len(frames) - d + self.hold
         self.duration = self.n / FPS
 
         items = CFG["items"]
@@ -121,16 +127,39 @@ class Reel:
             left = right - max(name[0].advance, price[0].advance)
             self.items.append((name, price, right, base, (left - 18, base + 6), it["bend"]))
 
+        # CTA: headline, a large discount line, sub line, then the bundle prices as a small table
         cta = CFG["cta"]
-        l1 = fit("Light", 54, cta["lines"][0], W - 2 * 100, 0.3)
-        l2 = fit("Medium", l1.size, cta["lines"][1], W - 2 * 100, 0.3)
-        self.lines = [text_pair(cta["lines"][0], l1, 0.3, white, 0.35, 4),
-                      text_pair(cta["lines"][1], l2, 0.3, white, 0.35, 4)]
-        self.prices = text_pair(cta["prices"], mont("Regular", 25), 1.5, white, 0.35, 3)
+        head, hero, sub = cta["lines"]
+        self.lines = [
+            (text_pair(head, fit("Light", 50, head, W - 200, 0.3), 0.3, white, 0.35, 4), 1060),
+            (text_pair(hero, fit("SemiBold", 124, hero, W - 200, 0.5), 0.5, white, 0.4, 6), 1192),
+            (text_pair(sub, fit("Light", 44, sub, W - 200, 0.3), 0.3, white, 0.35, 4), 1264),
+        ]
+        name_f, now_f, was_f = mont("Medium", 22), mont("SemiBold", 36), mont("Light", 27)
+        rows = [(text_pair(r["name"].upper(), name_f, 4.0, white, 0.35),
+                 text_pair(r["price"], now_f, 0.4, white, 0.35),
+                 text_pair("statt ", was_f, 0.3, white, 0.35),
+                 text_pair(r["was"], was_f, 0.3, white, 0.35)) for r in cta["prices"]]
+        cols = [max(r[0][0].advance for r in rows), max(r[1][0].advance for r in rows)]
+        was_w = max(r[2][0].advance + r[3][0].advance for r in rows)
+        gap = 22
+        x0 = (W - (cols[0] + cols[1] + was_w + 2 * gap)) / 2
+        self.price_cols = (x0 + cols[0], x0 + cols[0] + gap, x0 + cols[0] + cols[1] + 2 * gap)
+        self.rows = rows
 
     def footage(self, i):
-        """Output frame i: part 1, a soft dissolve over the cut, then part 2."""
+        """Output frame i: part 1, a soft dissolve over the cut, part 2, then the held last frame."""
         cut, d = self.cut, self.dis
+        last = len(self.frames) - 1
+        if i + d > last:
+            # the clip ends almost still: hold its last frame and push in slowly from zero speed
+            h = (i + d - last) / self.hold
+            z = 1 + 0.035 * ease_in_out_sine(h)
+            px, py = CFG["hold_pivot"]
+            m = np.float32([[z, 0, px * (1 - z)], [0, z, py * (1 - z)]])
+            img = cv2.warpAffine(self.frames[last], m, (W, H), flags=cv2.INTER_CUBIC,
+                                 borderMode=cv2.BORDER_REFLECT)
+            return img.astype(np.float32) / 255
         if i < cut - d:
             return self.frames[i].astype(np.float32) / 255
         if i < cut:
@@ -176,16 +205,28 @@ class Reel:
 
     def cta(self, frame, t):
         t0 = CFG["timing"]["cta"]
-        grow = ease_out_cubic((t - t0) / 1.0)
+        for k, (pair, y) in enumerate(self.lines):
+            p = ease_out_cubic((t - t0 - k * 0.35) / 1.2)
+            put(frame, pair, (W - pair[0].advance) / 2, y + 16 * (1 - p), p)
+
+        grow = ease_out_cubic((t - t0 - 1.1) / 1.0)
         if grow > 0:
-            hairline(frame, W / 2 - 30 * grow, 1236, 60 * grow, 2, self.white, 0.85)
-        y = 1318
-        for k, pair in enumerate(self.lines):
-            p = ease_out_cubic((t - t0 - 0.25 - k * 0.3) / 1.1)
-            put(frame, pair, (W - pair[0].advance) / 2, y + 14 * (1 - p), p)
-            y += 68
-        p = ease_out_cubic((t - t0 - 1.0) / 1.1)
-        put(frame, self.prices, (W - self.prices[0].advance) / 2, 1452 + 10 * (1 - p), p * 0.92)
+            hairline(frame, W / 2 - 36 * grow, 1318, 72 * grow, 2, self.white, 0.8)
+
+        right, now_x, was_x = self.price_cols
+        for k, (name, now, statt, was) in enumerate(self.rows):
+            y = 1394 + k * 54
+            p = ease_out_cubic((t - t0 - 1.4 - k * 0.25) / 1.1)
+            rise = 10 * (1 - p)
+            put(frame, name, right - name[0].advance, y + rise, p * 0.85)
+            put(frame, now, now_x, y + rise, p)
+            put(frame, statt, was_x, y + rise, p * 0.7)
+            wx = was_x + statt[0].advance
+            put(frame, was, wx, y + rise, p * 0.7)
+            # the old price gets struck through once the row has settled
+            strike = ease_out_cubic((t - t0 - 2.0 - k * 0.25) / 0.7)
+            if strike > 0:
+                hairline(frame, wx - 2, y - 10, (was[0].advance + 4) * strike, 2, self.white, 0.7)
 
 
 # ----------------------------------------------------------------------- output
@@ -248,7 +289,7 @@ def main():
             Image.fromarray(img).resize((360, 640)).save(os.path.join(dbg, f"track-{i:03d}.jpg"))
         return
 
-    for label, t in (("prices", 3.0), ("cta", 7.2)):
+    for label, t in (("prices", 3.0), ("cta", 11.0)):
         save(reel.render(int(t * FPS)), os.path.join(stills, f"{name}-{label}.jpg"))
     if not args.stills:
         encode(reel, os.path.join(render.EXPORT, f"{name}.mp4"))
