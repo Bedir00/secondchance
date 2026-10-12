@@ -117,7 +117,8 @@ class Reel:
 
         white = rgb(CFG["text_color"])
         self.white = white
-        self.brand = text_pair(CFG["brand"].upper(), mont("Medium", 19), 6.0, white, 0.3)
+        brand = CFG.get("brand")  # optional brand line at the top
+        self.brand = text_pair(brand.upper(), mont("Medium", 19), 6.0, white, 0.3) if brand else None
         self.items = []
         name_f, price_f = mont("Medium", 20), mont("Light", 36)
         for it in items:
@@ -179,8 +180,9 @@ class Reel:
         if scrim > 0:
             frame *= 1 - scrim * SCRIM
 
-        p = ease_out_cubic((t - 0.4) / 1.4)
-        put(frame, self.brand, (W - self.brand[0].advance) / 2, BRAND_Y + 6 * (1 - p), p * 0.9)
+        if self.brand:
+            p = ease_out_cubic((t - 0.4) / 1.4)
+            put(frame, self.brand, (W - self.brand[0].advance) / 2, BRAND_Y + 6 * (1 - p), p * 0.9)
 
         self.callouts(frame, t, i)
         self.cta(frame, t)

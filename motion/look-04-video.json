@@ -5,7 +5,6 @@
   "cut_frame": 107,
   "dissolve_frames": 8,
   "text_color": "#FEFEFE",
-  "brand": "Second Chance",
   "items": [
     { "name": "Oberteil", "price": "44,90 €", "at": [992, 652], "to": [655, 760], "bend": 0.22, "track": [390, 590, 700, 1000] },
     { "name": "Rock", "price": "49,90 €", "at": [992, 1098], "to": [610, 1190], "bend": -0.22, "track": [400, 900, 720, 1350] }

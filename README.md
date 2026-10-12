@@ -33,7 +33,7 @@ Die Einzelclips laufen in sich periodisch ab, sodass der Loop in Instagram keine
 
 Grundlage ist der gefilmte Clip `assets/video/look-04-source.mp4` (Selfie-Walk, dann Stativ-Einstellung). Er wird auf 1080 × 1920 hochskaliert und behält seine 24 fps, damit keine Bewegung ruckelt. Alle Texte sind in Montserrat gesetzt, die Schriftfarbe ist #FEFEFE.
 
-1. **0–4,2 s, Selfie-Walk**: Oben steht die Markenzeile. Rechts erscheinen „Oberteil 44,90 €“ und „Rock 49,90 €“. Von jedem Preis zeichnet sich ein dünner weißer Pfeil zum Teil. Die Pfeilspitzen folgen Pullover und Rock, während die Person auf den Spiegel zugeht (Optical-Flow-Tracking).
+1. **0–4,2 s, Selfie-Walk**: Rechts erscheinen „Oberteil 44,90 €“ und „Rock 49,90 €“. Von jedem Preis zeichnet sich ein dünner weißer Pfeil zum Teil. Die Pfeilspitzen folgen Pullover und Rock, während die Person auf den Spiegel zugeht (Optical-Flow-Tracking). Oben im Bild steht kein Markenname (optional über `"brand"` in der JSON wieder einschaltbar).
 2. **Übergang**: Der harte Schnitt im Original wird zu einer kurzen, weichen Überblendung (8 Frames). Davor blenden die Preise sanft aus.
 3. **4,1–14 s, Stativ-Einstellung + CTA**: Von unten legt sich ein Verlauf ins Bild. Dann erscheint der CTA Zeile für Zeile:
    „Outfit zusammenbestellen“ / groß **„20 % Rabatt“** / „kostenlosen Versand erhalten.“
