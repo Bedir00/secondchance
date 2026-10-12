@@ -33,8 +33,8 @@ Die Einzelclips laufen in sich periodisch ab, sodass der Loop in Instagram keine
 
 Grundlage ist der gefilmte Clip `assets/video/look-04-source.mp4` (Selfie-Walk, dann Stativ-Einstellung). Er wird auf 1080 × 1920 hochskaliert und behält seine 24 fps, damit keine Bewegung ruckelt. Alle Texte sind in Montserrat gesetzt, die Schriftfarbe ist #FEFEFE.
 
-1. **0–4,2 s, Selfie-Walk**: Rechts erscheinen „Oberteil 44,90 €“ und „Rock 49,90 €“. Von jedem Preis zeichnet sich ein dünner weißer Pfeil zum Teil. Die Pfeilspitzen folgen Pullover und Rock, während die Person auf den Spiegel zugeht (Optical-Flow-Tracking). Oben im Bild steht kein Markenname (optional über `"brand"` in der JSON wieder einschaltbar).
-2. **Übergang**: Der harte Schnitt im Original wird zu einer kurzen, weichen Überblendung (8 Frames). Davor blenden die Preise sanft aus.
+1. **0–4,2 s, Selfie-Walk**: Komplett ohne Texte und Grafiken, nur der Clip. Die Preis-Beschriftungen mit mitlaufenden Pfeilen sind vorbereitet und lassen sich mit `"show_callouts": true` in der JSON wieder einschalten.
+2. **Übergang**: Der harte Schnitt im Original wird zu einer kurzen, weichen Überblendung (8 Frames).
 3. **4,1–14 s, Stativ-Einstellung + CTA**: Von unten legt sich ein Verlauf ins Bild. Dann erscheint der CTA Zeile für Zeile:
    „Outfit zusammenbestellen“ / groß **„20 % Rabatt“** / „kostenlosen Versand erhalten.“
    Darunter steht eine kleine Preistabelle: „Rock 39,92 € statt 49,90 €“ und „Oberteil 35,92 € statt 44,90 €“. Die alten Preise werden dabei dezent durchgestrichen.
@@ -46,8 +46,8 @@ Texte, Preise, Positionen der Beschriftungen, Pfeilziele und Timing stehen in `m
 ```bash
 pip install numpy pillow opencv-python-headless   # ffmpeg muss installiert sein
 python3 motion/render_video.py           # Video + Standbilder
-python3 motion/render_video.py --stills  # nur Standbilder (Preis-Szene und CTA-Szene)
-python3 motion/render_video.py --debug   # zeigt die getrackten Punkte in motion/debug/
+python3 motion/render_video.py --stills  # nur Standbild der CTA-Szene
+python3 motion/render_video.py --debug   # zeigt die getrackten Punkte (nur mit show_callouts)
 ```
 
 ## Look 04 als Foto-Version (`look-04-cta.mp4`)

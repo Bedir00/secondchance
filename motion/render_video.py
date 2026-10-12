@@ -111,9 +111,11 @@ class Reel:
         self.n = len(frames) - d + self.hold
         self.duration = self.n / FPS
 
-        items = CFG["items"]
+        # part 1 stays clean unless the price labels are switched on
+        items = CFG["items"] if CFG.get("show_callouts", True) else []
         # each piece is followed with features from its own region
-        self.paths = np.concatenate([track(frames, 0, cut, it["track"], [it["to"]]) for it in items], axis=1)
+        self.paths = (np.concatenate([track(frames, 0, cut, it["track"], [it["to"]]) for it in items], axis=1)
+                      if items else np.zeros((0, 0, 2)))
 
         white = rgb(CFG["text_color"])
         self.white = white
@@ -282,6 +284,8 @@ def main():
     os.makedirs(stills, exist_ok=True)
 
     if args.debug:
+        if not reel.items:
+            sys.exit("price labels are switched off (show_callouts), nothing is tracked")
         dbg = os.path.join(ROOT, "motion", "debug")
         os.makedirs(dbg, exist_ok=True)
         for i in range(0, reel.cut, 12):
@@ -291,7 +295,10 @@ def main():
             Image.fromarray(img).resize((360, 640)).save(os.path.join(dbg, f"track-{i:03d}.jpg"))
         return
 
-    for label, t in (("prices", 3.0), ("cta", 11.0)):
+    shots = [("cta", 11.0)]
+    if reel.items:
+        shots.insert(0, ("prices", 3.0))
+    for label, t in shots:
         save(reel.render(int(t * FPS)), os.path.join(stills, f"{name}-{label}.jpg"))
     if not args.stills:
         encode(reel, os.path.join(render.EXPORT, f"{name}.mp4"))
