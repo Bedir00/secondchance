@@ -1,0 +1,15 @@
+{
+  "output": "look-04-cta",
+  "image": "assets/looks/look-04.webp",
+  "duration": 15.0,
+  "text_color": "#FEFEFE",
+  "brand": "Second Chance",
+  "items": [
+    { "name": "Oberteil", "price": "44,90 €", "at": [992, 620], "to": [700, 700], "bend": 0.22 },
+    { "name": "Rock", "price": "49,90 €", "at": [992, 1182], "to": [655, 1262], "bend": -0.22 }
+  ],
+  "cta": {
+    "lines": ["Outfit zusammenbestellen", "und 20 % Rabatt erhalten"],
+    "prices": "Rock 49,90 €  ·  Oberteil 44,90 €"
+  }
+}

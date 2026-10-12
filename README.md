@@ -10,6 +10,7 @@ Ruhige, dezente Motion Graphics für die drei Looks, im Format 9:16 (1080 × 192
 | `look-01.mp4` | 9 s | Look 01 „Mokka“, nahtlos loopbar |
 | `look-02.mp4` | 9 s | Look 02 „Salbei“, nahtlos loopbar |
 | `look-03.mp4` | 9 s | Look 03 „Karo & Kette“, nahtlos loopbar |
+| `look-04-cta.mp4` | 15 s | Look 04 (Spiegel-Selfie) mit Preisen und Rabatt-CTA, loopbar |
 
 Cover-Standbilder liegen in `export/stills/`.
 
@@ -26,6 +27,23 @@ Die Videos haben eine stille Tonspur. Musik am besten direkt in Instagram hinzuf
 
 Alle Texte liegen in der Safe Zone für Reels und Stories, also nicht unter der Instagram-Oberfläche oben und unten.
 Die Einzelclips laufen in sich periodisch ab, sodass der Loop in Instagram keinen sichtbaren Sprung hat.
+
+## Look 04 mit CTA
+
+Eigenes Video im Corporate Design: alle Texte in **Montserrat**, Schriftfarbe **#FEFEFE**.
+
+1. **0–6,6 s**: Langsamer Push-in auf das Foto. Oben steht die Markenzeile. Rechts erscheinen nacheinander „Oberteil 44,90 €“ und „Rock 49,90 €“. Von jedem Preis zeichnet sich ein dünner weißer Pfeil zum Teil.
+2. **6,6–8,2 s**: Die Preise blenden weich aus. Von unten legt sich ein leichter Verlauf ins Bild, damit der CTA gut lesbar ist.
+3. **7,5–14 s**: Eine kurze Linie baut sich auf, dann erscheint der CTA Zeile für Zeile:
+   „Outfit zusammenbestellen / und 20 % Rabatt erhalten“, darunter „Rock 49,90 € · Oberteil 44,90 €“.
+4. Das Video blendet aus Schwarz ein und am Ende nach Schwarz aus. So läuft der Loop in Instagram ohne Sprung.
+
+Texte, Preise und Pfeilpositionen stehen in `motion/look-04.json`:
+
+```bash
+python3 motion/render_cta.py           # Video + Standbilder
+python3 motion/render_cta.py --stills  # nur Standbilder (Preis-Szene und CTA-Szene)
+```
 
 ## Texte anpassen und neu rendern
 
@@ -47,4 +65,4 @@ python3 motion/render.py --stills        # nur Vorschaubilder, schnell zum Prüf
 
 ## Schriften
 
-Die Schriften Cormorant Garamond und Inter liegen in `assets/fonts/` und stehen beide unter der SIL Open Font License.
+Die Schriften Cormorant Garamond, Inter und Montserrat liegen in `assets/fonts/`. Alle drei stehen unter der SIL Open Font License.
