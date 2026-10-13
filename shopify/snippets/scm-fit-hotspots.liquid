@@ -1,0 +1,881 @@
+{%- comment -%}
+  Passform-Hinweise im Produktbild (PDP).
+  Pulsierende Punkte mit Beschriftung auf dem ersten Produktbild. Ein Tipp öffnet eine Karte mit
+  dem Hinweis zu Größe und Passform. Die Inhalte kommen aus dem Produkt-Metafeld
+  scm_pdp.passform_hinweise (JSON):
+
+  {
+    "headline": "Passt mir das?",
+    "footer": "Unsicher? 14 Tage in Ruhe anprobieren.",
+    "points": [
+      { "x": 50, "y": 33, "side": "left", "label": "Größe", "title": "One Size", "text": "…" }
+    ]
+  }
+
+  x und y sind Prozentwerte im Originalbild (0–100, von links und von oben). Die Punkte werden
+  per JavaScript auf den sichtbaren Bildausschnitt umgerechnet und bleiben so auch bei
+  object-fit: cover auf dem Kleidungsstück. side = left oder right: auf welcher Seite die
+  Beschriftung steht.
+
+  Positionieren: Vorschau mit ?passform-edit öffnen (oder im Theme-Editor), Punkte ziehen,
+  JSON aus dem Feld kopieren und ins Metafeld einfügen.
+
+  @param media - das Produktbild, auf dem die Punkte liegen
+{%- endcomment -%}
+{%- liquid
+  assign scm_fit = product.metafields.scm_pdp.passform_hinweise.value
+  assign scm_fit_ready = false
+  if scm_fit != blank and scm_fit.points != blank and media.media_type == 'image'
+    assign scm_fit_ready = true
+  endif
+-%}
+{%- if scm_fit_ready -%}
+  <scm-fit-hotspots
+    class="scm-fit"
+    data-iw="{{ media.preview_image.width }}"
+    data-ih="{{ media.preview_image.height }}"
+    {% if request.design_mode %}data-edit{% endif %}
+  >
+    <button type="button" class="scm-fit__intro" data-scm-fit-intro aria-haspopup="dialog">
+      <span class="scm-fit__intro-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 15.5 15.5 3.5l5 5-12 12z"/><path d="m7 12 1.6 1.6M9.5 9.5l2.4 2.4M12 7l1.6 1.6M14.5 4.5l2.4 2.4"/></svg>
+      </span>
+      <span class="scm-fit__intro-text">{{ scm_fit.headline | default: 'Passt mir das?' | escape }}</span>
+    </button>
+
+    {%- for point in scm_fit.points -%}
+      {%- liquid
+        assign side = point.side | default: 'right'
+        if side != 'left'
+          assign side = 'right'
+        endif
+      -%}
+      <button
+        type="button"
+        class="scm-fit__pin scm-fit__pin--{{ side }}"
+        style="--x: {{ point.x | default: 50 }}%; --y: {{ point.y | default: 50 }}%; --i: {{ forloop.index0 }};"
+        data-scm-fit-pin="{{ forloop.index0 }}"
+        aria-haspopup="dialog"
+        aria-expanded="false"
+        aria-label="{{ point.label | append: ': ' | append: point.title | escape }}"
+      >
+        <span class="scm-fit__dot" aria-hidden="true"></span>
+        <span class="scm-fit__label" aria-hidden="true"><span>{{ point.label | escape }}</span></span>
+      </button>
+    {%- endfor -%}
+
+    <div class="scm-fit__card" role="dialog" aria-modal="false" hidden data-scm-fit-card>
+      <button type="button" class="scm-fit__close" data-scm-fit-close aria-label="Schließen">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+      <p class="scm-fit__kicker">
+        <span data-scm-fit-label></span>
+        <span class="scm-fit__count" data-scm-fit-count></span>
+      </p>
+      <div class="scm-fit__body" data-scm-fit-body>
+        <p class="scm-fit__title" data-scm-fit-title></p>
+        <p class="scm-fit__text" data-scm-fit-text></p>
+      </div>
+      <div class="scm-fit__nav">
+        <button type="button" class="scm-fit__step" data-scm-fit-step="-1" aria-label="Vorheriger Hinweis">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>
+        </button>
+        <span class="scm-fit__dots" data-scm-fit-dots>
+          {%- for point in scm_fit.points -%}<i></i>{%- endfor -%}
+        </span>
+        <button type="button" class="scm-fit__step" data-scm-fit-step="1" aria-label="Nächster Hinweis">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+        </button>
+      </div>
+      {%- if scm_fit.footer != blank -%}
+        <p class="scm-fit__footer">{{ scm_fit.footer | escape }}</p>
+      {%- endif -%}
+    </div>
+
+    <script type="application/json" data-scm-fit-data>{{ scm_fit | json }}</script>
+  </scm-fit-hotspots>
+
+  <script>
+    (function () {
+      if (customElements.get('scm-fit-hotspots')) return;
+
+      var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      class ScmFitHotspots extends HTMLElement {
+        connectedCallback() {
+          if (this._ready) return;
+          this._ready = true;
+          this.active = -1;
+          this.uid = 'scm-fit-' + Math.random().toString(36).slice(2, 8);
+
+          var card = this.querySelector('[data-scm-fit-card]');
+          if (card) {
+            card.id = this.uid + '-card';
+            this.querySelectorAll('[data-scm-fit-pin], [data-scm-fit-intro]').forEach(function (el) {
+              el.setAttribute('aria-controls', card.id);
+            });
+          }
+
+          this.onClick = this.onClick.bind(this);
+          this.onKey = this.onKey.bind(this);
+          this.onOutside = this.onOutside.bind(this);
+          this.layout = this.layout.bind(this);
+          this.addEventListener('click', this.onClick);
+          this.addEventListener('keydown', this.onKey);
+          document.addEventListener('pointerdown', this.onOutside);
+
+          var img = this.image();
+          if (img && !img.complete) img.addEventListener('load', this.layout, { once: true });
+          this.resizeObserver = new ResizeObserver(this.layout);
+          this.resizeObserver.observe(this);
+          this.layout();
+
+          if (reduceMotion || !('IntersectionObserver' in window)) {
+            this.classList.add('is-in');
+          } else {
+            var self = this;
+            this.inView = new IntersectionObserver(function (entries) {
+              entries.forEach(function (entry) {
+                if (!entry.isIntersecting) return;
+                self.classList.add('is-in');
+                self.inView.disconnect();
+                // Nach dem ersten Auftritt klappt der Hinweis-Chip zum Symbol zusammen
+                self.compactTimer = setTimeout(function () {
+                  if (self.active < 0) self.classList.add('is-compact');
+                }, 6500);
+              });
+            }, { threshold: 0.35 });
+            this.inView.observe(this);
+          }
+
+          if (this.hasAttribute('data-edit') || new URLSearchParams(location.search).has('passform-edit')) this.enableEdit();
+        }
+
+        disconnectedCallback() {
+          this._ready = false;
+          document.removeEventListener('pointerdown', this.onOutside);
+          if (this.resizeObserver) this.resizeObserver.disconnect();
+          if (this.inView) this.inView.disconnect();
+          clearTimeout(this.compactTimer);
+        }
+
+        data() {
+          var el = this.querySelector('[data-scm-fit-data]');
+          try {
+            return JSON.parse(el.textContent);
+          } catch (e) {
+            return { points: [] };
+          }
+        }
+
+        image() {
+          var container = this.closest('.product-media-container') || this.parentElement;
+          return container ? container.querySelector('img') : null;
+        }
+
+        // Rechnet Bild-Prozent in Pixel des sichtbaren Ausschnitts um (object-fit + object-position)
+        geometry() {
+          var img = this.image();
+          if (!img) return null;
+          var box = this.getBoundingClientRect();
+          var rect = img.getBoundingClientRect();
+          if (!box.width || !rect.width) return null;
+          var iw = img.naturalWidth || Number(this.dataset.iw) || rect.width;
+          var ih = img.naturalHeight || Number(this.dataset.ih) || rect.height;
+          var style = getComputedStyle(img);
+          var scale = style.objectFit === 'contain'
+            ? Math.min(rect.width / iw, rect.height / ih)
+            : Math.max(rect.width / iw, rect.height / ih);
+          var dw = iw * scale;
+          var dh = ih * scale;
+          var pos = (style.objectPosition || '50% 50%').split(' ');
+          function offset(value, free) {
+            if (!value) return free / 2;
+            if (value.indexOf('%') > -1) return free * parseFloat(value) / 100;
+            if (value.indexOf('px') > -1) return parseFloat(value);
+            return free / 2;
+          }
+          return {
+            x: rect.left - box.left + offset(pos[0], rect.width - dw),
+            y: rect.top - box.top + offset(pos[1], rect.height - dh),
+            w: dw,
+            h: dh,
+            bw: box.width,
+            bh: box.height
+          };
+        }
+
+        layout() {
+          var g = this.geometry();
+          if (!g) return;
+          this.geo = g;
+          var points = this.data().points || [];
+          this.querySelectorAll('[data-scm-fit-pin]').forEach(function (pin) {
+            var p = points[Number(pin.dataset.scmFitPin)];
+            if (!p) return;
+            var left = g.x + (Number(p.x) / 100) * g.w;
+            var top = g.y + (Number(p.y) / 100) * g.h;
+            pin.style.left = left + 'px';
+            pin.style.top = top + 'px';
+            // Punkte, die im Bildausschnitt abgeschnitten wären, ausblenden
+            pin.hidden = left < 14 || left > g.bw - 14 || top < 14 || top > g.bh - 14;
+          });
+        }
+
+        onClick(event) {
+          if (this.dragged) {
+            this.dragged = false;
+            return;
+          }
+          var pin = event.target.closest('[data-scm-fit-pin]');
+          if (pin) {
+            event.preventDefault();
+            event.stopPropagation();
+            var index = Number(pin.dataset.scmFitPin);
+            if (index === this.active) this.close();
+            else this.open(index);
+            return;
+          }
+          if (event.target.closest('[data-scm-fit-intro]')) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (this.active > -1) this.close();
+            else this.open(this.firstVisible());
+            return;
+          }
+          if (event.target.closest('[data-scm-fit-close]')) {
+            event.stopPropagation();
+            this.close(true);
+            return;
+          }
+          var step = event.target.closest('[data-scm-fit-step]');
+          if (step) {
+            event.stopPropagation();
+            this.step(Number(step.dataset.scmFitStep));
+          }
+          if (event.target.closest('[data-scm-fit-card]')) event.stopPropagation();
+        }
+
+        onKey(event) {
+          if (this.active < 0) return;
+          if (event.key === 'Escape') this.close(true);
+          if (event.key === 'ArrowRight') this.step(1);
+          if (event.key === 'ArrowLeft') this.step(-1);
+        }
+
+        onOutside(event) {
+          if (this.active > -1 && !this.contains(event.target)) this.close();
+        }
+
+        firstVisible() {
+          var pins = Array.from(this.querySelectorAll('[data-scm-fit-pin]'));
+          var pin = pins.find(function (p) { return !p.hidden; }) || pins[0];
+          return pin ? Number(pin.dataset.scmFitPin) : 0;
+        }
+
+        step(direction) {
+          var count = (this.data().points || []).length;
+          if (!count) return;
+          this.open((this.active + direction + count) % count);
+        }
+
+        open(index) {
+          var points = this.data().points || [];
+          var p = points[index];
+          var card = this.querySelector('[data-scm-fit-card]');
+          if (!p || !card) return;
+          var wasOpen = this.active > -1;
+          this.active = index;
+          clearTimeout(this.compactTimer);
+          this.classList.add('is-open', 'is-compact');
+
+          this.querySelectorAll('[data-scm-fit-pin]').forEach(function (pin) {
+            var on = Number(pin.dataset.scmFitPin) === index;
+            pin.classList.toggle('is-active', on);
+            pin.setAttribute('aria-expanded', on ? 'true' : 'false');
+          });
+          this.querySelectorAll('[data-scm-fit-dots] i').forEach(function (dot, i) {
+            dot.classList.toggle('is-active', i === index);
+          });
+
+          var body = card.querySelector('[data-scm-fit-body]');
+          var fill = function () {
+            card.querySelector('[data-scm-fit-label]').textContent = p.label || '';
+            card.querySelector('[data-scm-fit-count]').textContent = points.length > 1 ? (index + 1) + ' / ' + points.length : '';
+            card.querySelector('[data-scm-fit-title]').textContent = p.title || '';
+            card.querySelector('[data-scm-fit-text]').textContent = p.text || '';
+            card.setAttribute('aria-label', (p.label ? p.label + ': ' : '') + (p.title || ''));
+          };
+
+          if (wasOpen && !reduceMotion) {
+            // Inhalt weich austauschen
+            body.classList.add('is-swapping');
+            clearTimeout(this.swapTimer);
+            this.swapTimer = setTimeout(function () {
+              fill();
+              body.classList.remove('is-swapping');
+            }, 160);
+          } else {
+            fill();
+          }
+
+          card.hidden = false;
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () { card.classList.add('is-visible'); });
+          });
+        }
+
+        close(returnFocus) {
+          var card = this.querySelector('[data-scm-fit-card]');
+          var previous = this.active;
+          this.active = -1;
+          this.classList.remove('is-open');
+          this.querySelectorAll('[data-scm-fit-pin]').forEach(function (pin) {
+            pin.classList.remove('is-active');
+            pin.setAttribute('aria-expanded', 'false');
+          });
+          if (!card) return;
+          card.classList.remove('is-visible');
+          var hide = function () { if (!card.classList.contains('is-visible')) card.hidden = true; };
+          if (reduceMotion) hide();
+          else setTimeout(hide, 380);
+          if (returnFocus && previous > -1) {
+            var pin = this.querySelector('[data-scm-fit-pin="' + previous + '"]');
+            if (pin) pin.focus();
+          }
+        }
+
+        // Positionier-Modus: Punkte ziehen, JSON fürs Metafeld kopieren
+        enableEdit() {
+          var self = this;
+          this.classList.add('is-in', 'is-edit');
+          var panel = document.createElement('div');
+          panel.className = 'scm-fit__edit';
+          panel.innerHTML = '<p>Punkte ziehen, dann JSON ins Metafeld <b>scm_pdp.passform_hinweise</b> kopieren.</p><textarea readonly rows="5"></textarea><button type="button">JSON kopieren</button>';
+          this.appendChild(panel);
+          var area = panel.querySelector('textarea');
+          var data = this.data();
+          var write = function () { area.value = JSON.stringify(data, null, 2); };
+          write();
+          panel.querySelector('button').addEventListener('click', function (e) {
+            e.stopPropagation();
+            area.select();
+            if (navigator.clipboard) navigator.clipboard.writeText(area.value);
+            else document.execCommand('copy');
+          });
+          panel.addEventListener('pointerdown', function (e) { e.stopPropagation(); });
+
+          this.querySelectorAll('[data-scm-fit-pin]').forEach(function (pin) {
+            pin.addEventListener('pointerdown', function (event) {
+              event.preventDefault();
+              event.stopPropagation();
+              pin.setPointerCapture(event.pointerId);
+              var startX = event.clientX;
+              var startY = event.clientY;
+              var moved = false;
+              var move = function (e) {
+                e.stopPropagation();
+                var g = self.geo;
+                if (!g) return;
+                if (Math.abs(e.clientX - startX) + Math.abs(e.clientY - startY) > 3) moved = true;
+                var box = self.getBoundingClientRect();
+                var x = ((e.clientX - box.left - g.x) / g.w) * 100;
+                var y = ((e.clientY - box.top - g.y) / g.h) * 100;
+                var p = data.points[Number(pin.dataset.scmFitPin)];
+                p.x = Math.round(Math.min(100, Math.max(0, x)) * 10) / 10;
+                p.y = Math.round(Math.min(100, Math.max(0, y)) * 10) / 10;
+                pin.style.left = (g.x + (p.x / 100) * g.w) + 'px';
+                pin.style.top = (g.y + (p.y / 100) * g.h) + 'px';
+                write();
+              };
+              var up = function () {
+                pin.removeEventListener('pointermove', move);
+                pin.removeEventListener('pointerup', up);
+                self.dragged = moved;
+                self.querySelector('[data-scm-fit-data]').textContent = JSON.stringify(data);
+              };
+              pin.addEventListener('pointermove', move);
+              pin.addEventListener('pointerup', up);
+            });
+          });
+        }
+      }
+
+      customElements.define('scm-fit-hotspots', ScmFitHotspots);
+    })();
+  </script>
+{%- endif -%}
+
+{% stylesheet %}
+  .scm-fit {
+    --scm-fit-ink: #2a2420;
+    --scm-fit-paper: rgb(255 255 255 / 0.94);
+    --scm-fit-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+    --scm-fit-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    font-family: var(--font-body--family, inherit);
+    color: var(--scm-fit-ink);
+  }
+
+  .scm-fit button {
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Hinweis-Chip oben links */
+  .scm-fit__intro {
+    position: absolute;
+    inset-block-start: 14px;
+    inset-inline-start: 14px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 220px;
+    padding: 8px 14px 8px 10px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--scm-fit-paper);
+    box-shadow: 0 6px 22px rgb(42 36 32 / 0.16);
+    pointer-events: auto;
+    overflow: hidden;
+    white-space: nowrap;
+    transition: max-width 0.6s var(--scm-fit-ease), padding 0.6s var(--scm-fit-ease);
+  }
+
+  .scm-fit__intro::after {
+    /* sanfter Lichtschimmer, der einmal über den Chip läuft */
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(100deg, transparent 30%, rgb(255 255 255 / 0.9) 50%, transparent 70%);
+    transform: translateX(-120%);
+  }
+
+  .scm-fit.is-in .scm-fit__intro {
+    animation: scm-fit-slide-in 0.7s var(--scm-fit-ease) backwards;
+  }
+
+  .scm-fit.is-in .scm-fit__intro::after {
+    animation: scm-fit-shine 1.6s var(--scm-fit-ease) 1.4s 1 both;
+  }
+
+  .scm-fit.is-compact .scm-fit__intro {
+    max-width: 36px;
+    padding-inline: 10px;
+  }
+
+  .scm-fit__intro-icon {
+    display: inline-flex;
+    flex: none;
+    width: 16px;
+    height: 16px;
+  }
+
+  .scm-fit__intro-text {
+    font-size: 12px;
+    letter-spacing: 0.04em;
+    transition: opacity 0.4s var(--scm-fit-ease);
+  }
+
+  .scm-fit.is-compact .scm-fit__intro-text {
+    opacity: 0;
+  }
+
+  /* Vor dem Auftritt unsichtbar (nur mit JavaScript, sonst bleibt alles sichtbar) */
+  .scm-fit:defined:not(.is-in) :is(.scm-fit__intro, .scm-fit__dot, .scm-fit__label) {
+    opacity: 0;
+  }
+
+  /* Punkte */
+  .scm-fit__pin {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: 44px;
+    height: 44px;
+    margin: -22px 0 0 -22px;
+    padding: 0;
+    border: 0;
+    background: none;
+    pointer-events: auto;
+    touch-action: manipulation;
+  }
+
+  .scm-fit__pin[hidden] {
+    display: none;
+  }
+
+  .scm-fit__dot {
+    position: absolute;
+    inset: 11px;
+    border-radius: 50%;
+    background: var(--scm-fit-paper);
+    box-shadow: 0 2px 10px rgb(0 0 0 / 0.28);
+    transition: transform 0.35s var(--scm-fit-spring), background-color 0.3s var(--scm-fit-ease);
+  }
+
+  .scm-fit__dot::before {
+    /* Kern */
+    content: '';
+    position: absolute;
+    inset: 7px;
+    border-radius: 50%;
+    background: var(--scm-fit-ink);
+    transition: transform 0.35s var(--scm-fit-ease), background-color 0.3s var(--scm-fit-ease);
+  }
+
+  .scm-fit__dot::after {
+    /* Sonar-Ring */
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 50%;
+    border: 1.5px solid rgb(255 255 255 / 0.95);
+    opacity: 0;
+  }
+
+  .scm-fit.is-in .scm-fit__dot {
+    animation: scm-fit-pop 0.6s var(--scm-fit-spring) backwards;
+    animation-delay: calc(0.5s + var(--i) * 0.22s);
+  }
+
+  .scm-fit.is-in .scm-fit__dot::after {
+    animation: scm-fit-ping 2.8s var(--scm-fit-ease) infinite;
+    animation-delay: calc(1.3s + var(--i) * 0.45s);
+  }
+
+  .scm-fit__pin:hover .scm-fit__dot,
+  .scm-fit__pin:focus-visible .scm-fit__dot,
+  .scm-fit__pin.is-active .scm-fit__dot {
+    transform: scale(1.18);
+  }
+
+  .scm-fit__pin.is-active .scm-fit__dot {
+    background: var(--scm-fit-ink);
+  }
+
+  .scm-fit__pin.is-active .scm-fit__dot::before {
+    background: #fff;
+    transform: scale(0.7);
+  }
+
+  .scm-fit__pin:focus-visible {
+    outline: none;
+  }
+
+  .scm-fit__pin:focus-visible .scm-fit__dot {
+    box-shadow: 0 0 0 3px #fff, 0 0 0 5px var(--scm-fit-ink);
+  }
+
+  .scm-fit.is-open .scm-fit__pin:not(.is-active) {
+    opacity: 0.55;
+  }
+
+  .scm-fit.is-open .scm-fit__dot::after {
+    animation: none;
+  }
+
+  /* Beschriftung mit Linie, die sich vom Punkt aus zeichnet */
+  .scm-fit__label {
+    position: absolute;
+    top: 50%;
+    left: calc(50% + 10px);
+    display: flex;
+    align-items: center;
+    transform: translateY(-50%);
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  .scm-fit__label::before {
+    content: '';
+    width: 30px;
+    height: 1px;
+    flex: none;
+    background: #fff;
+    box-shadow: 0 0 3px rgb(0 0 0 / 0.35);
+    transform-origin: left center;
+  }
+
+  .scm-fit__label span {
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: rgb(42 36 32 / 0.82);
+    color: #fff;
+    font-size: 11px;
+    line-height: 1.2;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+
+  .scm-fit__pin--left .scm-fit__label {
+    left: auto;
+    right: calc(50% + 10px);
+    flex-direction: row-reverse;
+  }
+
+  .scm-fit__pin--left .scm-fit__label::before {
+    transform-origin: right center;
+  }
+
+  .scm-fit.is-in .scm-fit__label::before {
+    animation: scm-fit-draw 0.55s var(--scm-fit-ease) backwards;
+    animation-delay: calc(0.9s + var(--i) * 0.22s);
+  }
+
+  .scm-fit.is-in .scm-fit__label span {
+    --from: -6px;
+    animation: scm-fit-label-in 0.5s var(--scm-fit-ease) backwards;
+    animation-delay: calc(1.25s + var(--i) * 0.22s);
+  }
+
+  .scm-fit.is-in .scm-fit__pin--left .scm-fit__label span {
+    --from: 6px;
+  }
+
+  .scm-fit.is-open .scm-fit__label {
+    transition: opacity 0.3s var(--scm-fit-ease);
+  }
+
+  .scm-fit.is-open .scm-fit__pin:not(.is-active) .scm-fit__label {
+    opacity: 0;
+  }
+
+  /* Karte */
+  .scm-fit__card {
+    position: absolute;
+    inset-inline: 12px;
+    inset-block-end: 12px;
+    max-width: 380px;
+    padding: 16px 18px 14px;
+    border-radius: 14px;
+    background: var(--scm-fit-paper);
+    box-shadow: 0 18px 50px rgb(42 36 32 / 0.22);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    pointer-events: auto;
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+    transition: opacity 0.38s var(--scm-fit-ease), transform 0.45s var(--scm-fit-ease);
+  }
+
+  .scm-fit__card[hidden] {
+    display: none;
+  }
+
+  .scm-fit__card.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  .scm-fit__close {
+    position: absolute;
+    inset-block-start: 6px;
+    inset-inline-end: 6px;
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+  }
+
+  .scm-fit__kicker {
+    display: flex;
+    gap: 10px;
+    margin: 0 36px 6px 0;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.65;
+  }
+
+  .scm-fit__body {
+    transition: opacity 0.16s ease, transform 0.16s ease;
+  }
+
+  .scm-fit__body.is-swapping {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  .scm-fit__title {
+    margin: 0 0 4px;
+    font-family: var(--font-heading--family, inherit);
+    font-size: 18px;
+    line-height: 1.25;
+  }
+
+  .scm-fit__text {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .scm-fit__nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
+
+  .scm-fit__step {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid rgb(42 36 32 / 0.18);
+    border-radius: 50%;
+    background: none;
+    transition: background-color 0.25s var(--scm-fit-ease), color 0.25s var(--scm-fit-ease);
+  }
+
+  .scm-fit__step:hover {
+    background: var(--scm-fit-ink);
+    color: #fff;
+  }
+
+  .scm-fit__dots {
+    display: flex;
+    gap: 6px;
+  }
+
+  .scm-fit__dots i {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: rgb(42 36 32 / 0.22);
+    transition: width 0.35s var(--scm-fit-ease), background-color 0.35s var(--scm-fit-ease);
+  }
+
+  .scm-fit__dots i.is-active {
+    width: 18px;
+    background: var(--scm-fit-ink);
+  }
+
+  .scm-fit__footer {
+    margin: 12px 0 0;
+    padding-top: 10px;
+    border-top: 1px solid rgb(42 36 32 / 0.12);
+    font-size: 12px;
+    line-height: 1.45;
+    opacity: 0.8;
+  }
+
+  /* Positionier-Modus */
+  .scm-fit.is-edit .scm-fit__pin {
+    cursor: grab;
+    touch-action: none;
+  }
+
+  .scm-fit__edit {
+    position: absolute;
+    inset-block-start: 12px;
+    inset-inline-end: 12px;
+    width: min(320px, calc(100% - 24px));
+    padding: 10px;
+    border-radius: 10px;
+    background: rgb(255 255 255 / 0.96);
+    box-shadow: 0 10px 30px rgb(0 0 0 / 0.2);
+    font-size: 12px;
+    pointer-events: auto;
+  }
+
+  .scm-fit__edit p {
+    margin: 0 0 6px;
+  }
+
+  .scm-fit__edit textarea {
+    width: 100%;
+    font: 11px/1.35 ui-monospace, monospace;
+  }
+
+  .scm-fit__edit button {
+    margin-top: 6px;
+    padding: 6px 10px;
+    border: 1px solid currentColor;
+    border-radius: 6px;
+    background: none;
+  }
+
+  @media screen and (max-width: 749px) {
+    .scm-fit__label::before {
+      width: 18px;
+    }
+
+    .scm-fit__label span {
+      padding: 4px 8px;
+      font-size: 10px;
+    }
+
+    .scm-fit__card {
+      max-width: none;
+    }
+  }
+
+  @keyframes scm-fit-ping {
+    0% {
+      opacity: 0.85;
+      transform: scale(1);
+    }
+
+    70%,
+    100% {
+      opacity: 0;
+      transform: scale(2.3);
+    }
+  }
+
+  @keyframes scm-fit-slide-in {
+    from {
+      opacity: 0;
+      transform: translateX(-10px);
+    }
+  }
+
+  @keyframes scm-fit-pop {
+    from {
+      opacity: 0;
+      transform: scale(0.2);
+    }
+  }
+
+  @keyframes scm-fit-draw {
+    from {
+      transform: scaleX(0);
+    }
+  }
+
+  @keyframes scm-fit-label-in {
+    from {
+      opacity: 0;
+      transform: translateX(var(--from));
+    }
+  }
+
+  @keyframes scm-fit-shine {
+    to {
+      transform: translateX(120%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scm-fit *,
+    .scm-fit *::before,
+    .scm-fit *::after {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+{% endstylesheet %}

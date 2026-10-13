@@ -1,0 +1,38 @@
+{
+  "headline": "Passt mir das?",
+  "footer": "Unsicher? 14 Tage in Ruhe anprobieren. Rücksendung per Post: 5,90 €.",
+  "points": [
+    {
+      "x": 50,
+      "y": 33,
+      "side": "left",
+      "label": "Größe",
+      "title": "One Size, empfohlen für 38/40",
+      "text": "Den Pullover gibt es in einer Größe. Wir empfehlen ihn für die Größen 38 und 40."
+    },
+    {
+      "x": 50,
+      "y": 21,
+      "side": "right",
+      "label": "Ausschnitt",
+      "title": "Rundhalsausschnitt",
+      "text": "Ein klassischer runder Ausschnitt, der solo oder mit Kette gut aussieht."
+    },
+    {
+      "x": 36,
+      "y": 46,
+      "side": "left",
+      "label": "Ärmel",
+      "title": "Lange Ärmel, flauschige Abschlüsse",
+      "text": "Die langen Ärmel enden in flauschigen Abschlüssen. Das ist das Detail, das den Pullover besonders macht."
+    },
+    {
+      "x": 52,
+      "y": 64,
+      "side": "right",
+      "label": "Lieferumfang",
+      "title": "Nur das Oberteil",
+      "text": "Rock, Gürtel und Stiefel sind ein Stylingbeispiel und nicht im Lieferumfang enthalten."
+    }
+  ]
+}

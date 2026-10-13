@@ -1,0 +1,38 @@
+{
+  "headline": "Passt mir das?",
+  "footer": "Unsicher? 14 Tage in Ruhe anprobieren. Rücksendung per Post: 5,90 €.",
+  "points": [
+    {
+      "x": 45,
+      "y": 37,
+      "side": "left",
+      "label": "Größe",
+      "title": "Einheitsgröße",
+      "text": "Den Rock gibt es in einer Einheitsgröße, in acht Karo-Farben."
+    },
+    {
+      "x": 56,
+      "y": 37,
+      "side": "right",
+      "label": "Gürtel",
+      "title": "Gürtel inklusive",
+      "text": "Der braune Gürtel ist dabei und betont deine Taille."
+    },
+    {
+      "x": 48,
+      "y": 60,
+      "side": "left",
+      "label": "Falten",
+      "title": "Feine Plisseefalten",
+      "text": "Das diagonale Karo und die feinen Plisseefalten geben dem Rock einen eleganten Look."
+    },
+    {
+      "x": 52,
+      "y": 80,
+      "side": "right",
+      "label": "Länge",
+      "title": "Lange Form",
+      "text": "Ein langer Rock. Schön mit Rollkragenpullover und Boots."
+    }
+  ]
+}

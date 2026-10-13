@@ -53,6 +53,11 @@
       ref: image_ref
   }}
 
+  {%- comment -%} Passform-Hinweise nur auf dem ersten Galeriebild der Produktseite (nicht im Zoom-Dialog) {%- endcomment -%}
+  {%- if is_main_product_media and loading != 'lazy' and template.name == 'product' -%}
+    {%- render 'scm-fit-hotspots', media: media -%}
+  {%- endif -%}
+
   {% unless preview_image_only %}
     {%- case media.media_type -%}
       {% when 'model' %}
