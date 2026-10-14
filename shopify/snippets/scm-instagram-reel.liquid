@@ -1,0 +1,36 @@
+{% doc %}
+  Renders the CHANCE FASHION Instagram Reel in a responsive iframe.
+{% enddoc %}
+
+<div class="scm-instagram-reel">
+  <iframe
+    src="https://www.instagram.com/reel/DZP6Rujsb9a/embed/"
+    title="{{ 'scm_reel.iframe_title' | t }}"
+    width="420"
+    height="780"
+    loading="lazy"
+    allow="autoplay; encrypted-media; fullscreen"
+    allowfullscreen
+  ></iframe>
+</div>
+
+{% stylesheet %}
+  .scm-instagram-reel {
+    width: 100%;
+    max-width: 420px;
+    margin-inline: auto;
+    background: #FFFFFF;
+  }
+
+  .scm-instagram-reel iframe {
+    display: block;
+    width: 100%;
+    height: 780px;
+    border: 0;
+    background: #FFFFFF;
+  }
+
+  .scm-pdp-info + .scm-instagram-reel {
+    margin-block-start: 24px;
+  }
+{% endstylesheet %}
