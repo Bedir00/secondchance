@@ -1,0 +1,22 @@
+{%- comment -%}
+  Produktbilder überall einheitlich quadratisch (1:1).
+  Greift auf: Galerie der Produktseite (Desktop-Raster und Handy-Karussell), Horizon-Produktkarten
+  (Kollektionen, Suche, Empfehlungen, Produktlisten) und die SCM-Produktleisten
+  („Neu eingetroffen“, „Mehr davon“) samt Teile-Liste der Looks.
+  Die Bilddateien bleiben unverändert: Hochformat-Fotos werden mittig auf 1:1 beschnitten.
+  Ein Fokuspunkt am Bild (Inhalte → Dateien) bestimmt den Ausschnitt, falls gesetzt.
+  Nicht betroffen: Zoom-Ansicht (zeigt das ganze Bild), Look-Bilder, Kategorie-Kacheln, Hero,
+  editoriales Produktraster.
+{%- endcomment -%}
+<style>
+  media-gallery,
+  .card-gallery {
+    --gallery-aspect-ratio: 1 !important;
+  }
+
+  .scm .scm-card__media,
+  .scm .scm-card__more,
+  .scm .scm-piece__media {
+    aspect-ratio: 1 / 1;
+  }
+</style>

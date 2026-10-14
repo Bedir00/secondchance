@@ -84,3 +84,13 @@ Die Inhalte stehen im Shopify-Admin am Produkt unter **Metafelder → Passform-H
 **Punkte per Maus setzen:** Theme-Vorschau mit `?passform-edit` an der Produkt-URL öffnen (im Theme-Editor ist der Modus automatisch an). Punkte an die richtige Stelle ziehen, auf „JSON kopieren“ klicken und den Text ins Metafeld einfügen.
 
 Ein anderes Produkt bekommt die Hinweise, sobald sein Metafeld gefüllt ist. Am Theme muss dafür nichts geändert werden.
+
+---
+
+# Quadratische Produktbilder
+
+Alle Produktbilder werden im Shop einheitlich quadratisch (1:1) angezeigt. Das gilt für die Galerie der Produktseite, die Produktkarten in Kollektionen, Suche und Empfehlungen, die Leisten „Neu eingetroffen“ und „Mehr davon“ und die Teile-Liste der Looks.
+
+Die Bilddateien bleiben unverändert. Hochformat-Fotos werden mittig beschnitten. Soll ein Bild einen anderen Ausschnitt zeigen, setzt du im Admin unter Inhalte → Dateien einen Fokuspunkt. Die Zoom-Ansicht zeigt weiter das ganze Bild. Look-Bilder, Kategorie-Kacheln und Hero behalten ihr Format.
+
+Umgesetzt in `shopify/snippets/scm-square-media.liquid`, global eingebunden über `shopify/snippets/stylesheets.liquid`.
