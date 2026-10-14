@@ -18,13 +18,38 @@
   ></iframe>
 </div>
 
+<script>
+  // Höhe des Reels an den Instagram-Inhalt anpassen (Instagram meldet sie per postMessage „MEASURE“),
+  // damit unten im iframe keine leere weiße Fläche bleibt. Ohne Meldung bleibt die CSS-Höhe.
+  (() => {
+    if (window.scmReelResize) return;
+    window.scmReelResize = true;
+    window.addEventListener('message', (event) => {
+      if (!/^https:\/\/(www\.)?instagram\.com$/.test(event.origin)) return;
+      let data = event.data;
+      if (typeof data === 'string') {
+        try {
+          data = JSON.parse(data);
+        } catch (error) {
+          return;
+        }
+      }
+      const height = data && data.type === 'MEASURE' && data.details ? Number(data.details.height) : 0;
+      if (!height) return;
+      document.querySelectorAll('.scm-instagram-reel iframe').forEach((frame) => {
+        if (frame.contentWindow === event.source) frame.style.height = `${Math.ceil(height)}px`;
+      });
+    });
+  })();
+</script>
+
 {% stylesheet %}
   .scm-instagram-reel {
     width: 100%;
     max-width: 420px;
     margin-inline: auto;
     /* Gleicher Weißraum über und unter dem Reel (zusätzlich zum Spalten-Gap) */
-    margin-block: 24px;
+    margin-block: 16px;
     background: #FFFFFF;
   }
 
