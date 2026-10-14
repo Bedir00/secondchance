@@ -126,7 +126,8 @@
     {% render 'unit-price', price: unit_price, measurement: selected_variant.unit_price_measurement %}
   {%- endif -%}
 </div>
-{%- if product_resource != blank -%}
+{%- comment -%} Auf Kategorieseiten (Kollektionen) ohne Steuer-/Versandhinweis {%- endcomment -%}
+{%- if product_resource != blank and template.name != 'collection' -%}
   <small class="price-tax-hint">{{ 'custom.price.tax_shipping' | t }}</small>
 {%- endif -%}
 {%- if has_volume_pricing -%}
