@@ -5,7 +5,19 @@
   {% assign product_title = '<p role="heading" aria-level="3">' | append: text | append: '</p>' %}
   {% render 'text', fallback_text: product_title, block: block %}
 {% else %}
-  {% assign product_title = '<p role="heading" aria-level="3">' | append: closest.product.title | append: '</p>' %}
+  {%- liquid
+    # Second Hand: Größe kommt aus der Option „Größe“ (nicht mehr aus dem Titel)
+    assign scm_size = ''
+    assign scm_size_option = closest.product.options_by_name['Größe']
+    if scm_size_option != blank and scm_size_option.values.size == 1
+      assign scm_size = scm_size_option.values.first | escape
+    endif
+    assign product_title = '<p role="heading" aria-level="3">' | append: closest.product.title
+    if scm_size != blank
+      assign product_title = product_title | append: '<span class="scm-card-size">Größe ' | append: scm_size | append: '</span>'
+    endif
+    assign product_title = product_title | append: '</p>'
+  -%}
   <a
     class="contents user-select-text"
     ref="productTitleLink"
@@ -14,6 +26,15 @@
     {% render 'text', fallback_text: product_title, block: block %}
   </a>
 {% endif %}
+
+{% stylesheet %}
+  .scm-card-size {
+    display: block;
+    margin-block-start: 2px;
+    font-size: 0.85em;
+    opacity: 0.7;
+  }
+{% endstylesheet %}
 
 {% schema %}
 {

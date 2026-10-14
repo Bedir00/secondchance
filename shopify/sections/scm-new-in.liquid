@@ -59,6 +59,14 @@
               assign card_name = product.title
               assign card_detail = ''
             endif
+            # Größe aus der Option „Größe“ (Second Hand: genau ein Wert)
+            assign size_option = product.options_by_name['Größe']
+            if size_option != blank and size_option.values.size == 1
+              if card_detail != blank
+                assign card_detail = card_detail | append: ' · '
+              endif
+              assign card_detail = card_detail | append: size_option.values.first
+            endif
             assign second_image = product.images[1]
           -%}
           <li class="scm-card">
