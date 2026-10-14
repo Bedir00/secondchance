@@ -12,11 +12,6 @@
     endif
   endif
 -%}
-{%- comment -%} Instagram-Reel über den Infos (Details), damit er ohne Scrollen gesehen wird {%- endcomment -%}
-{% if template.name == 'product' %}
-  {% render 'scm-instagram-reel' %}
-{% endif %}
-
 <div class="scm scm-pdp-info" {{ block.shopify_attributes }}>
   {%- comment -%} Mit Neuware-Story (scm_pdp.story) stehen Beschreibung und Maße dort – hier nicht doppeln {%- endcomment -%}
   {%- if details != blank and product.metafields.scm_pdp.story == blank -%}

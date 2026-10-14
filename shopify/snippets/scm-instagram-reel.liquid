@@ -1,10 +1,14 @@
 {% doc %}
   Renders the CHANCE FASHION Instagram Reel in a responsive iframe.
+
+  @param {string} [reel_url] - Instagram embed URL.
+  @param {string} [attributes] - Extra attributes (z. B. block.shopify_attributes).
 {% enddoc %}
 
-<div class="scm-instagram-reel">
+{%- assign reel_url = reel_url | default: 'https://www.instagram.com/reel/DZP6Rujsb9a/embed/' -%}
+<div class="scm-instagram-reel" {{ attributes }}>
   <iframe
-    src="https://www.instagram.com/reel/DZP6Rujsb9a/embed/"
+    src="{{ reel_url }}"
     title="{{ 'scm_reel.iframe_title' | t }}"
     width="420"
     height="780"

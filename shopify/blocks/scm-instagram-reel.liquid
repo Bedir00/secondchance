@@ -1,0 +1,24 @@
+{%- comment -%}
+  Instagram-Reel als eigener Block in der Produktspalte.
+  Im Theme-Editor frei verschiebbar (z. B. über/unter Details, unter den Warenkorb-Button).
+{%- endcomment -%}
+{%- if block.settings.reel_url != blank -%}
+  {%- render 'scm-instagram-reel', reel_url: block.settings.reel_url, attributes: block.shopify_attributes -%}
+{%- endif -%}
+
+{% schema %}
+{
+  "name": "SCM Instagram-Reel",
+  "tag": null,
+  "settings": [
+    {
+      "type": "text",
+      "id": "reel_url",
+      "label": "Instagram Embed-URL",
+      "info": "Format: https://www.instagram.com/reel/CODE/embed/",
+      "default": "https://www.instagram.com/reel/DZP6Rujsb9a/embed/"
+    }
+  ],
+  "presets": [{ "name": "SCM Instagram-Reel" }]
+}
+{% endschema %}

@@ -201,6 +201,13 @@
               },
               "blocks": {}
             },
+            "scm_reel": {
+              "type": "scm-instagram-reel",
+              "settings": {
+                "reel_url": "https://www.instagram.com/reel/DZP6Rujsb9a/embed/"
+              },
+              "blocks": {}
+            },
             "scm_info": {
               "type": "scm-pdp-info",
               "settings": {
@@ -221,6 +228,7 @@
             "variant_picker",
             "buy_buttons",
             "scm_promise",
+            "scm_reel",
             "scm_info"
           ]
         }
