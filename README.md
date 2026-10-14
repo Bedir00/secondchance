@@ -87,10 +87,10 @@ Ein anderes Produkt bekommt die Hinweise, sobald sein Metafeld gefüllt ist. Am 
 
 ---
 
-# Quadratische Produktbilder
+# Produktbilder im Format 3:4
 
-Alle Produktbilder werden im Shop einheitlich quadratisch (1:1) angezeigt. Das gilt für die Galerie der Produktseite, die Produktkarten in Kollektionen, Suche und Empfehlungen, die Leisten „Neu eingetroffen“ und „Mehr davon“ und die Teile-Liste der Looks.
+Alle Produktbilder werden im Shop einheitlich im Hochformat 3:4 angezeigt. Das gilt für die Galerie der Produktseite, die Produktkarten in Kollektionen, Suche und Empfehlungen, die Leisten „Neu eingetroffen“ und „Mehr davon“ und die Teile-Liste der Looks.
 
-Die Bilddateien bleiben unverändert. Hochformat-Fotos werden mittig beschnitten. Soll ein Bild einen anderen Ausschnitt zeigen, setzt du im Admin unter Inhalte → Dateien einen Fokuspunkt. Die Zoom-Ansicht zeigt weiter das ganze Bild. Look-Bilder, Kategorie-Kacheln und Hero behalten ihr Format.
+Die Bilddateien bleiben unverändert. Fotos mit anderem Seitenverhältnis werden mittig beschnitten. Soll ein Bild einen anderen Ausschnitt zeigen, setzt du im Admin unter Inhalte → Dateien einen Fokuspunkt. Die Zoom-Ansicht zeigt weiter das ganze Bild. Look-Bilder (9:16), Kategorie-Kacheln und Hero behalten ihr Format.
 
-Umgesetzt in `shopify/snippets/scm-square-media.liquid`, global eingebunden über `shopify/snippets/stylesheets.liquid`.
+Umgesetzt in `shopify/snippets/scm-product-image-ratio.liquid`, global eingebunden über `shopify/snippets/stylesheets.liquid`.
