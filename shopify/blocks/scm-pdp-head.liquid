@@ -72,7 +72,8 @@
       {%- if block.settings.label_unique != blank -%}<span class="scm-chip">{{ block.settings.label_unique }}</span>{%- endif -%}
     {%- endif -%}
     {%- if sale_percent > 0 -%}
-      <span class="scm-chip scm-chip--sale">-{{ sale_percent }}% SALE</span>
+      {%- comment -%} Second Hand einheitlich „-50% SALE“, Neuware mit genauem Rabatt {%- endcomment -%}
+      <span class="scm-chip scm-chip--sale">{% if is_second_hand %}-50{% else %}-{{ sale_percent }}{% endif %}% SALE</span>
     {%- endif -%}
     {%- for look in looks -%}
       <a class="scm-chip" href="#scm-looks">Look {{ look.nummer.value }}</a>

@@ -73,7 +73,11 @@
                   {{ second_image | image_url: width: 900 | image_tag: loading: 'lazy', widths: '300, 450, 600, 900', sizes: '(min-width: 990px) 24vw, 62vw', class: 'scm-card__image scm-card__image--alt', alt: '' }}
                 {%- endif -%}
                 {%- if product.compare_at_price > product.price -%}
-                  <span class="scm-card__badge">−{{ product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price | round }}%</span>
+                  {%- if product.tags contains 'Zustand: Second Hand' or product.tags contains 'Secondhand' -%}
+                    <span class="scm-card__badge">-50% SALE</span>
+                  {%- else -%}
+                    <span class="scm-card__badge">−{{ product.compare_at_price | minus: product.price | times: 100 | divided_by: product.compare_at_price | round }}%</span>
+                  {%- endif -%}
                 {%- endif -%}
               </span>
               <span class="scm-card__meta">
