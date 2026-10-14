@@ -1,0 +1,129 @@
+{% doc %}
+  Second-Hand-Infos: Link neben „Größeninfos“ mit Pop-up zu Prüfung, Zustand und Pflege.
+  Nur für Second-Hand-Artikel (Tag „Zustand: Second Hand“ oder „Secondhand“).
+  Nutzt die Pop-up-Styles aus scm-size-info.
+
+  @param {string} dialog_id - Unique dialog identifier.
+  @param {object} product - The product.
+{% enddoc %}
+
+{%- liquid
+  assign is_second_hand = false
+  if product.tags contains 'Zustand: Second Hand' or product.tags contains 'Secondhand'
+    assign is_second_hand = true
+  endif
+-%}
+
+{%- if is_second_hand -%}
+  <dialog-component id="{{ dialog_id }}" class="scm-size-info scm-secondhand-info">
+    <button
+      type="button"
+      class="button-unstyled scm-size-info__link"
+      on:click="/showDialog"
+      aria-haspopup="dialog"
+      aria-controls="{{ dialog_id }}-window"
+    >
+      Second Hand Infos
+    </button>
+    <dialog
+      id="{{ dialog_id }}-window"
+      ref="dialog"
+      class="scm-size-info__window"
+      aria-labelledby="{{ dialog_id }}-heading"
+    >
+      <button
+        type="button"
+        class="button-unstyled scm-size-info__close"
+        on:click="/closeDialog"
+        aria-label="{{ 'actions.close' | t }}"
+        autofocus
+      >
+        <span class="svg-wrapper">{{ 'icon-close.svg' | inline_asset_content }}</span>
+      </button>
+      <h2 id="{{ dialog_id }}-heading">UNSER SECOND HAND VERSPRECHEN</h2>
+      <p>Second Hand heißt bei uns nicht „so wie gefunden“. Jedes Teil geht durch unsere Hände, bevor es in den Shop kommt.</p>
+      <ul class="scm-secondhand-info__list" role="list">
+        <li>
+          <strong>Geprüft mit geschultem Auge</strong>
+          <span>Wir prüfen jeden Artikel einzeln auf Fehler.</span>
+        </li>
+        <li>
+          <strong>Frei von Mängeln</strong>
+          <span>Alle Artikel, die du bei uns kaufst, sind mängelfrei.</span>
+        </li>
+        <li>
+          <strong>Gewaschen &amp; gebügelt</strong>
+          <span>Jedes Teil wird gewaschen und gebügelt und kommt tragebereit bei dir an.</span>
+        </li>
+        <li>
+          <strong>Einzelstück</strong>
+          <span>Diesen Artikel gibt es nur 1×. Ist er weg, ist er weg.</span>
+        </li>
+        <li>
+          <strong>14 Tage in Ruhe anprobieren</strong>
+          <span>Passt es nicht, kannst du es innerhalb von 14 Tagen zurückschicken.</span>
+        </li>
+      </ul>
+      <p>Und ganz nebenbei: Mit Second Hand trägst du ein Lieblingsteil weiter, statt neu zu produzieren.</p>
+      <p class="scm-size-info__hint">Zum Schließen einfach neben das Fenster klicken</p>
+    </dialog>
+  </dialog-component>
+
+  <script src="{{ 'dialog.js' | asset_url }}" type="module"></script>
+{%- endif -%}
+
+{% stylesheet %}
+  .product-form-buttons > .scm-info-links {
+    display: flex;
+    flex: 0 0 100% !important;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 24px;
+    min-width: 0 !important;
+    width: 100%;
+  }
+
+  .scm-info-links > dialog-component.scm-size-info {
+    display: block;
+    flex: 0 0 auto;
+    width: auto;
+    text-align: left;
+  }
+
+  .scm-secondhand-info__list {
+    display: grid;
+    gap: 14px;
+    margin: 4px 0 20px;
+    padding: 0;
+    list-style: none;
+  }
+
+  .scm-secondhand-info__list li {
+    position: relative;
+    padding-inline-start: 30px;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .scm-secondhand-info__list li::before {
+    content: '';
+    position: absolute;
+    inset-block-start: 3px;
+    inset-inline-start: 0;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--color-foreground, #2a2420)
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E")
+      center / 12px no-repeat;
+  }
+
+  .scm-secondhand-info__list strong {
+    display: block;
+    font-weight: 600;
+  }
+
+  .scm-secondhand-info__list span {
+    display: block;
+  }
+{% endstylesheet %}
