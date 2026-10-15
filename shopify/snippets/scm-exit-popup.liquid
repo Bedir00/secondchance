@@ -6,6 +6,7 @@
   - alle Geräte: Warenkorb-Drawer wird geschlossen
   - Desktop: Maus verlässt das Fenster nach oben
   - Mobil: Zurück-Taste, schnelles Hochwischen, Rückkehr in den Tab, 30 s Stillstand
+  Darstellung: kompakte, zentrierte Karte auf allen Geräten.
   Test: Seite mit ?scm-exit-test aufrufen (zeigt das Pop-up sofort, auch bei leerem Warenkorb).
 {% enddoc %}
 
@@ -20,39 +21,18 @@
     aria-describedby="scm-exit-text"
     data-code="{{ scm_exit_code }}"
   >
-    <div class="scm-exit__sheet" data-sheet tabindex="-1" autofocus>
-      <span class="scm-exit__grab" aria-hidden="true"></span>
+    <div class="scm-exit__card" data-sheet tabindex="-1" autofocus>
       <button type="button" class="scm-exit__close" data-close aria-label="{{ 'actions.close' | t }}">
         <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18"/></svg>
       </button>
-
-      <p class="scm-exit__kicker">Nur für dich</p>
-      <h2 class="scm-exit__title" id="scm-exit-title">Warte kurz – {{ scm_exit_percent }}&nbsp;% Rabatt für dich</h2>
-      <p class="scm-exit__text" id="scm-exit-text">
-        Dein Warenkorb ist noch nicht abgeschickt. Mit diesem Code sparst du jetzt {{ scm_exit_percent }}&nbsp;% auf deine Bestellung.
-      </p>
-
-      <div class="scm-exit__cart" data-cart hidden>
-        <span class="scm-exit__thumbs" data-thumbs></span>
-        <span class="scm-exit__sum" data-sum></span>
-      </div>
-
-      <button type="button" class="scm-exit__code" data-copy>
-        <span class="scm-exit__code-label">Dein Code</span>
-        <strong class="scm-exit__code-value">{{ scm_exit_code }}</strong>
+      <p class="scm-exit__kicker" id="scm-exit-title">Warte!</p>
+      <p class="scm-exit__big">−{{ scm_exit_percent }}&nbsp;%</p>
+      <p class="scm-exit__text" id="scm-exit-text">auf deinen Warenkorb</p>
+      <button type="button" class="scm-exit__code" data-copy aria-label="Code {{ scm_exit_code }} kopieren">
+        <span class="scm-exit__code-value">{{ scm_exit_code }}</span>
         <span class="scm-exit__code-action" data-copy-label>Kopieren</span>
       </button>
-
-      <a
-        class="scm-exit__cta"
-        href="/discount/{{ scm_exit_code }}?redirect=%2Fcheckout"
-        data-cta
-      >
-        {{ scm_exit_percent }}&nbsp;% einlösen &amp; zur Kasse
-      </a>
-      <button type="button" class="scm-exit__later" data-close>Weiter einkaufen</button>
-
-      <p class="scm-exit__fine">Der Code wird automatisch an der Kasse angewendet. Einmal pro Kunde einlösbar.</p>
+      <a class="scm-exit__cta" href="/discount/{{ scm_exit_code }}?redirect=%2Fcheckout" data-cta>Jetzt einlösen</a>
       <p class="visually-hidden" role="status" aria-live="polite" data-status></p>
     </div>
   </dialog>
@@ -83,7 +63,6 @@
       };
 
       const $ = (selector) => dlg.querySelector(selector);
-      const sheet = $('[data-sheet]');
       let shown = false;
       let navigating = false;
       let lastFocus = null;
@@ -97,29 +76,6 @@
         return response.json();
       }
 
-      function renderCart(cart) {
-        const box = $('[data-cart]');
-        if (!cart || !cart.item_count) { box.hidden = true; return; }
-        const thumbs = $('[data-thumbs]');
-        thumbs.textContent = '';
-        cart.items.slice(0, 3).forEach((item) => {
-          const url = item.featured_image && item.featured_image.url;
-          if (!url) return;
-          const img = document.createElement('img');
-          const src = new URL(url, location.href);
-          src.searchParams.set('width', '160');
-          img.src = src.toString();
-          img.alt = item.product_title || '';
-          img.width = 48;
-          img.height = 64;
-          img.loading = 'eager';
-          thumbs.appendChild(img);
-        });
-        const money = new Intl.NumberFormat('de-DE', { style: 'currency', currency: cart.currency || 'EUR' }).format(cart.total_price / 100);
-        $('[data-sum]').textContent = `${cart.item_count} Artikel · ${money}`;
-        box.hidden = false;
-      }
-
       /** Zeigt das Pop-up, wenn Artikel im Warenkorb liegen. Gibt true zurück, wenn es erschienen ist. */
       async function maybeShow(reason) {
         if (shown || dlg.open || blocked() || navigating || document.hidden) return false;
@@ -129,7 +85,6 @@
         if (!FORCE && (!cart || !cart.item_count)) return false;
         if (shown || dlg.open || navigating) return false;
 
-        renderCart(cart);
         shown = true;
         store.set('sessionStorage', 'scm_exit_shown', '1');
         snooze(3);
@@ -142,7 +97,6 @@
 
       dlg.addEventListener('close', () => {
         document.documentElement.classList.remove('scm-exit-lock');
-        sheet.style.transform = '';
         if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
       });
       dlg.addEventListener('click', (event) => {
@@ -162,7 +116,7 @@
           try { ok = document.execCommand('copy'); } catch (err) { /* ignorieren */ }
           field.remove();
         }
-        $('[data-copy-label]').textContent = ok ? 'Kopiert ✓' : 'Code merken';
+        $('[data-copy-label]').textContent = ok ? 'Kopiert ✓' : 'Merken';
         $('[data-status]').textContent = ok ? `Code ${CODE} kopiert` : `Bitte Code ${CODE} merken`;
         if (navigator.vibrate) navigator.vibrate(12);
         if (ok) { snooze(14); track('ExitPopupCopy'); }
@@ -171,25 +125,6 @@
       $('[data-cta]').addEventListener('click', () => {
         snooze(30);
         track('ExitPopupCheckout');
-      });
-
-      // Nach unten wischen schließt das Sheet (mobil)
-      let startY = null;
-      let dragY = 0;
-      sheet.addEventListener('touchstart', (event) => {
-        startY = sheet.scrollTop <= 0 ? event.touches[0].clientY : null;
-        dragY = 0;
-      }, { passive: true });
-      sheet.addEventListener('touchmove', (event) => {
-        if (startY === null) return;
-        dragY = Math.max(0, event.touches[0].clientY - startY);
-        if (dragY > 0) { sheet.style.transition = 'none'; sheet.style.transform = `translateY(${dragY}px)`; }
-      }, { passive: true });
-      sheet.addEventListener('touchend', () => {
-        if (startY === null) return;
-        sheet.style.transition = '';
-        if (dragY > 90) dlg.close(); else sheet.style.transform = '';
-        startY = null;
       });
 
       if (FORCE) { addEventListener('load', () => maybeShow('test')); return; }
@@ -303,61 +238,47 @@
     padding: 0;
     border: 0;
     background: transparent;
-    color: var(--color-foreground, #2a2420);
     overflow: hidden;
   }
 
   dialog.scm-exit[open] {
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    box-sizing: border-box;
   }
 
   dialog.scm-exit::backdrop {
-    background: rgb(20 12 8 / 55%);
-    animation: scm-exit-fade 0.25s ease-out;
+    background: rgb(20 12 8 / 60%);
+    animation: scm-exit-fade 0.2s ease-out;
   }
 
-  .scm-exit__sheet {
+  .scm-exit__card {
     position: relative;
     box-sizing: border-box;
-    width: 100%;
-    max-width: 480px;
-    max-height: 92dvh;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    padding: 28px 20px max(20px, env(safe-area-inset-bottom));
-    border-radius: 20px 20px 0 0;
-    background: var(--color-background, #fff);
+    width: min(320px, 100%);
+    padding: 30px 22px 22px;
+    border-radius: 18px;
+    background: #c62828;
+    color: #fff;
     font-family: var(--font-body--family);
     text-align: center;
-    animation: scm-exit-up 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
-    transition: transform 0.2s ease-out;
+    box-shadow: 0 24px 60px rgb(0 0 0 / 35%);
+    animation: scm-exit-pop 0.32s cubic-bezier(0.2, 0.9, 0.3, 1.2);
   }
 
-  .scm-exit__sheet:focus {
+  .scm-exit__card:focus {
     outline: 0;
-  }
-
-  .scm-exit__grab {
-    position: absolute;
-    inset-block-start: 8px;
-    inset-inline-start: 50%;
-    width: 40px;
-    height: 4px;
-    margin-inline-start: -20px;
-    border-radius: 2px;
-    background: rgb(0 0 0 / 18%);
   }
 
   .scm-exit__close {
     position: absolute;
-    inset-block-start: 6px;
-    inset-inline-end: 6px;
+    inset-block-start: 4px;
+    inset-inline-end: 4px;
     display: grid;
     place-items: center;
-    width: 48px;
-    height: 48px;
+    width: 44px;
+    height: 44px;
     padding: 0;
     border: 0;
     background: transparent;
@@ -367,111 +288,67 @@
   }
 
   .scm-exit__close svg {
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
     fill: none;
     stroke: currentcolor;
-    stroke-width: 2;
+    stroke-width: 2.5;
     stroke-linecap: round;
   }
 
   .scm-exit__kicker {
-    margin: 0 0 6px;
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.12em;
+    margin: 0;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
-    opacity: 0.6;
   }
 
-  .scm-exit__title {
-    margin: 0 0 10px;
-    font-family: var(--font-body--family);
-    font-size: clamp(22px, 6.4vw, 28px);
-    font-weight: 700;
-    line-height: 1.2;
-    text-wrap: balance;
+  .scm-exit__big {
+    margin: 2px 0 0;
+    font-size: clamp(72px, 24vw, 92px);
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: -0.04em;
+    white-space: nowrap;
   }
 
   .scm-exit__text {
-    margin: 0 auto 18px;
-    max-width: 34ch;
-    font-size: 16px;
-    line-height: 1.5;
-  }
-
-  .scm-exit__cart {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    margin: 0 0 16px;
-    font-size: 14px;
-  }
-
-  .scm-exit__cart[hidden] {
-    display: none;
-  }
-
-  .scm-exit__thumbs {
-    display: flex;
-  }
-
-  .scm-exit__thumbs img {
-    width: 48px;
-    height: 64px;
-    margin-inline-end: -10px;
-    border: 2px solid var(--color-background, #fff);
-    border-radius: 6px;
-    object-fit: cover;
-  }
-
-  .scm-exit__thumbs img:last-child {
-    margin-inline-end: 0;
-  }
-
-  .scm-exit__thumbs:not(:empty) + .scm-exit__sum {
-    margin-inline-start: 10px;
+    margin: 4px 0 20px;
+    font-size: 17px;
+    font-weight: 600;
   }
 
   .scm-exit__code {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
+    gap: 10px;
     box-sizing: border-box;
     width: 100%;
-    min-height: 60px;
-    padding: 10px 16px;
-    border: 2px dashed currentcolor;
+    min-height: 54px;
+    padding: 6px 6px 6px 16px;
+    border: 2px dashed rgb(255 255 255 / 85%);
     border-radius: 12px;
-    background: rgb(0 0 0 / 3%);
+    background: rgb(255 255 255 / 12%);
     color: inherit;
     font-family: inherit;
-    text-align: start;
     cursor: pointer;
     touch-action: manipulation;
   }
 
-  .scm-exit__code-label {
-    font-size: 12px;
-    opacity: 0.65;
-  }
-
   .scm-exit__code-value {
-    flex: 1;
     font-size: 22px;
-    font-weight: 800;
-    letter-spacing: 0.14em;
+    font-weight: 900;
+    letter-spacing: 0.16em;
   }
 
   .scm-exit__code-action {
-    padding: 8px 12px;
-    border-radius: 999px;
-    background: var(--color-foreground, #2a2420);
-    color: var(--color-background, #fff);
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: rgb(255 255 255 / 22%);
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 700;
     white-space: nowrap;
   }
 
@@ -480,69 +357,28 @@
     place-items: center;
     box-sizing: border-box;
     width: 100%;
-    min-height: 58px;
-    margin-block-start: 12px;
-    padding: 0 20px;
+    min-height: 56px;
+    margin-block-start: 10px;
     border-radius: 12px;
-    background: #c62828;
-    color: #fff;
+    background: #fff;
+    color: #2a2420;
     font-size: 17px;
-    font-weight: 700;
+    font-weight: 800;
+    letter-spacing: 0.02em;
     text-decoration: none;
     touch-action: manipulation;
   }
 
-  .scm-exit__later {
-    display: block;
-    width: 100%;
-    min-height: 52px;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    color: inherit;
-    font-family: inherit;
-    font-size: 15px;
-    text-decoration: underline;
-    text-underline-offset: 4px;
-    cursor: pointer;
-    touch-action: manipulation;
-  }
-
-  .scm-exit__fine {
-    margin: 4px 0 0;
-    font-size: 12px;
-    line-height: 1.4;
-    opacity: 0.6;
-  }
-
   .scm-exit__code:focus-visible,
   .scm-exit__cta:focus-visible,
-  .scm-exit__later:focus-visible,
   .scm-exit__close:focus-visible {
-    outline: 3px solid currentcolor;
+    outline: 3px solid #fff;
     outline-offset: 3px;
-  }
-
-  @media screen and (min-width: 750px) {
-    dialog.scm-exit[open] {
-      align-items: center;
-    }
-
-    .scm-exit__sheet {
-      max-width: 440px;
-      padding: 40px 32px 28px;
-      border-radius: 16px;
-      animation-name: scm-exit-pop;
-    }
-
-    .scm-exit__grab {
-      display: none;
-    }
   }
 
   @media (prefers-reduced-motion: reduce) {
     dialog.scm-exit::backdrop,
-    .scm-exit__sheet {
+    .scm-exit__card {
       animation: none;
     }
   }
@@ -552,13 +388,8 @@
     to { opacity: 1; }
   }
 
-  @keyframes scm-exit-up {
-    from { transform: translateY(100%); }
-    to { transform: translateY(0); }
-  }
-
   @keyframes scm-exit-pop {
-    from { opacity: 0; transform: translateY(16px) scale(0.97); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
+    from { opacity: 0; transform: scale(0.85); }
+    to { opacity: 1; transform: scale(1); }
   }
 {% endstylesheet %}
