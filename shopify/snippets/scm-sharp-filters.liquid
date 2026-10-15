@@ -1,0 +1,17 @@
+{%- comment -%}
+  Scharfkantige Filter auf Kategorie- und Suchseiten (CI: keine runden Ecken).
+  Betrifft Größen-/Marken-Schnellfilter, Filterleiste, Filter-Drawer, aktive Filter und Sortierung.
+{%- endcomment -%}
+{%- if template.name == 'collection' or template.name == 'search' -%}
+  <style>
+    .size-quick-filter__chip,
+    .size-quick-filter__select,
+    .facets-toggle__button,
+    .filter-count-bubble,
+    .pills__pill,
+    :is(.size-quick-filter, .facets, .facets-toggle, .facets-mobile-wrapper, .facets-controls-wrapper, .sorting-filter, facets-form-component)
+      :is(a, button, select, input, label, summary, details, dialog, span, div, ul, li, img) {
+      border-radius: 0 !important;
+    }
+  </style>
+{%- endif -%}
