@@ -258,13 +258,14 @@
     box-sizing: border-box;
     width: min(320px, 100%);
     padding: 30px 22px 22px;
-    border-radius: 18px;
-    background: #c62828;
+    border-radius: 0;
+    border-top: 6px solid #c62828;
+    background: #2a2420;
     color: #fff;
     font-family: var(--font-body--family);
     text-align: center;
-    box-shadow: 0 24px 60px rgb(0 0 0 / 35%);
-    animation: scm-exit-pop 0.32s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+    box-shadow: 0 24px 60px rgb(0 0 0 / 40%);
+    animation: scm-exit-pop 0.28s ease-out;
   }
 
   .scm-exit__card:focus {
@@ -299,13 +300,15 @@
   .scm-exit__kicker {
     margin: 0;
     font-size: 15px;
-    font-weight: 800;
-    letter-spacing: 0.2em;
+    font-weight: 700;
+    letter-spacing: 0.24em;
     text-transform: uppercase;
+    color: #e04a4a;
   }
 
   .scm-exit__big {
     margin: 2px 0 0;
+    font-family: var(--font-heading--family, var(--font-body--family));
     font-size: clamp(72px, 24vw, 92px);
     font-weight: 900;
     line-height: 0.95;
@@ -314,9 +317,11 @@
   }
 
   .scm-exit__text {
-    margin: 4px 0 20px;
-    font-size: 17px;
+    margin: 6px 0 20px;
+    font-size: 13px;
     font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
   }
 
   .scm-exit__code {
@@ -328,9 +333,9 @@
     width: 100%;
     min-height: 54px;
     padding: 6px 6px 6px 16px;
-    border: 2px dashed rgb(255 255 255 / 85%);
-    border-radius: 12px;
-    background: rgb(255 255 255 / 12%);
+    border: 1px dashed rgb(255 255 255 / 70%);
+    border-radius: 0;
+    background: transparent;
     color: inherit;
     font-family: inherit;
     cursor: pointer;
@@ -345,10 +350,13 @@
 
   .scm-exit__code-action {
     padding: 10px 12px;
-    border-radius: 8px;
-    background: rgb(255 255 255 / 22%);
-    font-size: 14px;
+    border-radius: 0;
+    background: #fff;
+    color: #2a2420;
+    font-size: 12px;
     font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
     white-space: nowrap;
   }
 
@@ -359,12 +367,13 @@
     width: 100%;
     min-height: 56px;
     margin-block-start: 10px;
-    border-radius: 12px;
-    background: #fff;
-    color: #2a2420;
-    font-size: 17px;
-    font-weight: 800;
-    letter-spacing: 0.02em;
+    border-radius: 0;
+    background: #c62828;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
     text-decoration: none;
     touch-action: manipulation;
   }
@@ -389,7 +398,7 @@
   }
 
   @keyframes scm-exit-pop {
-    from { opacity: 0; transform: scale(0.85); }
-    to { opacity: 1; transform: scale(1); }
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 {% endstylesheet %}
