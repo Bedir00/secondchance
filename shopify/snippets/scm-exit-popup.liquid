@@ -1,0 +1,564 @@
+{% doc %}
+  Warenkorb-Abbrecher-Pop-up: 10 % Rabatt mit dem Code LOVE10.
+  Erscheint nur, wenn Artikel im Warenkorb liegen und einmal pro Besuch.
+
+  Auslöser
+  - alle Geräte: Warenkorb-Drawer wird geschlossen
+  - Desktop: Maus verlässt das Fenster nach oben
+  - Mobil: Zurück-Taste, schnelles Hochwischen, Rückkehr in den Tab, 30 s Stillstand
+  Test: Seite mit ?scm-exit-test aufrufen (zeigt das Pop-up sofort, auch bei leerem Warenkorb).
+{% enddoc %}
+
+{%- assign scm_exit_code = 'LOVE10' -%}
+{%- assign scm_exit_percent = 10 -%}
+
+{%- unless template.name == 'cart' or request.page_type == 'password' -%}
+  <dialog
+    id="scm-exit-popup"
+    class="scm-exit"
+    aria-labelledby="scm-exit-title"
+    aria-describedby="scm-exit-text"
+    data-code="{{ scm_exit_code }}"
+  >
+    <div class="scm-exit__sheet" data-sheet tabindex="-1" autofocus>
+      <span class="scm-exit__grab" aria-hidden="true"></span>
+      <button type="button" class="scm-exit__close" data-close aria-label="{{ 'actions.close' | t }}">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+
+      <p class="scm-exit__kicker">Nur für dich</p>
+      <h2 class="scm-exit__title" id="scm-exit-title">Warte kurz – {{ scm_exit_percent }}&nbsp;% Rabatt für dich</h2>
+      <p class="scm-exit__text" id="scm-exit-text">
+        Dein Warenkorb ist noch nicht abgeschickt. Mit diesem Code sparst du jetzt {{ scm_exit_percent }}&nbsp;% auf deine Bestellung.
+      </p>
+
+      <div class="scm-exit__cart" data-cart hidden>
+        <span class="scm-exit__thumbs" data-thumbs></span>
+        <span class="scm-exit__sum" data-sum></span>
+      </div>
+
+      <button type="button" class="scm-exit__code" data-copy>
+        <span class="scm-exit__code-label">Dein Code</span>
+        <strong class="scm-exit__code-value">{{ scm_exit_code }}</strong>
+        <span class="scm-exit__code-action" data-copy-label>Kopieren</span>
+      </button>
+
+      <a
+        class="scm-exit__cta"
+        href="/discount/{{ scm_exit_code }}?redirect=%2Fcheckout"
+        data-cta
+      >
+        {{ scm_exit_percent }}&nbsp;% einlösen &amp; zur Kasse
+      </a>
+      <button type="button" class="scm-exit__later" data-close>Weiter einkaufen</button>
+
+      <p class="scm-exit__fine">Der Code wird automatisch an der Kasse angewendet. Einmal pro Kunde einlösbar.</p>
+      <p class="visually-hidden" role="status" aria-live="polite" data-status></p>
+    </div>
+  </dialog>
+
+  <script>
+    (() => {
+      const dlg = document.getElementById('scm-exit-popup');
+      if (!dlg || dlg.dataset.ready) return;
+      dlg.dataset.ready = '1';
+
+      const CODE = dlg.dataset.code;
+      const DAY = 864e5;
+      const params = new URLSearchParams(location.search);
+      const FORCE = params.has('scm-exit-test');
+      const IDLE_MS = Number(params.get('scm-exit-idle')) * 1000 || 30000;
+      const isTouch = matchMedia('(hover: none), (pointer: coarse)').matches;
+      const loadedAt = Date.now();
+
+      const store = {
+        get: (area, key) => { try { return window[area].getItem(key); } catch (e) { return null; } },
+        set: (area, key, value) => { try { window[area].setItem(key, value); } catch (e) { /* privater Modus */ } },
+      };
+      const snooze = (days) => store.set('localStorage', 'scm_exit_until', String(Date.now() + days * DAY));
+      const blocked = () =>
+        !FORCE && (store.get('sessionStorage', 'scm_exit_shown') || Number(store.get('localStorage', 'scm_exit_until')) > Date.now());
+      const track = (name, data) => {
+        try { if (window.fbq) window.fbq('trackCustom', name, data || {}); } catch (e) { /* Tracking optional */ }
+      };
+
+      const $ = (selector) => dlg.querySelector(selector);
+      const sheet = $('[data-sheet]');
+      let shown = false;
+      let navigating = false;
+      let lastFocus = null;
+
+      addEventListener('pagehide', () => { navigating = true; });
+      addEventListener('pageshow', () => { navigating = false; });
+
+      async function getCart() {
+        const response = await fetch('/cart.js', { headers: { Accept: 'application/json' }, cache: 'no-store' });
+        if (!response.ok) throw new Error('cart');
+        return response.json();
+      }
+
+      function renderCart(cart) {
+        const box = $('[data-cart]');
+        if (!cart || !cart.item_count) { box.hidden = true; return; }
+        const thumbs = $('[data-thumbs]');
+        thumbs.textContent = '';
+        cart.items.slice(0, 3).forEach((item) => {
+          const url = item.featured_image && item.featured_image.url;
+          if (!url) return;
+          const img = document.createElement('img');
+          const src = new URL(url, location.href);
+          src.searchParams.set('width', '160');
+          img.src = src.toString();
+          img.alt = item.product_title || '';
+          img.width = 48;
+          img.height = 64;
+          img.loading = 'eager';
+          thumbs.appendChild(img);
+        });
+        const money = new Intl.NumberFormat('de-DE', { style: 'currency', currency: cart.currency || 'EUR' }).format(cart.total_price / 100);
+        $('[data-sum]').textContent = `${cart.item_count} Artikel · ${money}`;
+        box.hidden = false;
+      }
+
+      /** Zeigt das Pop-up, wenn Artikel im Warenkorb liegen. Gibt true zurück, wenn es erschienen ist. */
+      async function maybeShow(reason) {
+        if (shown || dlg.open || blocked() || navigating || document.hidden) return false;
+        if (document.querySelector('dialog[open]:not(#scm-exit-popup)')) return false;
+        let cart = null;
+        try { cart = await getCart(); } catch (e) { if (!FORCE) return false; }
+        if (!FORCE && (!cart || !cart.item_count)) return false;
+        if (shown || dlg.open || navigating) return false;
+
+        renderCart(cart);
+        shown = true;
+        store.set('sessionStorage', 'scm_exit_shown', '1');
+        snooze(3);
+        lastFocus = document.activeElement;
+        dlg.showModal();
+        document.documentElement.classList.add('scm-exit-lock');
+        track('ExitPopupShown', { reason });
+        return true;
+      }
+
+      dlg.addEventListener('close', () => {
+        document.documentElement.classList.remove('scm-exit-lock');
+        sheet.style.transform = '';
+        if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
+      });
+      dlg.addEventListener('click', (event) => {
+        if (event.target === dlg || event.target.closest('[data-close]')) dlg.close();
+      });
+
+      // Code kopieren
+      $('[data-copy]').addEventListener('click', async () => {
+        let ok = false;
+        try { await navigator.clipboard.writeText(CODE); ok = true; } catch (e) {
+          const field = document.createElement('textarea');
+          field.value = CODE;
+          field.setAttribute('readonly', '');
+          field.style.cssText = 'position:fixed;opacity:0;font-size:16px';
+          dlg.appendChild(field);
+          field.select();
+          try { ok = document.execCommand('copy'); } catch (err) { /* ignorieren */ }
+          field.remove();
+        }
+        $('[data-copy-label]').textContent = ok ? 'Kopiert ✓' : 'Code merken';
+        $('[data-status]').textContent = ok ? `Code ${CODE} kopiert` : `Bitte Code ${CODE} merken`;
+        if (navigator.vibrate) navigator.vibrate(12);
+        if (ok) { snooze(14); track('ExitPopupCopy'); }
+      });
+
+      $('[data-cta]').addEventListener('click', () => {
+        snooze(30);
+        track('ExitPopupCheckout');
+      });
+
+      // Nach unten wischen schließt das Sheet (mobil)
+      let startY = null;
+      let dragY = 0;
+      sheet.addEventListener('touchstart', (event) => {
+        startY = sheet.scrollTop <= 0 ? event.touches[0].clientY : null;
+        dragY = 0;
+      }, { passive: true });
+      sheet.addEventListener('touchmove', (event) => {
+        if (startY === null) return;
+        dragY = Math.max(0, event.touches[0].clientY - startY);
+        if (dragY > 0) { sheet.style.transition = 'none'; sheet.style.transform = `translateY(${dragY}px)`; }
+      }, { passive: true });
+      sheet.addEventListener('touchend', () => {
+        if (startY === null) return;
+        sheet.style.transition = '';
+        if (dragY > 90) dlg.close(); else sheet.style.transform = '';
+        startY = null;
+      });
+
+      if (FORCE) { addEventListener('load', () => maybeShow('test')); return; }
+
+      // 1) Warenkorb-Drawer geschlossen (alle Geräte)
+      const afterCartClose = () => setTimeout(() => { tryArmBack(); maybeShow('cart-close'); }, 450);
+      document.addEventListener('close', (event) => {
+        if (event.target instanceof HTMLDialogElement && event.target.closest('#cart-drawer')) afterCartClose();
+      }, true);
+      const drawer = document.getElementById('cart-drawer');
+      if (drawer) {
+        let wasOpen = drawer.hasAttribute('open');
+        new MutationObserver(() => {
+          const isOpen = drawer.hasAttribute('open');
+          if (wasOpen && !isOpen) afterCartClose();
+          wasOpen = isOpen;
+        }).observe(drawer, { attributes: true, attributeFilter: ['open'] });
+      }
+
+      // 2) Desktop: Maus verlässt das Fenster nach oben
+      if (!isTouch) {
+        document.documentElement.addEventListener('mouseleave', (event) => {
+          if (event.clientY <= 0 && Date.now() - loadedAt > 4000) maybeShow('exit-mouse');
+        });
+      }
+
+      // 3) Mobil
+      let pushed = !!(history.state && history.state.scmExit);
+      let arming = false;
+      async function tryArmBack() {
+        if (!isTouch || pushed || arming || blocked()) return;
+        arming = true;
+        try {
+          const cart = await getCart();
+          if (cart.item_count && !pushed) {
+            history.pushState({ scmExit: 1 }, '', location.href);
+            pushed = true;
+          }
+        } catch (e) { /* ignorieren */ } finally { arming = false; }
+      }
+
+      if (isTouch) {
+        // Zurück-Taste: erst Pop-up, danach geht es normal zurück
+        addEventListener('popstate', async () => {
+          if (!pushed || (history.state && history.state.scmExit)) return;
+          pushed = false;
+          const didShow = await maybeShow('back');
+          if (!didShow && !navigating) history.back();
+        });
+        // Erst nach der ersten Berührung vorbereiten (Chrome ignoriert Einträge ohne Nutzeraktion)
+        addEventListener('touchend', tryArmBack, { once: true, passive: true });
+
+        // Schnelles Hochwischen Richtung Adressleiste/Tabs
+        let lastY = scrollY;
+        let lastT = performance.now();
+        let upDistance = 0;
+        let upSince = 0;
+        addEventListener('scroll', () => {
+          const y = scrollY;
+          const t = performance.now();
+          const dy = y - lastY;
+          if (dy < 0 && t - upSince < 700) {
+            upDistance += -dy;
+          } else if (dy < 0) {
+            upDistance = -dy;
+            upSince = t;
+          } else {
+            upDistance = 0;
+          }
+          if (upDistance > innerHeight * 0.6 && t - upSince < 700 && t - lastT > 0 && Date.now() - loadedAt > 8000) {
+            upDistance = 0;
+            maybeShow('scroll-up');
+          }
+          lastY = y;
+          lastT = t;
+        }, { passive: true });
+
+        // Rückkehr in den Tab / zur App
+        let hiddenAt = 0;
+        document.addEventListener('visibilitychange', () => {
+          if (document.hidden) { hiddenAt = Date.now(); return; }
+          if (hiddenAt && Date.now() - hiddenAt > 3000) maybeShow('return');
+        });
+
+        // Stillstand
+        let idleTimer;
+        const resetIdle = () => {
+          clearTimeout(idleTimer);
+          idleTimer = setTimeout(() => maybeShow('idle'), IDLE_MS);
+        };
+        ['touchstart', 'scroll', 'keydown'].forEach((name) => addEventListener(name, resetIdle, { passive: true }));
+        resetIdle();
+      }
+    })();
+  </script>
+{%- endunless -%}
+
+{% stylesheet %}
+  html.scm-exit-lock {
+    overflow: hidden;
+  }
+
+  dialog.scm-exit {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--color-foreground, #2a2420);
+    overflow: hidden;
+  }
+
+  dialog.scm-exit[open] {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  dialog.scm-exit::backdrop {
+    background: rgb(20 12 8 / 55%);
+    animation: scm-exit-fade 0.25s ease-out;
+  }
+
+  .scm-exit__sheet {
+    position: relative;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 480px;
+    max-height: 92dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 28px 20px max(20px, env(safe-area-inset-bottom));
+    border-radius: 20px 20px 0 0;
+    background: var(--color-background, #fff);
+    font-family: var(--font-body--family);
+    text-align: center;
+    animation: scm-exit-up 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transition: transform 0.2s ease-out;
+  }
+
+  .scm-exit__sheet:focus {
+    outline: 0;
+  }
+
+  .scm-exit__grab {
+    position: absolute;
+    inset-block-start: 8px;
+    inset-inline-start: 50%;
+    width: 40px;
+    height: 4px;
+    margin-inline-start: -20px;
+    border-radius: 2px;
+    background: rgb(0 0 0 / 18%);
+  }
+
+  .scm-exit__close {
+    position: absolute;
+    inset-block-start: 6px;
+    inset-inline-end: 6px;
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  .scm-exit__close svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentcolor;
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  .scm-exit__kicker {
+    margin: 0 0 6px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.6;
+  }
+
+  .scm-exit__title {
+    margin: 0 0 10px;
+    font-family: var(--font-body--family);
+    font-size: clamp(22px, 6.4vw, 28px);
+    font-weight: 700;
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+
+  .scm-exit__text {
+    margin: 0 auto 18px;
+    max-width: 34ch;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  .scm-exit__cart {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 0 0 16px;
+    font-size: 14px;
+  }
+
+  .scm-exit__cart[hidden] {
+    display: none;
+  }
+
+  .scm-exit__thumbs {
+    display: flex;
+  }
+
+  .scm-exit__thumbs img {
+    width: 48px;
+    height: 64px;
+    margin-inline-end: -10px;
+    border: 2px solid var(--color-background, #fff);
+    border-radius: 6px;
+    object-fit: cover;
+  }
+
+  .scm-exit__thumbs img:last-child {
+    margin-inline-end: 0;
+  }
+
+  .scm-exit__thumbs:not(:empty) + .scm-exit__sum {
+    margin-inline-start: 10px;
+  }
+
+  .scm-exit__code {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 60px;
+    padding: 10px 16px;
+    border: 2px dashed currentcolor;
+    border-radius: 12px;
+    background: rgb(0 0 0 / 3%);
+    color: inherit;
+    font-family: inherit;
+    text-align: start;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  .scm-exit__code-label {
+    font-size: 12px;
+    opacity: 0.65;
+  }
+
+  .scm-exit__code-value {
+    flex: 1;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+  }
+
+  .scm-exit__code-action {
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: var(--color-foreground, #2a2420);
+    color: var(--color-background, #fff);
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .scm-exit__cta {
+    display: grid;
+    place-items: center;
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 58px;
+    margin-block-start: 12px;
+    padding: 0 20px;
+    border-radius: 12px;
+    background: #c62828;
+    color: #fff;
+    font-size: 17px;
+    font-weight: 700;
+    text-decoration: none;
+    touch-action: manipulation;
+  }
+
+  .scm-exit__later {
+    display: block;
+    width: 100%;
+    min-height: 52px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font-family: inherit;
+    font-size: 15px;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  .scm-exit__fine {
+    margin: 4px 0 0;
+    font-size: 12px;
+    line-height: 1.4;
+    opacity: 0.6;
+  }
+
+  .scm-exit__code:focus-visible,
+  .scm-exit__cta:focus-visible,
+  .scm-exit__later:focus-visible,
+  .scm-exit__close:focus-visible {
+    outline: 3px solid currentcolor;
+    outline-offset: 3px;
+  }
+
+  @media screen and (min-width: 750px) {
+    dialog.scm-exit[open] {
+      align-items: center;
+    }
+
+    .scm-exit__sheet {
+      max-width: 440px;
+      padding: 40px 32px 28px;
+      border-radius: 16px;
+      animation-name: scm-exit-pop;
+    }
+
+    .scm-exit__grab {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    dialog.scm-exit::backdrop,
+    .scm-exit__sheet {
+      animation: none;
+    }
+  }
+
+  @keyframes scm-exit-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes scm-exit-up {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+
+  @keyframes scm-exit-pop {
+    from { opacity: 0; transform: translateY(16px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+{% endstylesheet %}
