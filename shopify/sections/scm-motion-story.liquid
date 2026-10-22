@@ -316,16 +316,16 @@
 {% stylesheet %}
   .scm-ms {
     --ms-ink: #2a2420;
-    --ms-night: #1a1512;
-    --ms-paper: #f6f2ed;
+    --ms-night: #fff;
+    --ms-paper: #fff;
     --ms-taupe: #c9b8a6;
     --ms-white: #fff;
     --ms-red: #c62828;
     --ms-head: var(--font-heading--family, var(--font-body--family));
-    --ms-gradient: linear-gradient(100deg, #fff 0%, var(--ms-taupe) 55%, #e07a5f 100%);
+    --ms-gradient: linear-gradient(100deg, var(--ms-ink) 0%, #8a7563 55%, var(--ms-red) 100%);
 
-    background: var(--ms-night);
-    color: var(--ms-white);
+    background: #fff;
+    color: var(--ms-ink);
     font-family: var(--font-body--family);
     overflow: clip;
   }
@@ -370,7 +370,7 @@
     top: 58%;
     width: 120vmin;
     aspect-ratio: 1;
-    background: radial-gradient(circle, rgb(201 184 166 / 45%) 0%, rgb(198 40 40 / 12%) 38%, transparent 66%);
+    background: radial-gradient(circle, rgb(201 184 166 / 38%) 0%, rgb(198 40 40 / 7%) 38%, transparent 66%);
     transform: translate(-50%, -50%) scale(calc(0.55 + var(--p, 0) * 0.65));
     opacity: calc(0.35 + var(--p, 0) * 0.65);
     pointer-events: none;
@@ -450,7 +450,7 @@
     height: 100%;
     object-fit: contain;
     object-position: bottom;
-    filter: drop-shadow(0 40px 60px rgb(0 0 0 / 45%));
+    filter: drop-shadow(0 30px 50px rgb(42 36 32 / 16%));
   }
 
   /* 2 · Rundum */
@@ -475,7 +475,7 @@
     letter-spacing: -0.04em;
     white-space: nowrap;
     color: transparent;
-    -webkit-text-stroke: 1.5px rgb(201 184 166 / 40%);
+    -webkit-text-stroke: 1.5px rgb(42 36 32 / 16%);
     transform: translate(calc(30vw - var(--p) * 140%), -50%);
     will-change: transform;
   }
@@ -490,7 +490,7 @@
     width: min(70vw, 40svh, 380px);
     aspect-ratio: 9 / 16;
     overflow: hidden;
-    box-shadow: 0 40px 90px rgb(0 0 0 / 55%);
+    box-shadow: 0 30px 70px rgb(42 36 32 / 22%);
     transform: scale(calc(0.86 + min(var(--p) * 4, 1) * 0.14));
   }
 
@@ -540,7 +540,7 @@
     grid-template-rows: auto minmax(0, 1fr);
     justify-items: center;
     padding: clamp(40px, 8vh, 80px) 12px 24px;
-    background: var(--ms-ink);
+    background: #fff;
   }
 
   .scm-ms__spots-kicker {
@@ -753,8 +753,8 @@
     margin: 0;
     padding: 0;
     list-style: none;
-    background: rgb(201 184 166 / 22%);
-    border: 1px solid rgb(201 184 166 / 22%);
+    background: rgb(42 36 32 / 15%);
+    border: 1px solid rgb(42 36 32 / 15%);
   }
 
   .scm-ms__fact {
@@ -853,8 +853,8 @@
     min-height: 54px;
     margin-top: 8px;
     padding: 0 34px;
-    background: var(--ms-white);
-    color: var(--ms-ink);
+    background: var(--ms-ink);
+    color: var(--ms-white);
     font-size: 13px;
     font-weight: 700;
     letter-spacing: 0.2em;
@@ -869,7 +869,7 @@
   }
 
   .scm-ms__cta:focus-visible {
-    outline: 2px solid var(--ms-white);
+    outline: 2px solid var(--ms-ink);
     outline-offset: 4px;
   }
 
