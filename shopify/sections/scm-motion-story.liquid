@@ -1,0 +1,676 @@
+{%- comment -%}
+  SCM Motion Story: Scroll-Erlebnis im Apple-Stil für eine Produktseite, in der CI von CHANCE FASHION.
+  1. Hero: Bild zoomt, Headline-Zeilen erscheinen nacheinander (scroll-gesteuert)
+  2. Details: Bild bleibt stehen, wechselt pro Detail-Text (Überblendung)
+  3. Film: Produktvideo skaliert beim Scrollen auf, spielt stumm, wenn sichtbar
+  4. Fakten: Kacheln gleiten nacheinander herein
+  5. Abschluss mit Preis und Sprung zum Warenkorb-Button
+  Bilder und Video kommen automatisch aus den Produktmedien. Bei „Bewegung reduzieren“ ist alles statisch.
+{%- endcomment -%}
+
+{%- liquid
+  assign images = product.media | where: 'media_type', 'image'
+  assign video = product.media | where: 'media_type', 'video' | first
+  assign hero_image = images[0]
+  assign variant = product.selected_or_first_available_variant
+  assign sid = section.id
+-%}
+
+{%- if product != blank and hero_image != blank -%}
+  <section class="scm-ms" id="scm-ms-{{ sid }}" data-scm-ms aria-label="{{ section.settings.hero_kicker | escape }}">
+    {%- comment -%} 1 · Hero {%- endcomment -%}
+    <div class="scm-ms__stage scm-ms__stage--hero" data-stage>
+      <div class="scm-ms__sticky">
+        <p class="scm-ms__kicker">{{ section.settings.hero_kicker }}</p>
+        <h2 class="scm-ms__headline">
+          {%- assign lines = section.settings.hero_lines | newline_to_br | split: '<br />' -%}
+          {%- for line in lines -%}
+            {%- assign l = line | strip -%}
+            {%- if l != blank -%}
+              <span class="scm-ms__line" style="--i: {{ forloop.index0 }}">{{ l }}</span>
+            {%- endif -%}
+          {%- endfor -%}
+        </h2>
+        <div class="scm-ms__hero-media">
+          {{
+            hero_image.preview_image
+            | image_url: width: 1600
+            | image_tag:
+              widths: '600, 900, 1200, 1600',
+              sizes: '(min-width: 990px) 46vw, 86vw',
+              loading: 'lazy',
+              alt: hero_image.alt
+          }}
+        </div>
+      </div>
+    </div>
+
+    {%- comment -%} 2 · Details {%- endcomment -%}
+    <div class="scm-ms__features" data-features>
+      <div class="scm-ms__features-media" aria-hidden="true">
+        {%- for n in (1..3) -%}
+          {%- assign idx = n | modulo: images.size -%}
+          {%- assign img = images[idx] -%}
+          <div class="scm-ms__feature-img{% if forloop.first %} is-active{% endif %}" data-feature-img="{{ forloop.index0 }}">
+            {{
+              img.preview_image
+              | image_url: width: 1400
+              | image_tag:
+                widths: '600, 900, 1400',
+                sizes: '(min-width: 990px) 50vw, 100vw',
+                loading: 'lazy',
+                alt: ''
+            }}
+          </div>
+        {%- endfor -%}
+        <span class="scm-ms__progress"><span data-feature-bar></span></span>
+      </div>
+      <div class="scm-ms__features-text">
+        {%- for n in (1..3) -%}
+          {%- capture k_title %}feature_{{ n }}_title{% endcapture -%}
+          {%- capture k_text %}feature_{{ n }}_text{% endcapture -%}
+          <article class="scm-ms__feature{% if forloop.first %} is-active{% endif %}" data-feature="{{ forloop.index0 }}">
+            <div class="scm-ms__feature-card">
+              <p class="scm-ms__index">0{{ n }}</p>
+              <h3 class="scm-ms__feature-title">{{ section.settings[k_title] }}</h3>
+              <p class="scm-ms__feature-text">{{ section.settings[k_text] }}</p>
+            </div>
+          </article>
+        {%- endfor -%}
+      </div>
+    </div>
+
+    {%- comment -%} 3 · Film {%- endcomment -%}
+    {%- if video != blank -%}
+      {%- liquid
+        assign video_src = ''
+        for source in video.sources
+          if source.format == 'mp4' and source.height == 720
+            assign video_src = source.url
+          endif
+        endfor
+        if video_src == blank
+          for source in video.sources
+            if source.format == 'mp4' and video_src == blank
+              assign video_src = source.url
+            endif
+          endfor
+        endif
+      -%}
+      <div class="scm-ms__stage scm-ms__stage--film" data-stage>
+        <div class="scm-ms__sticky scm-ms__film">
+          <p class="scm-ms__film-caption">{{ section.settings.film_caption }}</p>
+          <div class="scm-ms__film-frame">
+            <video
+              data-film
+              muted
+              loop
+              playsinline
+              preload="none"
+              poster="{{ video.preview_image | image_url: width: 900 }}"
+              aria-label="{{ product.title | escape }} – Video"
+            >
+              <source src="{{ video_src }}" type="video/mp4">
+            </video>
+          </div>
+        </div>
+      </div>
+    {%- endif -%}
+
+    {%- comment -%} 4 · Fakten {%- endcomment -%}
+    <div class="scm-ms__facts">
+      <p class="scm-ms__kicker scm-ms__kicker--dark">{{ section.settings.facts_kicker }}</p>
+      <ul class="scm-ms__facts-grid" role="list">
+        {%- for n in (1..4) -%}
+          {%- capture k_big %}fact_{{ n }}_big{% endcapture -%}
+          {%- capture k_small %}fact_{{ n }}_small{% endcapture -%}
+          {%- if section.settings[k_big] != blank -%}
+            <li class="scm-ms__fact" data-reveal style="--d: {{ forloop.index0 }}">
+              <span class="scm-ms__fact-big">{{ section.settings[k_big] }}</span>
+              <span class="scm-ms__fact-small">{{ section.settings[k_small] }}</span>
+            </li>
+          {%- endif -%}
+        {%- endfor -%}
+      </ul>
+    </div>
+
+    {%- comment -%} 5 · Abschluss {%- endcomment -%}
+    <div class="scm-ms__outro" data-reveal>
+      <h2 class="scm-ms__outro-title">{{ section.settings.outro_title }}</h2>
+      <p class="scm-ms__price">{{ variant.price | money }}</p>
+      <a class="scm-ms__cta" href="#MainContent" data-scm-ms-top>{{ section.settings.cta_label }}</a>
+    </div>
+  </section>
+
+  <script>
+    (() => {
+      const root = document.getElementById('scm-ms-{{ sid }}');
+      if (!root || root.dataset.ready) return;
+      root.dataset.ready = '1';
+      const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduce) { root.classList.add('is-static'); }
+
+      // Scroll-Fortschritt je Bühne als --p (0 → 1)
+      const stages = [...root.querySelectorAll('[data-stage]')];
+      let ticking = false;
+      const update = () => {
+        ticking = false;
+        const vh = innerHeight;
+        for (const stage of stages) {
+          const r = stage.getBoundingClientRect();
+          const total = Math.max(1, r.height - vh);
+          const p = Math.min(1, Math.max(0, -r.top / total));
+          stage.style.setProperty('--p', p.toFixed(4));
+        }
+      };
+      if (!reduce) {
+        addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
+        addEventListener('resize', update);
+        update();
+      }
+
+      // Details: aktiven Text erkennen, Bild überblenden
+      const feats = [...root.querySelectorAll('[data-feature]')];
+      const imgs = [...root.querySelectorAll('[data-feature-img]')];
+      const bar = root.querySelector('[data-feature-bar]');
+      const setActive = (i) => {
+        feats.forEach((f, n) => f.classList.toggle('is-active', n === i));
+        imgs.forEach((f, n) => f.classList.toggle('is-active', n === i));
+        if (bar) bar.style.transform = `scaleX(${(i + 1) / feats.length})`;
+      };
+      const featObserver = new IntersectionObserver((entries) => {
+        entries.forEach((e) => { if (e.isIntersecting) setActive(Number(e.target.dataset.feature)); });
+      }, { rootMargin: '-45% 0px -45% 0px' });
+      feats.forEach((f) => featObserver.observe(f));
+      setActive(0);
+
+      // Film: nur abspielen, wenn sichtbar
+      const film = root.querySelector('[data-film]');
+      if (film) {
+        new IntersectionObserver(([e]) => {
+          if (e.isIntersecting && !reduce) { film.play().catch(() => {}); } else { film.pause(); }
+        }, { threshold: 0.35 }).observe(film);
+      }
+
+      // Kacheln und Abschluss gleiten herein
+      const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); revealObserver.unobserve(e.target); } });
+      }, { threshold: 0.25 });
+      root.querySelectorAll('[data-reveal]').forEach((el) => revealObserver.observe(el));
+
+      // Zum Warenkorb-Button der Produktseite
+      root.querySelector('[data-scm-ms-top]')?.addEventListener('click', (event) => {
+        const target = document.querySelector('.product-details, #MainContent');
+        if (!target) return;
+        event.preventDefault();
+        target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+      });
+    })();
+  </script>
+{%- endif -%}
+
+{% stylesheet %}
+  .scm-ms {
+    --ms-ink: #2a2420;
+    --ms-paper: #f6f2ed;
+    --ms-white: #fff;
+    --ms-red: #c62828;
+    --ms-head: var(--font-heading--family, var(--font-body--family));
+
+    background: var(--ms-ink);
+    color: var(--ms-white);
+    font-family: var(--font-body--family);
+    overflow: clip;
+  }
+
+  .scm-ms__kicker {
+    margin: 0 0 18px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    opacity: 0.75;
+  }
+
+  .scm-ms__kicker::before {
+    content: '';
+    display: inline-block;
+    width: 28px;
+    height: 2px;
+    margin-inline-end: 12px;
+    vertical-align: middle;
+    background: var(--ms-red);
+  }
+
+  /* Bühnen mit Sticky-Inhalt */
+  .scm-ms__stage {
+    --p: 0;
+    position: relative;
+  }
+
+  .scm-ms__stage--hero {
+    height: 230vh;
+  }
+
+  .scm-ms__sticky {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100svh;
+    box-sizing: border-box;
+  }
+
+  /* 1 · Hero */
+  .scm-ms__stage--hero .scm-ms__sticky {
+    display: grid;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    justify-items: center;
+    padding: clamp(48px, 9vh, 96px) 20px 0;
+    text-align: center;
+  }
+
+  .scm-ms__headline {
+    margin: 0;
+    font-family: var(--ms-head);
+    font-size: clamp(44px, min(11vw, 12svh), 128px);
+    font-weight: 700;
+    line-height: 0.98;
+    letter-spacing: -0.035em;
+    color: var(--ms-white);
+  }
+
+  .scm-ms__line {
+    --show: clamp(0, calc(var(--p) * 5 - var(--i) * 0.9), 1);
+
+    display: block;
+    opacity: var(--show);
+    transform: translateY(calc((1 - var(--show)) * 0.45em));
+    will-change: opacity, transform;
+  }
+
+  .scm-ms__line:last-child {
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--ms-white);
+  }
+
+  .scm-ms__hero-media {
+    --zoom: calc(0.78 + var(--p) * 0.22);
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    padding-top: 20px;
+    box-sizing: border-box;
+    transform: translateY(calc((1 - var(--p)) * 10%)) scale(var(--zoom));
+    transform-origin: 50% 100%;
+    will-change: transform;
+  }
+
+  .scm-ms__hero-media img {
+    display: block;
+    width: auto;
+    max-width: min(86vw, 720px);
+    height: 100%;
+    object-fit: contain;
+    object-position: bottom;
+  }
+
+  /* 2 · Details */
+  .scm-ms__features {
+    position: relative;
+    display: grid;
+    background: var(--ms-paper);
+    color: var(--ms-ink);
+  }
+
+  .scm-ms__features-media {
+    position: sticky;
+    top: 0;
+    z-index: 0;
+    height: 62svh;
+    overflow: hidden;
+    background: var(--ms-paper);
+  }
+
+  .scm-ms__feature-img {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transform: scale(1.08);
+    transition: opacity 0.7s ease, transform 1.2s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .scm-ms__feature-img.is-active {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .scm-ms__feature-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 30%;
+  }
+
+  .scm-ms__progress {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 3px;
+    background: rgb(42 36 32 / 12%);
+  }
+
+  .scm-ms__progress span {
+    display: block;
+    height: 100%;
+    background: var(--ms-red);
+    transform: scaleX(0.33);
+    transform-origin: left;
+    transition: transform 0.6s ease;
+  }
+
+  .scm-ms__features-text {
+    position: relative;
+    z-index: 1;
+  }
+
+  .scm-ms__feature {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-height: 70svh;
+    padding: 0 0 32px;
+    box-sizing: border-box;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+
+  .scm-ms__feature.is-active {
+    opacity: 1;
+  }
+
+  .scm-ms__feature-card {
+    max-width: 34ch;
+    padding: 22px 20px 20px;
+    background: var(--ms-paper);
+  }
+
+  .scm-ms__index {
+    margin: 0 0 6px;
+    color: var(--ms-red);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+  }
+
+  .scm-ms__feature-title {
+    margin: 0 0 10px;
+    font-family: var(--ms-head);
+    font-size: clamp(30px, 8vw, 56px);
+    font-weight: 700;
+    line-height: 1.02;
+    letter-spacing: -0.025em;
+  }
+
+  .scm-ms__feature-text {
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.55;
+  }
+
+  /* 3 · Film */
+  .scm-ms__stage--film {
+    height: 190vh;
+  }
+
+  .scm-ms__film {
+    display: grid;
+    place-items: center;
+    align-content: center;
+    gap: 22px;
+    padding: 24px 20px;
+  }
+
+  .scm-ms__film-caption {
+    margin: 0;
+    font-family: var(--ms-head);
+    font-size: clamp(30px, 8vw, 72px);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    text-align: center;
+    opacity: clamp(0, calc(var(--p) * 4), 1);
+  }
+
+  .scm-ms__film-frame {
+    --grow: calc(0.62 + min(var(--p) * 1.6, 1) * 0.38);
+
+    width: min(78vw, 46svh, 420px);
+    aspect-ratio: 9 / 16;
+    overflow: hidden;
+    border: 1px solid rgb(255 255 255 / 18%);
+    transform: scale(var(--grow));
+    will-change: transform;
+  }
+
+  .scm-ms__film-frame video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* 4 · Fakten */
+  .scm-ms__facts {
+    padding: clamp(64px, 12vh, 120px) 20px clamp(48px, 8vh, 80px);
+    background: var(--ms-paper);
+    color: var(--ms-ink);
+  }
+
+  .scm-ms__kicker--dark {
+    opacity: 0.7;
+  }
+
+  .scm-ms__facts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    background: rgb(42 36 32 / 18%);
+    border: 1px solid rgb(42 36 32 / 18%);
+  }
+
+  .scm-ms__fact {
+    display: grid;
+    align-content: end;
+    gap: 6px;
+    min-height: 150px;
+    padding: 20px 16px;
+    background: var(--ms-paper);
+  }
+
+  .scm-ms__fact-big {
+    font-family: var(--ms-head);
+    font-size: clamp(28px, 7.5vw, 48px);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+
+  .scm-ms__fact-small {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.8s ease, transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+    transition-delay: calc(var(--d, 0) * 110ms);
+  }
+
+  [data-reveal].is-in {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* 5 · Abschluss */
+  .scm-ms__outro {
+    display: grid;
+    justify-items: center;
+    gap: 14px;
+    padding: clamp(72px, 14vh, 140px) 20px;
+    text-align: center;
+  }
+
+  .scm-ms__outro-title {
+    margin: 0;
+    max-width: 14ch;
+    font-family: var(--ms-head);
+    font-size: clamp(36px, 9vw, 88px);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.035em;
+    color: var(--ms-white);
+  }
+
+  .scm-ms__price {
+    margin: 0;
+    font-size: 18px;
+    letter-spacing: 0.06em;
+    opacity: 0.85;
+  }
+
+  .scm-ms__cta {
+    display: inline-grid;
+    place-items: center;
+    min-height: 54px;
+    margin-top: 8px;
+    padding: 0 34px;
+    background: var(--ms-white);
+    color: var(--ms-ink);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background-color 0.2s, color 0.2s;
+  }
+
+  .scm-ms__cta:hover {
+    background: var(--ms-red);
+    color: var(--ms-white);
+  }
+
+  .scm-ms__cta:focus-visible {
+    outline: 2px solid var(--ms-white);
+    outline-offset: 4px;
+  }
+
+  /* Desktop */
+  @media screen and (min-width: 990px) {
+    .scm-ms__features {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .scm-ms__features-media {
+      height: 100vh;
+      height: 100svh;
+    }
+
+    .scm-ms__feature {
+      justify-content: center;
+      min-height: 100svh;
+      padding: 0 8vw;
+    }
+
+    .scm-ms__feature {
+      opacity: 0.2;
+    }
+
+    .scm-ms__feature-card {
+      padding: 0;
+      background: none;
+    }
+
+    .scm-ms__facts {
+      padding-inline: 6vw;
+    }
+
+    .scm-ms__facts-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .scm-ms__fact {
+      min-height: 220px;
+      padding: 28px 24px;
+    }
+  }
+
+  /* Bewegung reduzieren: alles sichtbar, keine Sticky-Strecken */
+  .scm-ms.is-static .scm-ms__stage {
+    --p: 1;
+    height: auto;
+  }
+
+  .scm-ms.is-static .scm-ms__sticky {
+    position: static;
+    height: auto;
+    padding-block: 64px;
+  }
+
+  .scm-ms.is-static [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .scm-ms.is-static .scm-ms__feature-img {
+    transition: none;
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "SCM Motion Story",
+  "tag": "div",
+  "class": "scm-ms-section",
+  "settings": [
+    { "type": "header", "content": "Hero" },
+    { "type": "text", "id": "hero_kicker", "label": "Kicker", "default": "Neu · Pullover & Strick" },
+    { "type": "textarea", "id": "hero_lines", "label": "Headline (eine Zeile pro Zeile)", "default": "Weich.\nStrukturiert.\nBesonders." },
+    { "type": "header", "content": "Details (Bild 2, 3, 1)" },
+    { "type": "text", "id": "feature_1_title", "label": "Detail 1 Titel", "default": "Struktur, die man fühlt." },
+    { "type": "textarea", "id": "feature_1_text", "label": "Detail 1 Text", "default": "Die strukturierte Oberfläche gibt dem schlichten Taupe Tiefe – ruhig, aber nie langweilig." },
+    { "type": "text", "id": "feature_2_title", "label": "Detail 2 Titel", "default": "Flauschige Ärmel." },
+    { "type": "textarea", "id": "feature_2_text", "label": "Detail 2 Text", "default": "Lange Ärmel mit flauschigen Abschlüssen: das Detail, das den Pullover besonders macht." },
+    { "type": "text", "id": "feature_3_title", "label": "Detail 3 Titel", "default": "Klarer Rundhals." },
+    { "type": "textarea", "id": "feature_3_text", "label": "Detail 3 Text", "default": "Ein klassischer runder Ausschnitt – solo oder mit Kette. Zum Faltenrock elegant, zur Jeans unkompliziert." },
+    { "type": "header", "content": "Film" },
+    { "type": "text", "id": "film_caption", "label": "Überschrift über dem Video", "default": "In Bewegung." },
+    { "type": "header", "content": "Fakten" },
+    { "type": "text", "id": "facts_kicker", "label": "Kicker", "default": "Auf einen Blick" },
+    { "type": "text", "id": "fact_1_big", "label": "Fakt 1 groß", "default": "One Size" },
+    { "type": "text", "id": "fact_1_small", "label": "Fakt 1 klein", "default": "Empfohlen für 38/40" },
+    { "type": "text", "id": "fact_2_big", "label": "Fakt 2 groß", "default": "Taupe" },
+    { "type": "text", "id": "fact_2_small", "label": "Fakt 2 klein", "default": "Farbe" },
+    { "type": "text", "id": "fact_3_big", "label": "Fakt 3 groß", "default": "Rundhals" },
+    { "type": "text", "id": "fact_3_small", "label": "Fakt 3 klein", "default": "Ausschnitt" },
+    { "type": "text", "id": "fact_4_big", "label": "Fakt 4 groß", "default": "14 Tage" },
+    { "type": "text", "id": "fact_4_small", "label": "Fakt 4 klein", "default": "In Ruhe anprobieren" },
+    { "type": "header", "content": "Abschluss" },
+    { "type": "text", "id": "outro_title", "label": "Überschrift", "default": "Dein neuer Lieblingspullover." },
+    { "type": "text", "id": "cta_label", "label": "Button", "default": "Jetzt sichern" }
+  ],
+  "presets": [{ "name": "SCM Motion Story" }],
+  "enabled_on": { "templates": ["product"] }
+}
+{% endschema %}
