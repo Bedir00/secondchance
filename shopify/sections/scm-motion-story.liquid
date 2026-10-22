@@ -1,11 +1,12 @@
 {%- comment -%}
-  SCM Motion Story: Scroll-Erlebnis im Apple-Stil für eine Produktseite, in der CI von CHANCE FASHION.
-  1. Hero: Bild zoomt, Headline-Zeilen erscheinen nacheinander (scroll-gesteuert)
-  2. Details: Bild bleibt stehen, wechselt pro Detail-Text (Überblendung)
-  3. Film: Produktvideo skaliert beim Scrollen auf, spielt stumm, wenn sichtbar
-  4. Fakten: Kacheln gleiten nacheinander herein
-  5. Abschluss mit Preis und Sprung zum Warenkorb-Button
-  Bilder und Video kommen automatisch aus den Produktmedien. Bei „Bewegung reduzieren“ ist alles statisch.
+  SCM Motion Story: Scroll-Erlebnis im Stil der Apple-AirPods-Seiten, in der CI von CHANCE FASHION.
+  1. Auftakt: Glühen, Verlaufs-Headline Wort für Wort, Produkt schwebt nach vorn
+  2. Rundum: Produktvideo wird vom Scrollen vor- und zurückgespult, dahinter ein laufendes Outline-Wort
+  3. Im Detail: Beschriftungen zeichnen sich mit Linien an das Produkt (Punkte aus scm_pdp.passform_hinweise)
+  4. Details: Bild bleibt stehen und blendet pro Text über
+  5. Auf einen Blick: Kacheln, Zahlen zählen hoch
+  6. Abschluss mit Preis und Sprung zum Warenkorb-Button
+  Bilder und Video kommen aus den Produktmedien. Bei „Bewegung reduzieren“ ist alles statisch.
 {%- endcomment -%}
 
 {%- liquid
@@ -13,24 +14,28 @@
   assign video = product.media | where: 'media_type', 'video' | first
   assign hero_image = images[0]
   assign variant = product.selected_or_first_available_variant
+  assign spots = product.metafields.scm_pdp.passform_hinweise.value.points
   assign sid = section.id
 -%}
 
 {%- if product != blank and hero_image != blank -%}
-  <section class="scm-ms" id="scm-ms-{{ sid }}" data-scm-ms aria-label="{{ section.settings.hero_kicker | escape }}">
-    {%- comment -%} 1 · Hero {%- endcomment -%}
+  <section class="scm-ms" id="scm-ms-{{ sid }}" aria-label="{{ section.settings.hero_kicker | escape }}">
+    {%- comment -%} 1 · Auftakt {%- endcomment -%}
     <div class="scm-ms__stage scm-ms__stage--hero" data-stage>
-      <div class="scm-ms__sticky">
-        <p class="scm-ms__kicker">{{ section.settings.hero_kicker }}</p>
-        <h2 class="scm-ms__headline">
-          {%- assign lines = section.settings.hero_lines | newline_to_br | split: '<br />' -%}
-          {%- for line in lines -%}
-            {%- assign l = line | strip -%}
-            {%- if l != blank -%}
-              <span class="scm-ms__line" style="--i: {{ forloop.index0 }}">{{ l }}</span>
-            {%- endif -%}
-          {%- endfor -%}
-        </h2>
+      <div class="scm-ms__sticky scm-ms__hero">
+        <span class="scm-ms__glow" aria-hidden="true"></span>
+        <div class="scm-ms__hero-copy">
+          <p class="scm-ms__kicker">{{ section.settings.hero_kicker }}</p>
+          <h2 class="scm-ms__headline">
+            {%- assign lines = section.settings.hero_lines | newline_to_br | split: '<br />' -%}
+            {%- for line in lines -%}
+              {%- assign l = line | strip -%}
+              {%- if l != blank -%}
+                <span class="scm-ms__line" style="--i: {{ forloop.index0 }}">{{ l }}</span>
+              {%- endif -%}
+            {%- endfor -%}
+          </h2>
+        </div>
         <div class="scm-ms__hero-media">
           {{
             hero_image.preview_image
@@ -45,8 +50,97 @@
       </div>
     </div>
 
-    {%- comment -%} 2 · Details {%- endcomment -%}
-    <div class="scm-ms__features" data-features>
+    {%- comment -%} 2 · Rundum (Video per Scroll gespult) {%- endcomment -%}
+    {%- if video != blank -%}
+      {%- liquid
+        assign video_src = ''
+        for source in video.sources
+          if source.format == 'mp4' and source.height == 720
+            assign video_src = source.url
+          endif
+        endfor
+        if video_src == blank
+          for source in video.sources
+            if source.format == 'mp4' and video_src == blank
+              assign video_src = source.url
+            endif
+          endfor
+        endif
+      -%}
+      <div class="scm-ms__stage scm-ms__stage--scrub" data-stage>
+        <div class="scm-ms__sticky scm-ms__scrub">
+          <span class="scm-ms__bigword" aria-hidden="true">{{ section.settings.big_word }}</span>
+          <span class="scm-ms__glow scm-ms__glow--soft" aria-hidden="true"></span>
+          <div class="scm-ms__scrub-frame">
+            <video
+              data-scrub
+              muted
+              playsinline
+              preload="auto"
+              poster="{{ video.preview_image | image_url: width: 900 }}"
+              aria-label="{{ product.title | escape }} – Video"
+            >
+              <source src="{{ video_src }}" type="video/mp4">
+            </video>
+          </div>
+          <div class="scm-ms__captions">
+            {%- for n in (1..3) -%}
+              {%- capture k %}scrub_caption_{{ n }}{% endcapture -%}
+              <p class="scm-ms__caption" style="--i: {{ forloop.index0 }}">{{ section.settings[k] }}</p>
+            {%- endfor -%}
+          </div>
+        </div>
+      </div>
+    {%- endif -%}
+
+    {%- comment -%} 3 · Im Detail (Linien-Beschriftungen) {%- endcomment -%}
+    {%- if spots.size > 0 -%}
+      <div class="scm-ms__stage scm-ms__stage--spots" data-stage style="--n: {{ spots.size }}">
+        <div class="scm-ms__sticky scm-ms__spots">
+          <p class="scm-ms__kicker scm-ms__spots-kicker">{{ section.settings.spots_kicker }}</p>
+          <div class="scm-ms__spot-media" style="aspect-ratio: {{ hero_image.preview_image.aspect_ratio | default: 1 }}">
+            {{
+              hero_image.preview_image
+              | image_url: width: 1400
+              | image_tag:
+                widths: '600, 900, 1400',
+                sizes: '(min-width: 990px) 44vw, 92vw',
+                loading: 'lazy',
+                alt: ''
+            }}
+            {%- for spot in spots -%}
+              {%- liquid
+                # Schild auf die Seite mit mehr Platz, damit es auf dem Handy nicht aus dem Bild ragt
+                assign spot_x = spot.x | plus: 0
+                assign spot_side = 'right'
+                if spot.side == 'left'
+                  assign spot_side = 'left'
+                endif
+                if spot_side == 'left' and spot_x < 42
+                  assign spot_side = 'right'
+                elsif spot_side == 'right' and spot_x > 58
+                  assign spot_side = 'left'
+                endif
+              -%}
+              <div
+                class="scm-ms__spot scm-ms__spot--{{ spot_side }}"
+                style="--x: {{ spot.x }}%; --y: {{ spot.y }}%; --i: {{ forloop.index0 }}"
+              >
+                <span class="scm-ms__spot-dot"></span>
+                <span class="scm-ms__spot-line"></span>
+                <span class="scm-ms__spot-tag">
+                  <b>{{ spot.label }}</b>
+                  {{ spot.title }}
+                </span>
+              </div>
+            {%- endfor -%}
+          </div>
+        </div>
+      </div>
+    {%- endif -%}
+
+    {%- comment -%} 4 · Details {%- endcomment -%}
+    <div class="scm-ms__features">
       <div class="scm-ms__features-media" aria-hidden="true">
         {%- for n in (1..3) -%}
           {%- assign idx = n | modulo: images.size -%}
@@ -80,53 +174,16 @@
       </div>
     </div>
 
-    {%- comment -%} 3 · Film {%- endcomment -%}
-    {%- if video != blank -%}
-      {%- liquid
-        assign video_src = ''
-        for source in video.sources
-          if source.format == 'mp4' and source.height == 720
-            assign video_src = source.url
-          endif
-        endfor
-        if video_src == blank
-          for source in video.sources
-            if source.format == 'mp4' and video_src == blank
-              assign video_src = source.url
-            endif
-          endfor
-        endif
-      -%}
-      <div class="scm-ms__stage scm-ms__stage--film" data-stage>
-        <div class="scm-ms__sticky scm-ms__film">
-          <p class="scm-ms__film-caption">{{ section.settings.film_caption }}</p>
-          <div class="scm-ms__film-frame">
-            <video
-              data-film
-              muted
-              loop
-              playsinline
-              preload="none"
-              poster="{{ video.preview_image | image_url: width: 900 }}"
-              aria-label="{{ product.title | escape }} – Video"
-            >
-              <source src="{{ video_src }}" type="video/mp4">
-            </video>
-          </div>
-        </div>
-      </div>
-    {%- endif -%}
-
-    {%- comment -%} 4 · Fakten {%- endcomment -%}
+    {%- comment -%} 5 · Auf einen Blick {%- endcomment -%}
     <div class="scm-ms__facts">
-      <p class="scm-ms__kicker scm-ms__kicker--dark">{{ section.settings.facts_kicker }}</p>
+      <p class="scm-ms__kicker">{{ section.settings.facts_kicker }}</p>
       <ul class="scm-ms__facts-grid" role="list">
         {%- for n in (1..4) -%}
           {%- capture k_big %}fact_{{ n }}_big{% endcapture -%}
           {%- capture k_small %}fact_{{ n }}_small{% endcapture -%}
           {%- if section.settings[k_big] != blank -%}
             <li class="scm-ms__fact" data-reveal style="--d: {{ forloop.index0 }}">
-              <span class="scm-ms__fact-big">{{ section.settings[k_big] }}</span>
+              <span class="scm-ms__fact-big" data-count>{{ section.settings[k_big] }}</span>
               <span class="scm-ms__fact-small">{{ section.settings[k_small] }}</span>
             </li>
           {%- endif -%}
@@ -134,11 +191,14 @@
       </ul>
     </div>
 
-    {%- comment -%} 5 · Abschluss {%- endcomment -%}
-    <div class="scm-ms__outro" data-reveal>
-      <h2 class="scm-ms__outro-title">{{ section.settings.outro_title }}</h2>
-      <p class="scm-ms__price">{{ variant.price | money }}</p>
-      <a class="scm-ms__cta" href="#MainContent" data-scm-ms-top>{{ section.settings.cta_label }}</a>
+    {%- comment -%} 6 · Abschluss {%- endcomment -%}
+    <div class="scm-ms__outro">
+      <span class="scm-ms__glow scm-ms__glow--outro" aria-hidden="true"></span>
+      <div class="scm-ms__outro-inner" data-reveal>
+        <h2 class="scm-ms__outro-title">{{ section.settings.outro_title }}</h2>
+        <p class="scm-ms__price">{{ variant.price | money }}</p>
+        <a class="scm-ms__cta" href="#MainContent" data-scm-ms-top>{{ section.settings.cta_label }}</a>
+      </div>
     </div>
   </section>
 
@@ -148,12 +208,38 @@
       if (!root || root.dataset.ready) return;
       root.dataset.ready = '1';
       const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-      if (reduce) { root.classList.add('is-static'); }
+      if (reduce) root.classList.add('is-static');
 
       // Scroll-Fortschritt je Bühne als --p (0 → 1)
       const stages = [...root.querySelectorAll('[data-stage]')];
+      const video = root.querySelector('[data-scrub]');
+      const scrubStage = video && video.closest('[data-stage]');
+      let duration = 0;
+      let wantTime = 0;
+      let seeking = false;
+
+      const seek = () => {
+        if (!video || !duration || seeking) return;
+        if (Math.abs(video.currentTime - wantTime) < 0.03) return;
+        seeking = true;
+        if (typeof video.fastSeek === 'function') video.fastSeek(wantTime); else video.currentTime = wantTime;
+      };
+      if (video) {
+        video.addEventListener('seeked', () => { seeking = false; seek(); });
+        video.addEventListener('loadedmetadata', () => { duration = video.duration || 0; update(); });
+        // iOS lädt Videodaten erst nach play(): einmal kurz anstoßen
+        const prime = () => {
+          video.play().then(() => video.pause()).catch(() => {});
+          removeEventListener('touchstart', prime);
+          removeEventListener('scroll', prime);
+        };
+        addEventListener('touchstart', prime, { once: true, passive: true });
+        addEventListener('scroll', prime, { once: true, passive: true });
+        if (reduce) video.setAttribute('controls', '');
+      }
+
       let ticking = false;
-      const update = () => {
+      function update() {
         ticking = false;
         const vh = innerHeight;
         for (const stage of stages) {
@@ -161,8 +247,12 @@
           const total = Math.max(1, r.height - vh);
           const p = Math.min(1, Math.max(0, -r.top / total));
           stage.style.setProperty('--p', p.toFixed(4));
+          if (stage === scrubStage && duration) {
+            wantTime = Math.min(duration - 0.05, p * duration);
+            seek();
+          }
         }
-      };
+      }
       if (!reduce) {
         addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } }, { passive: true });
         addEventListener('resize', update);
@@ -184,18 +274,32 @@
       feats.forEach((f) => featObserver.observe(f));
       setActive(0);
 
-      // Film: nur abspielen, wenn sichtbar
-      const film = root.querySelector('[data-film]');
-      if (film) {
-        new IntersectionObserver(([e]) => {
-          if (e.isIntersecting && !reduce) { film.play().catch(() => {}); } else { film.pause(); }
-        }, { threshold: 0.35 }).observe(film);
-      }
+      // Zahlen hochzählen („14 Tage“, „38/40“ …)
+      const countUp = (el) => {
+        const text = el.textContent.trim();
+        const match = text.match(/^(\d+)(.*)$/s);
+        if (!match || reduce) return;
+        const target = Number(match[1]);
+        const rest = match[2];
+        const start = performance.now();
+        const tick = (t) => {
+          const k = Math.min(1, (t - start) / 1100);
+          const eased = 1 - Math.pow(1 - k, 3);
+          el.textContent = Math.round(target * eased) + rest;
+          if (k < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      };
 
       // Kacheln und Abschluss gleiten herein
       const revealObserver = new IntersectionObserver((entries) => {
-        entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('is-in'); revealObserver.unobserve(e.target); } });
-      }, { threshold: 0.25 });
+        entries.forEach((e) => {
+          if (!e.isIntersecting) return;
+          e.target.classList.add('is-in');
+          e.target.querySelectorAll('[data-count]').forEach(countUp);
+          revealObserver.unobserve(e.target);
+        });
+      }, { threshold: 0.3 });
       root.querySelectorAll('[data-reveal]').forEach((el) => revealObserver.observe(el));
 
       // Zum Warenkorb-Button der Produktseite
@@ -212,12 +316,15 @@
 {% stylesheet %}
   .scm-ms {
     --ms-ink: #2a2420;
+    --ms-night: #1a1512;
     --ms-paper: #f6f2ed;
+    --ms-taupe: #c9b8a6;
     --ms-white: #fff;
     --ms-red: #c62828;
     --ms-head: var(--font-heading--family, var(--font-body--family));
+    --ms-gradient: linear-gradient(100deg, #fff 0%, var(--ms-taupe) 55%, #e07a5f 100%);
 
-    background: var(--ms-ink);
+    background: var(--ms-night);
     color: var(--ms-white);
     font-family: var(--font-body--family);
     overflow: clip;
@@ -229,7 +336,7 @@
     font-weight: 700;
     letter-spacing: 0.28em;
     text-transform: uppercase;
-    opacity: 0.75;
+    opacity: 0.8;
   }
 
   .scm-ms__kicker::before {
@@ -242,14 +349,9 @@
     background: var(--ms-red);
   }
 
-  /* Bühnen mit Sticky-Inhalt */
   .scm-ms__stage {
     --p: 0;
     position: relative;
-  }
-
-  .scm-ms__stage--hero {
-    height: 230vh;
   }
 
   .scm-ms__sticky {
@@ -258,15 +360,43 @@
     height: 100vh;
     height: 100svh;
     box-sizing: border-box;
+    overflow: hidden;
   }
 
-  /* 1 · Hero */
-  .scm-ms__stage--hero .scm-ms__sticky {
+  /* Warmes Glühen hinter dem Produkt */
+  .scm-ms__glow {
+    position: absolute;
+    left: 50%;
+    top: 58%;
+    width: 120vmin;
+    aspect-ratio: 1;
+    background: radial-gradient(circle, rgb(201 184 166 / 45%) 0%, rgb(198 40 40 / 12%) 38%, transparent 66%);
+    transform: translate(-50%, -50%) scale(calc(0.55 + var(--p, 0) * 0.65));
+    opacity: calc(0.35 + var(--p, 0) * 0.65);
+    pointer-events: none;
+    will-change: transform, opacity;
+  }
+
+  /* 1 · Auftakt */
+  .scm-ms__stage--hero {
+    height: 260vh;
+  }
+
+  .scm-ms__hero {
     display: grid;
-    grid-template-rows: auto auto minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
     justify-items: center;
     padding: clamp(48px, 9vh, 96px) 20px 0;
     text-align: center;
+  }
+
+  .scm-ms__hero-copy {
+    --out: clamp(0, calc((var(--p) - 0.62) * 3.2), 1);
+
+    position: relative;
+    z-index: 2;
+    opacity: calc(1 - var(--out));
+    transform: translateY(calc(var(--out) * -8vh)) scale(calc(1 - var(--out) * 0.12));
   }
 
   .scm-ms__headline {
@@ -274,51 +404,240 @@
     font-family: var(--ms-head);
     font-size: clamp(44px, min(11vw, 12svh), 128px);
     font-weight: 700;
-    line-height: 0.98;
+    line-height: 1;
     letter-spacing: -0.035em;
-    color: var(--ms-white);
   }
 
   .scm-ms__line {
-    --show: clamp(0, calc(var(--p) * 5 - var(--i) * 0.9), 1);
+    --show: clamp(0, calc(var(--p) * 6 - var(--i) * 0.85), 1);
 
     display: block;
-    opacity: var(--show);
-    transform: translateY(calc((1 - var(--show)) * 0.45em));
-    will-change: opacity, transform;
-  }
-
-  .scm-ms__line:last-child {
+    padding-bottom: 0.06em;
+    background: var(--ms-gradient);
+    background-size: 220% 100%;
+    background-position: calc(100% - var(--show) * 100%) 0;
+    -webkit-background-clip: text;
+    background-clip: text;
     color: transparent;
-    -webkit-text-stroke: 1.5px var(--ms-white);
+    opacity: var(--show);
+    filter: blur(calc((1 - var(--show)) * 10px));
+    transform: translateY(calc((1 - var(--show)) * 0.4em));
   }
 
   .scm-ms__hero-media {
-    --zoom: calc(0.78 + var(--p) * 0.22);
+    --rise: clamp(0, calc(var(--p) * 1.4), 1);
 
+    position: relative;
+    z-index: 1;
     display: flex;
     align-items: flex-end;
     justify-content: center;
     width: 100%;
     height: 100%;
     min-height: 0;
-    padding-top: 20px;
+    padding-top: 16px;
     box-sizing: border-box;
-    transform: translateY(calc((1 - var(--p)) * 10%)) scale(var(--zoom));
-    transform-origin: 50% 100%;
-    will-change: transform;
+    opacity: calc(0.2 + var(--rise) * 0.8);
+    transform: translateY(calc((1 - var(--rise)) * 30%)) scale(calc(0.82 + var(--rise) * 0.18 + clamp(0, calc(var(--p) - 0.62), 1) * 0.18));
+    transform-origin: 50% 85%;
+    will-change: transform, opacity;
   }
 
   .scm-ms__hero-media img {
     display: block;
     width: auto;
-    max-width: min(86vw, 720px);
+    max-width: min(90vw, 760px);
     height: 100%;
     object-fit: contain;
     object-position: bottom;
+    filter: drop-shadow(0 40px 60px rgb(0 0 0 / 45%));
   }
 
-  /* 2 · Details */
+  /* 2 · Rundum */
+  .scm-ms__stage--scrub {
+    height: 320vh;
+  }
+
+  .scm-ms__scrub {
+    display: grid;
+    place-items: center;
+    background: var(--ms-night);
+  }
+
+  .scm-ms__bigword {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    font-family: var(--ms-head);
+    font-size: clamp(120px, 34vw, 420px);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    white-space: nowrap;
+    color: transparent;
+    -webkit-text-stroke: 1.5px rgb(201 184 166 / 40%);
+    transform: translate(calc(30vw - var(--p) * 140%), -50%);
+    will-change: transform;
+  }
+
+  .scm-ms__glow--soft {
+    top: 50%;
+  }
+
+  .scm-ms__scrub-frame {
+    position: relative;
+    z-index: 1;
+    width: min(70vw, 40svh, 380px);
+    aspect-ratio: 9 / 16;
+    overflow: hidden;
+    box-shadow: 0 40px 90px rgb(0 0 0 / 55%);
+    transform: scale(calc(0.86 + min(var(--p) * 4, 1) * 0.14));
+  }
+
+  .scm-ms__scrub-frame video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .scm-ms__captions {
+    position: absolute;
+    inset-inline: 0;
+    bottom: clamp(28px, 7vh, 72px);
+    z-index: 2;
+    display: grid;
+    text-align: center;
+  }
+
+  .scm-ms__caption {
+    --a: clamp(0, calc((var(--p) * 3 - var(--i)) * 4), 1);
+    --b: clamp(0, calc((var(--p) * 3 - var(--i) - 0.85) * 6), 1);
+
+    grid-area: 1 / 1;
+    margin: 0;
+    padding: 0 20px;
+    font-family: var(--ms-head);
+    font-size: clamp(28px, 7.5vw, 64px);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    opacity: calc(var(--a) - var(--b));
+    transform: translateY(calc((1 - var(--a)) * 24px + var(--b) * -24px));
+  }
+
+  .scm-ms__caption:last-child {
+    --b: 0;
+  }
+
+  /* 3 · Im Detail */
+  .scm-ms__stage--spots {
+    height: calc(120vh + var(--n) * 55vh);
+  }
+
+  .scm-ms__spots {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    justify-items: center;
+    padding: clamp(40px, 8vh, 80px) 12px 24px;
+    background: var(--ms-ink);
+  }
+
+  .scm-ms__spots-kicker {
+    opacity: calc(0.4 + var(--p) * 2);
+  }
+
+  .scm-ms__spot-media {
+    position: relative;
+    align-self: center;
+    width: min(100%, calc(100svh - 150px));
+    height: auto;
+    transform: scale(calc(0.92 + min(var(--p) * 3, 1) * 0.08));
+  }
+
+  .scm-ms__spot-media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .scm-ms__spot {
+    --show: clamp(0, calc((var(--p) * (var(--n) + 0.6) - var(--i) - 0.25) * 3), 1);
+
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: 0;
+    height: 0;
+  }
+
+  .scm-ms__spot-dot {
+    position: absolute;
+    left: -5px;
+    top: -5px;
+    width: 10px;
+    height: 10px;
+    background: var(--ms-red);
+    box-shadow: 0 0 0 calc(var(--show) * 6px) rgb(198 40 40 / 25%);
+    transform: scale(var(--show));
+  }
+
+  .scm-ms__spot-line {
+    position: absolute;
+    top: -0.5px;
+    width: clamp(22px, 7vw, 90px);
+    height: 2px;
+    margin-top: -0.5px;
+    background: var(--ms-red);
+    transform: scaleX(var(--show));
+  }
+
+  .scm-ms__spot--right .scm-ms__spot-line {
+    left: 8px;
+    transform-origin: left;
+  }
+
+  .scm-ms__spot--left .scm-ms__spot-line {
+    right: 8px;
+    transform-origin: right;
+  }
+
+  .scm-ms__spot-tag {
+    --tag: clamp(0, calc(var(--show) * 2 - 1), 1);
+
+    position: absolute;
+    top: 0;
+    width: max-content;
+    max-width: min(34vw, 220px);
+    padding: 7px 10px;
+    background: rgb(26 21 18 / 88%);
+    color: var(--ms-white);
+    font-size: clamp(11px, 2.9vw, 14px);
+    line-height: 1.3;
+    opacity: var(--tag);
+    transform: translateY(calc(-50% + (1 - var(--tag)) * 8px));
+  }
+
+  .scm-ms__spot-tag b {
+    display: block;
+    margin-bottom: 2px;
+    color: var(--ms-taupe);
+    font-size: 0.78em;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .scm-ms__spot--right .scm-ms__spot-tag {
+    left: calc(clamp(22px, 7vw, 90px) + 8px);
+  }
+
+  .scm-ms__spot--left .scm-ms__spot-tag {
+    right: calc(clamp(22px, 7vw, 90px) + 8px);
+    text-align: right;
+  }
+
+  /* 4 · Details */
   .scm-ms__features {
     position: relative;
     display: grid;
@@ -421,57 +740,10 @@
     line-height: 1.55;
   }
 
-  /* 3 · Film */
-  .scm-ms__stage--film {
-    height: 190vh;
-  }
-
-  .scm-ms__film {
-    display: grid;
-    place-items: center;
-    align-content: center;
-    gap: 22px;
-    padding: 24px 20px;
-  }
-
-  .scm-ms__film-caption {
-    margin: 0;
-    font-family: var(--ms-head);
-    font-size: clamp(30px, 8vw, 72px);
-    font-weight: 700;
-    line-height: 1;
-    letter-spacing: -0.03em;
-    text-align: center;
-    opacity: clamp(0, calc(var(--p) * 4), 1);
-  }
-
-  .scm-ms__film-frame {
-    --grow: calc(0.62 + min(var(--p) * 1.6, 1) * 0.38);
-
-    width: min(78vw, 46svh, 420px);
-    aspect-ratio: 9 / 16;
-    overflow: hidden;
-    border: 1px solid rgb(255 255 255 / 18%);
-    transform: scale(var(--grow));
-    will-change: transform;
-  }
-
-  .scm-ms__film-frame video {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  /* 4 · Fakten */
+  /* 5 · Auf einen Blick */
   .scm-ms__facts {
     padding: clamp(64px, 12vh, 120px) 20px clamp(48px, 8vh, 80px);
-    background: var(--ms-paper);
-    color: var(--ms-ink);
-  }
-
-  .scm-ms__kicker--dark {
-    opacity: 0.7;
+    background: var(--ms-night);
   }
 
   .scm-ms__facts-grid {
@@ -481,25 +753,30 @@
     margin: 0;
     padding: 0;
     list-style: none;
-    background: rgb(42 36 32 / 18%);
-    border: 1px solid rgb(42 36 32 / 18%);
+    background: rgb(201 184 166 / 22%);
+    border: 1px solid rgb(201 184 166 / 22%);
   }
 
   .scm-ms__fact {
     display: grid;
     align-content: end;
-    gap: 6px;
-    min-height: 150px;
+    gap: 8px;
+    min-height: 160px;
     padding: 20px 16px;
-    background: var(--ms-paper);
+    background: var(--ms-night);
   }
 
   .scm-ms__fact-big {
     font-family: var(--ms-head);
-    font-size: clamp(28px, 7.5vw, 48px);
+    font-size: clamp(30px, 8vw, 56px);
     font-weight: 700;
     line-height: 1;
     letter-spacing: -0.03em;
+    background: var(--ms-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-variant-numeric: tabular-nums;
   }
 
   .scm-ms__fact-small {
@@ -512,34 +789,55 @@
 
   [data-reveal] {
     opacity: 0;
-    transform: translateY(28px);
-    transition: opacity 0.8s ease, transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
-    transition-delay: calc(var(--d, 0) * 110ms);
+    transform: translateY(32px) scale(0.98);
+    filter: blur(6px);
+    transition: opacity 0.9s ease, transform 1s cubic-bezier(0.2, 0.7, 0.2, 1), filter 0.9s ease;
+    transition-delay: calc(var(--d, 0) * 120ms);
   }
 
   [data-reveal].is-in {
     opacity: 1;
     transform: none;
+    filter: none;
   }
 
-  /* 5 · Abschluss */
+  /* 6 · Abschluss */
   .scm-ms__outro {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-height: 80svh;
+    padding: 80px 20px;
+    overflow: hidden;
+    text-align: center;
+  }
+
+  .scm-ms__glow--outro {
+    --p: 1;
+
+    top: 50%;
+  }
+
+  .scm-ms__outro-inner {
+    position: relative;
+    z-index: 1;
     display: grid;
     justify-items: center;
     gap: 14px;
-    padding: clamp(72px, 14vh, 140px) 20px;
-    text-align: center;
   }
 
   .scm-ms__outro-title {
     margin: 0;
     max-width: 14ch;
     font-family: var(--ms-head);
-    font-size: clamp(36px, 9vw, 88px);
+    font-size: clamp(38px, 9.5vw, 96px);
     font-weight: 700;
     line-height: 1;
     letter-spacing: -0.035em;
-    color: var(--ms-white);
+    background: var(--ms-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
 
   .scm-ms__price {
@@ -590,9 +888,6 @@
       justify-content: center;
       min-height: 100svh;
       padding: 0 8vw;
-    }
-
-    .scm-ms__feature {
       opacity: 0.2;
     }
 
@@ -610,7 +905,7 @@
     }
 
     .scm-ms__fact {
-      min-height: 220px;
+      min-height: 240px;
       padding: 28px 24px;
     }
   }
@@ -622,14 +917,34 @@
   }
 
   .scm-ms.is-static .scm-ms__sticky {
-    position: static;
+    position: relative;
     height: auto;
+    min-height: 80svh;
     padding-block: 64px;
+  }
+
+  .scm-ms.is-static .scm-ms__hero-copy {
+    opacity: 1;
+    transform: none;
+  }
+
+  .scm-ms.is-static .scm-ms__hero-media {
+    height: 60svh;
+    transform: none;
+  }
+
+  .scm-ms.is-static .scm-ms__caption:not(:last-child) {
+    display: none;
+  }
+
+  .scm-ms.is-static .scm-ms__spot-media {
+    height: 70svh;
   }
 
   .scm-ms.is-static [data-reveal] {
     opacity: 1;
     transform: none;
+    filter: none;
     transition: none;
   }
 
@@ -644,9 +959,16 @@
   "tag": "div",
   "class": "scm-ms-section",
   "settings": [
-    { "type": "header", "content": "Hero" },
+    { "type": "header", "content": "Auftakt" },
     { "type": "text", "id": "hero_kicker", "label": "Kicker", "default": "Neu · Pullover & Strick" },
     { "type": "textarea", "id": "hero_lines", "label": "Headline (eine Zeile pro Zeile)", "default": "Weich.\nStrukturiert.\nBesonders." },
+    { "type": "header", "content": "Rundum (Video wird beim Scrollen gespult)" },
+    { "type": "text", "id": "big_word", "label": "Großes Wort im Hintergrund", "default": "STRUKTUR" },
+    { "type": "text", "id": "scrub_caption_1", "label": "Text 1", "default": "Von vorn." },
+    { "type": "text", "id": "scrub_caption_2", "label": "Text 2", "default": "Von der Seite." },
+    { "type": "text", "id": "scrub_caption_3", "label": "Text 3", "default": "Rundum besonders." },
+    { "type": "header", "content": "Im Detail (Punkte aus den Passform-Hinweisen)" },
+    { "type": "text", "id": "spots_kicker", "label": "Kicker", "default": "Im Detail" },
     { "type": "header", "content": "Details (Bild 2, 3, 1)" },
     { "type": "text", "id": "feature_1_title", "label": "Detail 1 Titel", "default": "Struktur, die man fühlt." },
     { "type": "textarea", "id": "feature_1_text", "label": "Detail 1 Text", "default": "Die strukturierte Oberfläche gibt dem schlichten Taupe Tiefe – ruhig, aber nie langweilig." },
@@ -654,12 +976,10 @@
     { "type": "textarea", "id": "feature_2_text", "label": "Detail 2 Text", "default": "Lange Ärmel mit flauschigen Abschlüssen: das Detail, das den Pullover besonders macht." },
     { "type": "text", "id": "feature_3_title", "label": "Detail 3 Titel", "default": "Klarer Rundhals." },
     { "type": "textarea", "id": "feature_3_text", "label": "Detail 3 Text", "default": "Ein klassischer runder Ausschnitt – solo oder mit Kette. Zum Faltenrock elegant, zur Jeans unkompliziert." },
-    { "type": "header", "content": "Film" },
-    { "type": "text", "id": "film_caption", "label": "Überschrift über dem Video", "default": "In Bewegung." },
-    { "type": "header", "content": "Fakten" },
+    { "type": "header", "content": "Auf einen Blick (Zahlen am Anfang zählen hoch)" },
     { "type": "text", "id": "facts_kicker", "label": "Kicker", "default": "Auf einen Blick" },
-    { "type": "text", "id": "fact_1_big", "label": "Fakt 1 groß", "default": "One Size" },
-    { "type": "text", "id": "fact_1_small", "label": "Fakt 1 klein", "default": "Empfohlen für 38/40" },
+    { "type": "text", "id": "fact_1_big", "label": "Fakt 1 groß", "default": "38/40" },
+    { "type": "text", "id": "fact_1_small", "label": "Fakt 1 klein", "default": "One Size – empfohlene Größe" },
     { "type": "text", "id": "fact_2_big", "label": "Fakt 2 groß", "default": "Taupe" },
     { "type": "text", "id": "fact_2_small", "label": "Fakt 2 klein", "default": "Farbe" },
     { "type": "text", "id": "fact_3_big", "label": "Fakt 3 groß", "default": "Rundhals" },
